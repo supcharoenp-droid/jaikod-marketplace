@@ -6,7 +6,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import sampleProducts from '@/test-data/sample-products.json';
+import sampleProducts from '@/data/sample-products.json';
 
 export interface Product {
     id: string;

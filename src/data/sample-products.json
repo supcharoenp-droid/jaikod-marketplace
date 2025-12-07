@@ -1,0 +1,361 @@
+{
+    "products": [
+        {
+            "id": "test-001",
+            "categoryId": "mobiles",
+            "name": "iPhone 14 Pro 256GB สีม่วง",
+            "description": "iPhone 14 Pro 256GB สีม่วง Deep Purple สภาพสวยมาก ใช้งานน้อย แบตเตอรี่ 88% ไม่มีรอยขีดข่วน มีกล่องและอุปกรณ์ครบ ประกันเหลืออีก 3 เดือน",
+            "price": 36800,
+            "originalPrice": 42900,
+            "condition": "มือสอง สภาพดีมาก",
+            "attributes": {
+                "brand": "Apple",
+                "model": "iPhone 14 Pro",
+                "storage": "256GB",
+                "color": "Deep Purple",
+                "batteryHealth": "88%",
+                "warranty": "3 เดือน",
+                "accessories": "กล่อง, สายชาร์จ, หัวชาร์จ"
+            },
+            "images": [
+                "https://via.placeholder.com/800x800/6f42c1/ffffff?text=iPhone+14+Pro+Front",
+                "https://via.placeholder.com/800x800/6f42c1/ffffff?text=iPhone+14+Pro+Back",
+                "https://via.placeholder.com/800x800/6f42c1/ffffff?text=iPhone+14+Pro+Side"
+            ],
+            "location": {
+                "province": "กรุงเทพมหานคร",
+                "district": "ปทุมวัน",
+                "subdistrict": "ปทุมวัน",
+                "postalCode": "10330"
+            },
+            "tags": [
+                "โทรศัพท์",
+                "iPhone",
+                "Apple",
+                "มือสอง",
+                "สภาพดี"
+            ]
+        },
+        {
+            "id": "test-002",
+            "categoryId": "mobiles",
+            "name": "Samsung Galaxy S23 Ultra 512GB",
+            "description": "Samsung Galaxy S23 Ultra 512GB สีดำ Phantom Black ของใหม่ ยังไม่แกะกล่อง ประกันศูนย์ไทย 1 ปีเต็ม S Pen ในตัว กล้อง 200MP ชิป Snapdragon 8 Gen 2",
+            "price": 38900,
+            "originalPrice": 45900,
+            "condition": "ใหม่ ยังไม่แกะกล่อง",
+            "attributes": {
+                "brand": "Samsung",
+                "model": "Galaxy S23 Ultra",
+                "storage": "512GB",
+                "color": "Phantom Black",
+                "warranty": "1 ปี (ศูนย์ไทย)",
+                "accessories": "ครบกล่อง, S Pen"
+            },
+            "images": [
+                "https://via.placeholder.com/800x800/000000/ffffff?text=S23+Ultra+Front",
+                "https://via.placeholder.com/800x800/000000/ffffff?text=S23+Ultra+Back"
+            ],
+            "location": {
+                "province": "กรุงเทพมหานคร",
+                "district": "สาทร",
+                "subdistrict": "สีลม",
+                "postalCode": "10500"
+            },
+            "tags": [
+                "โทรศัพท์",
+                "Samsung",
+                "Galaxy",
+                "ใหม่",
+                "S23 Ultra"
+            ]
+        },
+        {
+            "id": "test-003",
+            "categoryId": "computers",
+            "name": "MacBook Air M2 2023 16GB/512GB",
+            "description": "MacBook Air M2 ปี 2023 สี Midnight RAM 16GB SSD 512GB สภาพสวยมาก ใช้งานเบาๆ ไม่เคยซ่อม ประกันเหลืออีก 8 เดือน มีกล่องและอุปกรณ์ครบ",
+            "price": 42900,
+            "originalPrice": 52900,
+            "condition": "มือสอง สภาพดีมาก",
+            "attributes": {
+                "brand": "Apple",
+                "model": "MacBook Air M2",
+                "processor": "Apple M2",
+                "ram": "16GB",
+                "storage": "512GB SSD",
+                "screenSize": "13.6 นิ้ว",
+                "color": "Midnight",
+                "warranty": "8 เดือน",
+                "year": "2023"
+            },
+            "images": [
+                "https://via.placeholder.com/800x800/191970/ffffff?text=MacBook+Air+M2",
+                "https://via.placeholder.com/800x800/191970/ffffff?text=MacBook+Keyboard"
+            ],
+            "location": {
+                "province": "กรุงเทพมหานคร",
+                "district": "วัฒนา",
+                "subdistrict": "คลองเตย",
+                "postalCode": "10110"
+            },
+            "tags": [
+                "คอมพิวเตอร์",
+                "MacBook",
+                "Apple",
+                "M2",
+                "Laptop"
+            ]
+        },
+        {
+            "id": "test-004",
+            "categoryId": "computers",
+            "name": "ASUS ROG Strix G16 Gaming Laptop",
+            "description": "ASUS ROG Strix G16 Gaming Laptop สเปคแรง i9-13980HX RTX 4070 RAM 32GB SSD 1TB จอ 16\" 240Hz สภาพใหม่ ซื้อมา 2 เดือน ยังมีประกัน 10 เดือน",
+            "price": 65900,
+            "originalPrice": 79900,
+            "condition": "มือสอง สภาพดีมาก",
+            "attributes": {
+                "brand": "ASUS",
+                "model": "ROG Strix G16",
+                "processor": "Intel Core i9-13980HX",
+                "gpu": "NVIDIA RTX 4070",
+                "ram": "32GB DDR5",
+                "storage": "1TB SSD",
+                "screenSize": "16 นิ้ว",
+                "refreshRate": "240Hz",
+                "warranty": "10 เดือน"
+            },
+            "images": [
+                "https://via.placeholder.com/800x800/ff0000/ffffff?text=ROG+Strix+G16",
+                "https://via.placeholder.com/800x800/ff0000/ffffff?text=Gaming+Laptop"
+            ],
+            "location": {
+                "province": "กรุงเทพมหานคร",
+                "district": "บางกะปิ",
+                "subdistrict": "หัวหมาก",
+                "postalCode": "10240"
+            },
+            "tags": [
+                "คอมพิวเตอร์",
+                "Gaming",
+                "ASUS",
+                "ROG",
+                "Laptop"
+            ]
+        },
+        {
+            "id": "test-005",
+            "categoryId": "pets",
+            "name": "ลูกแมวเปอร์เซีย ขาวมณี อายุ 3 เดือน",
+            "description": "ลูกแมวเปอร์เซีย สีขาวมณี ตาสีฟ้า อายุ 3 เดือน เพศเมีย สุขภาพดี ฉีดวัคซีนครบ ถ่ายพยาธิแล้ว นิสัยดี เชื่อง เล่นกับคนเก่ง มีใบเกิด",
+            "price": 8500,
+            "condition": "สุขภาพดี",
+            "attributes": {
+                "species": "แมว",
+                "breed": "เปอร์เซีย",
+                "age": "3 เดือน",
+                "gender": "เมีย",
+                "color": "ขาวมณี",
+                "vaccinated": "ครบ",
+                "dewormed": "แล้ว",
+                "pedigree": "มีใบเกิด",
+                "personality": "เชื่อง เล่นกับคนเก่ง"
+            },
+            "images": [
+                "https://via.placeholder.com/800x800/ffffff/000000?text=Persian+Cat",
+                "https://via.placeholder.com/800x800/ffffff/000000?text=White+Kitten"
+            ],
+            "location": {
+                "province": "กรุงเทพมหานคร",
+                "district": "ห้วยขวาง",
+                "subdistrict": "สามเสนใน",
+                "postalCode": "10310"
+            },
+            "tags": [
+                "สัตว์เลี้ยง",
+                "แมว",
+                "เปอร์เซีย",
+                "ลูกแมว"
+            ]
+        },
+        {
+            "id": "test-006",
+            "categoryId": "pets",
+            "name": "ลูกสุนัขพันธุ์ชิบะ อายุ 2 เดือน",
+            "description": "ลูกสุนัขพันธุ์ชิบะ (Shiba Inu) สีแดง อายุ 2 เดือน เพศผู้ สุขภาพแข็งแรง ฉีดวัคซีน 2 เข็ม ถ่ายพยาธิแล้ว นิสัยร่าเริง ขี้เล่น มีใบเกิด พ่อแม่พันธุ์แท้",
+            "price": 15000,
+            "condition": "สุขภาพดี",
+            "attributes": {
+                "species": "สุนัข",
+                "breed": "ชิบะ (Shiba Inu)",
+                "age": "2 เดือน",
+                "gender": "ผู้",
+                "color": "แดง",
+                "vaccinated": "2 เข็ม",
+                "dewormed": "แล้ว",
+                "pedigree": "มีใบเกิด",
+                "personality": "ร่าเริง ขี้เล่น"
+            },
+            "images": [
+                "https://via.placeholder.com/800x800/ff6347/ffffff?text=Shiba+Inu",
+                "https://via.placeholder.com/800x800/ff6347/ffffff?text=Puppy"
+            ],
+            "location": {
+                "province": "กรุงเทพมหานคร",
+                "district": "ลาดพร้าว",
+                "subdistrict": "ลาดพร้าว",
+                "postalCode": "10230"
+            },
+            "tags": [
+                "สัตว์เลี้ยง",
+                "สุนัข",
+                "ชิบะ",
+                "ลูกสุนัข"
+            ]
+        },
+        {
+            "id": "test-007",
+            "categoryId": "cameras",
+            "name": "Canon EOS R6 Mark II Body",
+            "description": "Canon EOS R6 Mark II Body อย่างเดียว สภาพสวยมาก ใช้งานน้อย Shutter Count 2,500 ครั้ง ไม่เคยตก ไม่เคยชน ประกันศูนย์เหลืออีก 1 ปี มีกล่องและอุปกรณ์ครบ",
+            "price": 89900,
+            "originalPrice": 109900,
+            "condition": "มือสอง สภาพดีมาก",
+            "attributes": {
+                "brand": "Canon",
+                "model": "EOS R6 Mark II",
+                "type": "Mirrorless",
+                "sensor": "Full Frame",
+                "megapixels": "24.2 MP",
+                "shutterCount": "2,500",
+                "warranty": "1 ปี (ศูนย์ไทย)",
+                "accessories": "กล่อง, แบตเตอรี่, ชาร์จ, สายคล้อง"
+            },
+            "images": [
+                "https://via.placeholder.com/800x800/000000/ffffff?text=Canon+R6+Mark+II",
+                "https://via.placeholder.com/800x800/000000/ffffff?text=Camera+Body"
+            ],
+            "location": {
+                "province": "กรุงเทพมหานคร",
+                "district": "ราชเทวี",
+                "subdistrict": "ทุ่งพญาไท",
+                "postalCode": "10400"
+            },
+            "tags": [
+                "กล้อง",
+                "Canon",
+                "Mirrorless",
+                "Full Frame"
+            ]
+        },
+        {
+            "id": "test-008",
+            "categoryId": "cameras",
+            "name": "Sony A7 IV + Lens 28-70mm",
+            "description": "Sony A7 IV พร้อมเลนส์ Kit 28-70mm f/3.5-5.6 สภาพดีมาก ใช้งานเบาๆ Shutter Count 5,000 ครั้ง ไม่มีรอยขีดข่วน ประกันศูนย์เหลือ 6 เดือน ครบกล่อง",
+            "price": 75900,
+            "originalPrice": 95900,
+            "condition": "มือสอง สภาพดีมาก",
+            "attributes": {
+                "brand": "Sony",
+                "model": "A7 IV",
+                "type": "Mirrorless",
+                "sensor": "Full Frame",
+                "megapixels": "33 MP",
+                "lens": "28-70mm f/3.5-5.6",
+                "shutterCount": "5,000",
+                "warranty": "6 เดือน"
+            },
+            "images": [
+                "https://via.placeholder.com/800x800/000000/ffffff?text=Sony+A7+IV",
+                "https://via.placeholder.com/800x800/000000/ffffff?text=Camera+Kit"
+            ],
+            "location": {
+                "province": "เชียงใหม่",
+                "district": "เมืองเชียงใหม่",
+                "subdistrict": "ช้างคลาน",
+                "postalCode": "50100"
+            },
+            "tags": [
+                "กล้อง",
+                "Sony",
+                "Mirrorless",
+                "Full Frame",
+                "Kit"
+            ]
+        },
+        {
+            "id": "test-009",
+            "categoryId": "mobiles",
+            "name": "Xiaomi 13 Pro 256GB สีดำ",
+            "description": "Xiaomi 13 Pro 256GB สีดำ Ceramic Black สภาพใหม่ ซื้อมา 1 เดือน ยังมีประกัน 11 เดือน กล้อง Leica ชิป Snapdragon 8 Gen 2 ชาร์จเร็ว 120W",
+            "price": 25900,
+            "originalPrice": 32900,
+            "condition": "มือสอง สภาพดีมาก",
+            "attributes": {
+                "brand": "Xiaomi",
+                "model": "13 Pro",
+                "storage": "256GB",
+                "color": "Ceramic Black",
+                "batteryHealth": "100%",
+                "warranty": "11 เดือน",
+                "accessories": "ครบกล่อง"
+            },
+            "images": [
+                "https://via.placeholder.com/800x800/000000/ffffff?text=Xiaomi+13+Pro",
+                "https://via.placeholder.com/800x800/000000/ffffff?text=Leica+Camera"
+            ],
+            "location": {
+                "province": "ภูเก็ต",
+                "district": "เมืองภูเก็ต",
+                "subdistrict": "ตลาดใหญ่",
+                "postalCode": "83000"
+            },
+            "tags": [
+                "โทรศัพท์",
+                "Xiaomi",
+                "Leica",
+                "Flagship"
+            ]
+        },
+        {
+            "id": "test-010",
+            "categoryId": "computers",
+            "name": "iPad Pro 12.9\" M2 2022 256GB",
+            "description": "iPad Pro 12.9 นิ้ว M2 ปี 2022 ความจุ 256GB WiFi + Cellular สีเทา Space Gray สภาพสวยมาก ไม่มีรอย ประกันเหลือ 4 เดือน พร้อม Apple Pencil Gen 2 และ Magic Keyboard",
+            "price": 42900,
+            "originalPrice": 52900,
+            "condition": "มือสอง สภาพดีมาก",
+            "attributes": {
+                "brand": "Apple",
+                "model": "iPad Pro 12.9\" M2",
+                "processor": "Apple M2",
+                "storage": "256GB",
+                "connectivity": "WiFi + Cellular",
+                "screenSize": "12.9 นิ้ว",
+                "color": "Space Gray",
+                "warranty": "4 เดือน",
+                "accessories": "Apple Pencil Gen 2, Magic Keyboard",
+                "year": "2022"
+            },
+            "images": [
+                "https://via.placeholder.com/800x800/708090/ffffff?text=iPad+Pro+12.9",
+                "https://via.placeholder.com/800x800/708090/ffffff?text=Apple+Pencil"
+            ],
+            "location": {
+                "province": "ชลบุรี",
+                "district": "บางละมุง",
+                "subdistrict": "หนองปรือ",
+                "postalCode": "20150"
+            },
+            "tags": [
+                "แท็บเล็ต",
+                "iPad",
+                "Apple",
+                "M2",
+                "Pro"
+            ]
+        }
+    ]
+}
