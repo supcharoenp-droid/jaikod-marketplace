@@ -1,0 +1,82 @@
+/**
+ * Firestore Security Rules for JaiKod - DEVELOPMENT MODE
+ * ⚠️ WARNING: These rules allow full access for development/testing
+ * DO NOT use in production!
+ * 
+ * To deploy these rules:
+ * 1. Go to Firebase Console: https://console.firebase.google.com
+ * 2. Select your project
+ * 3. Go to Firestore Database > Rules
+ * 4. Copy and paste these rules
+ * 5. Click "Publish"
+ */
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ⚠️ DEVELOPMENT MODE: Allow all operations
+    // This is for testing and development only
+    match /{document=**} {
+      allow read, write: if true;
+    }
+    
+    /* 
+    // PRODUCTION RULES (use these when going live):
+    
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Products collection
+    match /products/{productId} {
+      // Anyone can read active products
+      allow read: if resource.data.status == 'active' || isOwner(resource.data.seller_id) || isAdmin();
+      
+      // Only authenticated users can create products
+      allow create: if isSignedIn() 
+        && request.resource.data.seller_id == request.auth.uid
+        && request.resource.data.status == 'active';
+      
+      // Only the seller or admin can update products
+      allow update: if isOwner(resource.data.seller_id) || isAdmin();
+      
+      // Only the seller or admin can delete products
+      allow delete: if isOwner(resource.data.seller_id) || isAdmin();
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if isOwner(userId) || isAdmin();
+    }
+    
+    // Categories collection (read-only for most users)
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Orders collection
+    match /orders/{orderId} {
+      allow read: if isOwner(resource.data.buyer_id) || 
+                    isOwner(resource.data.seller_id) || 
+                    isAdmin();
+      allow create: if isSignedIn();
+      allow update: if isOwner(resource.data.buyer_id) || 
+                      isOwner(resource.data.seller_id) || 
+                      isAdmin();
+    }
+    */
+  }
+}

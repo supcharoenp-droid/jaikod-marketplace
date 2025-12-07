@@ -1,0 +1,335 @@
+/**
+ * System Configuration Panel
+ * Manage Modules, Roles, Settings
+ */
+'use client'
+
+import { useState } from 'react'
+import AdminLayout from '@/components/admin/AdminLayout'
+import { useAdmin } from '@/contexts/AdminContext'
+import { canPerform } from '@/lib/rbac'
+import { SystemModule, ModuleConfig } from '@/types/admin'
+import { ADMIN_ROLES } from '@/types/admin'
+import {
+    Settings,
+    ToggleLeft,
+    ToggleRight,
+    Shield,
+    Users,
+    Package,
+    MessageSquare,
+    CreditCard,
+    Truck,
+    Star,
+    Megaphone,
+    BarChart3,
+    Bell,
+    Save
+} from 'lucide-react'
+
+const MODULE_ICONS: Record<SystemModule, any> = {
+    marketplace: Package,
+    chat: MessageSquare,
+    payment: CreditCard,
+    shipping: Truck,
+    review: Star,
+    promotion: Megaphone,
+    analytics: BarChart3,
+    notification: Bell
+}
+
+export default function SystemConfigPage() {
+    const { adminUser } = useAdmin()
+    const [modules, setModules] = useState<ModuleConfig[]>([
+        { id: 'marketplace', name: 'Marketplace', name_th: 'ระบบตลาด', enabled: true },
+        { id: 'chat', name: 'Chat', name_th: 'ระบบแชท', enabled: true },
+        { id: 'payment', name: 'Payment', name_th: 'ระบบชำระเงิน', enabled: true },
+        { id: 'shipping', name: 'Shipping', name_th: 'ระบบจัดส่ง', enabled: true },
+        { id: 'review', name: 'Review', name_th: 'ระบบรีวิว', enabled: true },
+        { id: 'promotion', name: 'Promotion', name_th: 'ระบบโปรโมชัน', enabled: true },
+        { id: 'analytics', name: 'Analytics', name_th: 'ระบบวิเคราะห์', enabled: true },
+        { id: 'notification', name: 'Notification', name_th: 'ระบบแจ้งเตือน', enabled: true }
+    ])
+
+    const [settings, setSettings] = useState({
+        platform_commission: 5,
+        min_withdrawal: 100,
+        max_withdrawal: 100000,
+        auto_approve_products: false,
+        require_kyc: true,
+        enable_cod: true,
+        maintenance_mode: false
+    })
+
+    const toggleModule = (moduleId: SystemModule) => {
+        if (!canPerform(adminUser, 'system.manage_modules')) {
+            alert('คุณไม่มีสิทธิ์จัดการโมดูล')
+            return
+        }
+
+        setModules(prev =>
+            prev.map(m =>
+                m.id === moduleId ? { ...m, enabled: !m.enabled } : m
+            )
+        )
+    }
+
+    const handleSaveSettings = () => {
+        if (!canPerform(adminUser, 'system.edit_config')) {
+            alert('คุณไม่มีสิทธิ์แก้ไขการตั้งค่า')
+            return
+        }
+
+        alert('บันทึกการตั้งค่าสำเร็จ')
+    }
+
+    return (
+        <AdminLayout>
+            <div className="space-y-6">
+                {/* Header */}
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                        ตั้งค่าระบบ
+                    </h1>
+                    <p className="text-gray-500 dark:text-gray-400 mt-1">
+                        จัดการโมดูลและการตั้งค่าแพลตฟอร์ม
+                    </p>
+                </div>
+
+                {/* System Modules */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <Settings className="w-5 h-5" />
+                            โมดูลระบบ
+                        </h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            เปิด/ปิดฟีเจอร์หลักของแพลตฟอร์ม
+                        </p>
+                    </div>
+                    <div className="p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {modules.map((module) => {
+                                const Icon = MODULE_ICONS[module.id]
+                                return (
+                                    <div
+                                        key={module.id}
+                                        className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className={`p-2 rounded-lg ${module.enabled
+                                                    ? 'bg-green-100 dark:bg-green-900/30'
+                                                    : 'bg-gray-100 dark:bg-gray-700'
+                                                }`}>
+                                                <Icon className={`w-5 h-5 ${module.enabled ? 'text-green-600' : 'text-gray-400'
+                                                    }`} />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-gray-900 dark:text-white">
+                                                    {module.name_th}
+                                                </p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                    {module.name}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => toggleModule(module.id)}
+                                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                                        >
+                                            {module.enabled ? (
+                                                <ToggleRight className="w-8 h-8 text-green-600" />
+                                            ) : (
+                                                <ToggleLeft className="w-8 h-8 text-gray-400" />
+                                            )}
+                                        </button>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Platform Settings */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                            การตั้งค่าแพลตฟอร์ม
+                        </h2>
+                    </div>
+                    <div className="p-6 space-y-6">
+                        {/* Commission */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                ค่าธรรมเนียมแพลตฟอร์ม (%)
+                            </label>
+                            <input
+                                type="number"
+                                value={settings.platform_commission}
+                                onChange={(e) => setSettings({ ...settings, platform_commission: Number(e.target.value) })}
+                                className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            />
+                        </div>
+
+                        {/* Withdrawal Limits */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    ถอนเงินขั้นต่ำ (฿)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={settings.min_withdrawal}
+                                    onChange={(e) => setSettings({ ...settings, min_withdrawal: Number(e.target.value) })}
+                                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    ถอนเงินสูงสุด (฿)
+                                </label>
+                                <input
+                                    type="number"
+                                    value={settings.max_withdrawal}
+                                    onChange={(e) => setSettings({ ...settings, max_withdrawal: Number(e.target.value) })}
+                                    className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Toggles */}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                <div>
+                                    <p className="font-medium text-gray-900 dark:text-white">
+                                        อนุมัติสินค้าอัตโนมัติ
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        ไม่ต้องตรวจสอบสินค้าใหม่
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setSettings({ ...settings, auto_approve_products: !settings.auto_approve_products })}
+                                    className="p-2"
+                                >
+                                    {settings.auto_approve_products ? (
+                                        <ToggleRight className="w-8 h-8 text-green-600" />
+                                    ) : (
+                                        <ToggleLeft className="w-8 h-8 text-gray-400" />
+                                    )}
+                                </button>
+                            </div>
+
+                            <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                <div>
+                                    <p className="font-medium text-gray-900 dark:text-white">
+                                        บังคับยืนยัน KYC
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        ผู้ขายต้องยืนยันตัวตนก่อนขาย
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setSettings({ ...settings, require_kyc: !settings.require_kyc })}
+                                    className="p-2"
+                                >
+                                    {settings.require_kyc ? (
+                                        <ToggleRight className="w-8 h-8 text-green-600" />
+                                    ) : (
+                                        <ToggleLeft className="w-8 h-8 text-gray-400" />
+                                    )}
+                                </button>
+                            </div>
+
+                            <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                <div>
+                                    <p className="font-medium text-gray-900 dark:text-white">
+                                        เปิดใช้ COD (เก็บเงินปลายทาง)
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        อนุญาตให้ชำระเงินปลายทาง
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setSettings({ ...settings, enable_cod: !settings.enable_cod })}
+                                    className="p-2"
+                                >
+                                    {settings.enable_cod ? (
+                                        <ToggleRight className="w-8 h-8 text-green-600" />
+                                    ) : (
+                                        <ToggleLeft className="w-8 h-8 text-gray-400" />
+                                    )}
+                                </button>
+                            </div>
+
+                            <div className="flex items-center justify-between p-4 border-2 border-red-200 dark:border-red-800 rounded-lg bg-red-50 dark:bg-red-900/10">
+                                <div>
+                                    <p className="font-medium text-red-900 dark:text-red-400">
+                                        โหมดปิดปรับปรุง
+                                    </p>
+                                    <p className="text-sm text-red-600 dark:text-red-500">
+                                        ปิดเว็บไซต์ชั่วคราว (เฉพาะ Admin เข้าได้)
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setSettings({ ...settings, maintenance_mode: !settings.maintenance_mode })}
+                                    className="p-2"
+                                >
+                                    {settings.maintenance_mode ? (
+                                        <ToggleRight className="w-8 h-8 text-red-600" />
+                                    ) : (
+                                        <ToggleLeft className="w-8 h-8 text-gray-400" />
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Save Button */}
+                        <button
+                            onClick={handleSaveSettings}
+                            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                        >
+                            <Save className="w-5 h-5" />
+                            บันทึกการตั้งค่า
+                        </button>
+                    </div>
+                </div>
+
+                {/* Admin Roles Overview */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                    <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <Shield className="w-5 h-5" />
+                            บทบาทผู้ดูแล
+                        </h2>
+                    </div>
+                    <div className="p-6">
+                        <div className="space-y-3">
+                            {Object.values(ADMIN_ROLES).map((role) => (
+                                <div
+                                    key={role.id}
+                                    className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-3 h-3 rounded-full bg-${role.color}-500`}></div>
+                                        <div>
+                                            <p className="font-medium text-gray-900 dark:text-white">
+                                                {role.name_th}
+                                            </p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                {role.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                                        Level {role.level}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </AdminLayout>
+    )
+}
