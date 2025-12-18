@@ -15,22 +15,38 @@ import { TrendingUp, Award, Zap, Gift, Rocket, ShieldCheck } from 'lucide-react'
 import { FloatingCTA, CTACard, CountdownCTA } from '@/components/cta/CTAComponents'
 import { useSiteSettings } from '@/contexts/SiteSettingsContext'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLanguage } from '@/contexts/LanguageContext'
 import Link from 'next/link'
+import TrendingCategories from '@/components/home/TrendingCategories'
+import NearbySellersResult from '@/components/discovery/NearbySellersResult'
+import SmartCouponSection from '@/components/promotion/SmartCouponSection'
 
 export default function HomePage() {
     const { settings } = useSiteSettings()
     const { user } = useAuth()
+    const { t } = useLanguage()
     const [bestSellers, setBestSellers] = useState<Product[]>([])
     const [trending, setTrending] = useState<Product[]>([])
 
     useEffect(() => {
         const loadData = async () => {
-            const [best, trend] = await Promise.all([
-                getBestSellingProducts(10),
-                getTrendingProducts(10)
-            ])
-            setBestSellers(best)
-            setTrending(trend)
+            try {
+                // Fetch individually to prevent one failure from blocking others
+                // and use try-catch internally if needed, or catch all here
+                const best = await getBestSellingProducts(10).catch(e => {
+                    console.error('Failed to load best sellers:', e)
+                    return []
+                })
+                const trend = await getTrendingProducts(10).catch(e => {
+                    console.error('Failed to load trending:', e)
+                    return []
+                })
+
+                setBestSellers(best)
+                setTrending(trend)
+            } catch (error) {
+                console.error('HomePage loadData error:', error)
+            }
         }
         loadData()
     }, [])
@@ -82,6 +98,11 @@ export default function HomePage() {
                 <Hero />
                 <Categories />
 
+                {/* AI Personalized Sections (High Priority) */}
+                <div className="mt-8">
+                    <PersonalizedSections />
+                </div>
+
                 {/* Flash Sale Countdown CTA - Controlled by Admin */}
                 {settings.flashSaleEnabled && (
                     <div className="container mx-auto px-4 py-4">
@@ -97,8 +118,8 @@ export default function HomePage() {
                 {/* Best Sellers Section */}
                 <div className="bg-white dark:bg-card-dark py-4 my-4 shadow-sm">
                     <ProductSection
-                        title="สินค้าขายดีประจำสัปดาห์"
-                        subtitle="รายการยอดนิยมที่มียอดขายและการรีวิวสูงสุด"
+                        title={t('home.best_seller')}
+                        subtitle={t('home.best_seller_desc')}
                         icon={<Award className="w-6 h-6 text-amber-500" />}
                         products={bestSellers}
                         layout="slider"
@@ -111,19 +132,28 @@ export default function HomePage() {
                     <div className="container mx-auto px-4 py-4">
                         <CTACard
                             variant="gradient"
-                            title="เริ่มขายสินค้าของคุณวันนี้!"
-                            description="ลงขายฟรี! AI ช่วยถ่ายรูป ตั้งราคา และหาผู้ซื้อให้อัตโนมัติ"
-                            buttonText="ลงขายเลย!"
+                            title={t('home.cta_sell_title')}
+                            description={t('home.cta_sell_desc')}
+                            buttonText={t('home.cta_sell_btn')}
                             buttonLink="/sell"
                             icon={<Rocket className="w-8 h-8 text-white" />}
                         />
                     </div>
                 )}
 
+                {/* Trending Categories (AI Driven) */}
+                <TrendingCategories />
+
+                {/* AI Nearby Sellers Recommendation */}
+                <NearbySellersResult />
+
+                {/* AI Smart Coupons */}
+                <SmartCouponSection />
+
                 {/* Trending Section */}
                 <ProductSection
-                    title="กำลังเป็นกระแส"
-                    subtitle="สินค้าที่มีผู้เข้าชมมากที่สุดในขณะนี้"
+                    title={t('home.trending')}
+                    subtitle={t('home.trending_desc')}
                     icon={<TrendingUp className="w-6 h-6 text-rose-500" />}
                     products={trending}
                     layout="slider"
@@ -140,13 +170,13 @@ export default function HomePage() {
                             <div className="relative z-10 text-white max-w-lg">
                                 <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-sm font-medium mb-4">
                                     <Zap className="w-4 h-4 text-yellow-300 fill-current" />
-                                    <span>Flash Sale ลดเดือด 24 ชม.</span>
+                                    <span>{t('home.flash_sale')}</span>
                                 </div>
-                                <h3 className="text-3xl md:text-4xl font-bold mb-4">Gadget ลดแรงสูงสุด 70%</h3>
-                                <p className="text-white/80 mb-6">รวมสินค้า IT มือสองสภาพเทพ ราคาดีที่สุดเฉพาะวันนี้เท่านั้น</p>
+                                <h3 className="text-3xl md:text-4xl font-bold mb-4">{t('home.flash_desc')}</h3>
+                                <p className="text-white/80 mb-6">{t('home.flash_desc')}</p>
                                 <Link href="/promotions">
                                     <button className="bg-white text-violet-600 px-6 py-3 rounded-xl font-bold hover:bg-gray-100 transition shadow-lg hover:scale-105">
-                                        ช้อปเลย →
+                                        {t('home.flash_btn')} →
                                     </button>
                                 </Link>
                             </div>
@@ -159,17 +189,16 @@ export default function HomePage() {
                     <div className="container mx-auto px-4 py-4">
                         <CTACard
                             variant="secondary"
-                            title="สมาชิกใหม่รับส่วนลด 15%"
-                            description="สมัครฟรี! ไม่มีค่าธรรมเนียม พร้อมรับโปรโมชั่นพิเศษก่อนใคร"
-                            buttonText="สมัครเลย"
+                            title={t('home.cta_reg_title')}
+                            description={t('home.cta_reg_desc')}
+                            buttonText={t('home.cta_reg_btn')}
                             buttonLink="/register"
                             icon={<Gift className="w-8 h-8" />}
                         />
                     </div>
                 )}
 
-                {/* AI Personalized Sections (Based on User Behavior) */}
-                <PersonalizedSections />
+
 
                 {/* Trust CTA */}
                 <div className="container mx-auto px-4 py-8">
@@ -182,13 +211,13 @@ export default function HomePage() {
                                         <ShieldCheck className="w-10 h-10 text-white" />
                                     </div>
                                     <div>
-                                        <h3 className="text-2xl md:text-3xl font-bold mb-2">ซื้อขายปลอดภัย 100%</h3>
-                                        <p className="text-white/80 text-lg">ระบบ Escrow ป้องกันการโกง | คืนเงินภายใน 7 วัน | ทีมดูแล 24/7</p>
+                                        <h3 className="text-2xl md:text-3xl font-bold mb-2">{t('home.trust_title')}</h3>
+                                        <p className="text-white/80 text-lg">{t('home.trust_desc')}</p>
                                     </div>
                                 </div>
                                 <Link href="/safety">
                                     <button className="bg-white text-emerald-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all hover:scale-105 whitespace-nowrap">
-                                        เรียนรู้เพิ่มเติม →
+                                        {t('home.trust_btn')} →
                                     </button>
                                 </Link>
                             </div>

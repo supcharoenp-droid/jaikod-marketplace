@@ -1,0 +1,470 @@
+/**
+ * COMPREHENSIVE CAMERAS KEYWORDS - Category 8 (กล้องถ่ายรูป)
+ * 
+ * Coverage (4 Subcategories):
+ * 1. กล้องดิจิตอล (Digital Cameras) - ID 801
+ * 2. กล้องฟิล์ม (Film Cameras) - ID 802
+ * 3. เลนส์ (Lenses) - ID 803
+ * 4. อุปกรณ์สตูดิโอ (Studio Equipment) - ID 804
+ * 
+ * Total: 450+ keywords in Thai & English
+ */
+
+export const COMPREHENSIVE_CAMERAS_KEYWORDS = [
+    // ========================================
+    // DIGITAL CAMERAS / กล้องดิจิตอล (801) - 200+ keywords
+    // ========================================
+    // Thai Terms - General
+    'กล้อง', 'กล้องถ่ายรูป', 'กล้องดิจิตอล', 'กล้องดิจิตัล',
+    'กล้องมือสอง', 'กล้องมือ 1', 'กล้องใหม่', 'กล้องแท้',
+    'กล้องศูนย์', 'กล้องศูนย์ไทย',
+
+    // English Terms - General
+    'camera', 'digital camera', 'photo camera',
+    'used camera', 'second hand camera', 'new camera',
+    'genuine camera', 'official camera',
+
+    // DSLR - Thai
+    'กล้อง dslr', 'ดีเอสแอลอาร์', 'กล้องเดี่ยว',
+    'กล้องเลนส์เปลี่ยนได้', 'กล้องระดับโปร',
+
+    // DSLR - English
+    'dslr', 'dslr camera', 'digital slr',
+    'single lens reflex', 'professional camera',
+    'semi professional', 'prosumer',
+
+    // Mirrorless - Thai
+    'กล้อง mirrorless', 'มิเรอร์เลส', 'กล้องไร้กระจกสะท้อน',
+    'กล้องมิลเลอร์เลส',
+
+    // Mirrorless - English
+    'mirrorless', 'mirrorless camera', 'compact system',
+    'interchangeable lens camera', 'ilc',
+
+    // Compact/Point & Shoot - Thai
+    'กล้องคอมแพค', 'compact', 'กล้องพกพา',
+    'กล้องเล็ก', 'กล้องจิ๋ว',
+
+    // Compact/Point & Shoot - English
+    'compact camera', 'point and shoot', 'point & shoot',
+    'pocket camera', 'travel camera',
+
+    // Action Camera - Thai
+    'กล้อง action', 'แอคชั่นแคม', 'กล้องกันน้ำ',
+    'กล้องติดรถ', 'กล้องติดหมวก', 'กล้องกีฬา',
+
+    // Action Camera - English
+    'action camera', 'action cam', 'sports camera',
+    'waterproof camera', 'underwater camera',
+    'helmet camera', 'dash cam', 'body cam',
+
+    // Instant Camera - Thai
+    'กล้องโพลารอยด์', 'polaroid', 'กล้องถ่ายได้ภาพทันที',
+    'กล้องปริ้นท์ได้', 'instant camera',
+
+    // Instant Camera - English
+    'instant camera', 'polaroid', 'instant film camera',
+    'print camera',
+
+    // Camera Brands - Japanese (Canon)
+    'canon', 'แคนนอน', 'แคนอน',
+    'eos', 'eos r', 'eos rp', 'eos r5', 'eos r6', 'eos r7', 'eos r10',
+    'eos 90d', 'eos 850d', 'eos 6d', 'eos 5d', 'eos 1dx',
+    'canon m50', 'eos m', 'eos m50 mark ii',
+    'powershot', 'g7x', 'g5x', 'g1x', 'sx70',
+
+    // Camera Brands - Japanese (Nikon)
+    'nikon', 'นิคอน', 'นิกอน',
+    'nikon z', 'z5', 'z6', 'z7', 'z8', 'z9', 'z30', 'z50', 'zfc',
+    'd850', 'd780', 'd750', 'd500', 'd7500', 'd5600', 'd3500',
+    'coolpix',
+
+    // Camera Brands - Japanese (Sony)
+    'sony', 'โซนี่', 'โซนี',
+    'sony alpha', 'alpha', 'a7', 'a7r', 'a7s', 'a7c', 'a7iv', 'a7riv',
+    'a7iii', 'a7siii', 'a6400', 'a6600', 'a6100',
+    'zv-e10', 'zv-1', 'zv-e1',
+    'rx100', 'rx10', 'rx1',
+
+    // Camera Brands - Japanese (Fujifilm)
+    'fujifilm', 'fuji', 'ฟูจิ', 'ฟูจิฟิล์ม',
+    'x-t', 'x-t5', 'x-t4', 'x-t3', 'x-t30', 'x-t20',
+    'x-s', 'x-s10', 'x-s20',
+    'x-h', 'x-h2', 'x-h2s', 'x-h1',
+    'x-pro', 'x-pro3', 'x-e', 'x-e4',
+    'x100', 'x100v', 'x100f',
+    'gfx', 'gfx100', 'gfx50s',
+
+    // Camera Brands - Japanese (Olympus/OM System)
+    'olympus', 'โอลิมปัส', 'om system', 'om-1', 'om-5',
+    'om-d', 'em1', 'em5', 'em10',
+    'pen', 'pen-f',
+
+    // Camera Brands - Japanese (Panasonic)
+    'panasonic', 'พานาโซนิค', 'lumix',
+    'lumix g9', 'gh5', 'gh6', 'g100',
+    's5', 's1', 's1r', 's1h',
+
+    // Camera Brands - Others
+    'leica', 'ไลก้า', 'leica m', 'leica q', 'leica sl',
+    'hasselblad', 'แฮสเซลแบลด',
+    'pentax', 'เพนแทกซ์',
+    'ricoh', 'gr', 'gr iii', 'gr iiix',
+    'sigma', 'fp', 'fp l',
+
+    // Action Camera Brands
+    'gopro', 'โกโปร', 'hero', 'hero 11', 'hero 10', 'hero 9',
+    'dji', 'osmo action', 'action 2', 'action 3', 'action 4',
+    'insta360', 'one x2', 'one rs',
+
+    // Instant Camera Brands
+    'fujifilm instax', 'instax', 'mini', 'instax mini', 'mini 11', 'mini 12',
+    'instax wide', 'instax square',
+    'polaroid', 'polaroid now', 'polaroid go',
+
+    // Sensor Size - Thai
+    'เซนเซอร์', 'ขนาดเซนเซอร์',
+    'full frame', 'ฟูลเฟรม',
+    'aps-c', 'เอพีเอส-ซี', 'crop',
+    'micro four thirds', 'm43', 'mft',
+
+    // Sensor Size - English
+    'sensor', 'sensor size',
+    'full frame', 'ff', '35mm',
+    'aps-c', 'crop sensor',
+    'micro four thirds', 'm43', 'mft',
+    'medium format', '1 inch',
+
+    // Megapixels - Thai
+    'ล้านพิกเซล', 'megapixel', 'mp',
+    '20 ล้านพิกเซล', '24 ล้านพิกเซล', '30 ล้านพิกเซล',
+
+    // Megapixels - English
+    'megapixel', 'mp', 'megapixels',
+    '12mp', '16mp', '20mp', '24mp', '30mp', '45mp', '50mp', '100mp',
+
+    // Features - Thai
+    '4k', '4k video', 'ถ่ายวีดีโอ 4k',
+    '8k', 'ถ่ายวีดีโอ 8k',
+    'wifi', 'bluetooth', 'gps',
+    'ระบบกันสั่น', 'ibis', 'in body stabilization',
+    'ระบบโฟกัสอัตโนมัติ', 'autofocus', 'af',
+    'จอพับได้', 'จอหมุนได้', 'touchscreen',
+
+    // Features - English
+    '4k video', '4k recording', '8k video',
+    'wifi', 'bluetooth', 'gps', 'nfc',
+    'image stabilization', 'ibis', 'in body stabilization',
+    'ois', 'optical stabilization',
+    'autofocus', 'af', 'eye af', 'animal af',
+    'flip screen', 'tilting screen', 'vari-angle',
+    'touchscreen', 'touch screen',
+    'weather sealed', 'weather resistant',
+
+    // Video Specs - Thai
+    'ถ่ายวีดีโอ', 'video', 'log', 's-log', 'f-log',
+    '10 bit', '4:2:2', '4k 60p', '120fps',
+
+    // Video Specs - English
+    'video', 'video recording', 'log', 's-log', 'f-log',
+    '10 bit', '8 bit', '4:2:2', '4:2:0',
+    '4k 60p', '4k 120p', '120fps', '240fps',
+    'slow motion', 'time lapse',
+
+    // ========================================
+    // FILM CAMERAS / กล้องฟิล์ม (802) - 80+ keywords
+    // ========================================
+    // Thai Terms - General
+    'กล้องฟิล์ม', 'กล้องฟิล์ม', 'film camera',
+    'กล้องโบราณ', 'กล้องวินเทจ', 'vintage camera',
+    'กล้องเก่า', 'กล้องสะสม',
+
+    // English Terms - General
+    'film camera', 'analog camera', 'analogue camera',
+    'vintage camera', 'classic camera', 'retro camera',
+    'collectible camera',
+
+    // Film Types - Thai
+    '35mm', 'สามห้าเอ็มเอ็ม', 'ฟิล์ม 35',
+    'ฟิล์มกลาง', 'medium format film',
+    'ฟิล์มใหญ่', 'large format',
+    'ฟิล์มสี', 'ฟิล์มขาวดำ',
+
+    // Film Types - English
+    '35mm', '35mm film', 'medium format', '120 film',
+    'large format', '4x5', '8x10',
+    'color film', 'black and white', 'b&w', 'slide film',
+
+    // Film Camera Types - Thai
+    'กล้อง slr ฟิล์ม', 'กล้องเรนจ์ไฟน์เดอร์',
+    'กล้องโพลารอยด์', 'กล้องเล่นสนุก',
+
+    // Film Camera Types - English
+    'slr film camera', 'film slr',
+    'rangefinder', 'rangefinder camera',
+    'tlr', 'twin lens reflex',
+    'point and shoot film', 'compact film camera',
+    'toy camera', 'lomo', 'lomography',
+
+    // Film Camera Brands - Japanese
+    'canon ae-1', 'ae-1', 'canon a-1',
+    'nikon fm2', 'fm2', 'nikon f3', 'f3', 'nikon fe2',
+    'olympus om-1', 'om-1', 'om-2', 'olympus trip',
+    'pentax k1000', 'k1000', 'pentax mx',
+    'minolta x-700', 'x-700', 'minolta srt',
+    'yashica', 'yashica t4', 'yashica electro',
+
+    // Film Camera Brands - Western
+    'leica m3', 'leica m6', 'leica m7',
+    'contax', 'contax g2', 'contax t2', 't2', 't3',
+    'mamiya', 'mamiya 7', 'mamiya rb67', 'rz67',
+    'hasselblad 500cm', '500cm', 'hasselblad 503',
+    'rolleiflex', 'rollei',
+
+    // Point & Shoot Film - Thai
+    'กล้องฟิล์มกระทัดรัด', 'กล้องฟิล์มพกพา',
+
+    // Point & Shoot Film - English
+    'compact film camera', 'film point and shoot',
+    'fuji klasse', 'nikon 35ti', '28ti',
+    'olympus mju', 'mju ii', 'stylus epic',
+    'ricoh gr1', 'gr1v',
+
+    // Instant Film - Thai
+    'ฟิล์มโพลารอยด์', 'ฟิล์ม instax',
+
+    // Instant Film - English
+    'instant film', 'polaroid film', 'instax film',
+    'sx-70', 'polaroid 600', 'spectra',
+
+    // Film Stocks - Brands
+    'kodak', 'kodak portra', 'portra 400', 'portra 800',
+    'kodak gold', 'gold 200', 'ultramax',
+    'kodak ektar', 'ektar 100',
+    'fujifilm', 'fuji superia', 'fuji c200',
+    'fuji pro 400h', 'velvia', 'provia',
+    'ilford', 'ilford hp5', 'hp5 plus', 'delta 400',
+    'cinestill', 'cinestill 800t',
+
+    // ========================================
+    // LENSES / เลนส์ (803) - 120+ keywords
+    // ========================================
+    // Thai Terms - General
+    'เลนส์', 'lens', 'เลนส์กล้อง', 'เลนส์ถ่ายรูป',
+    'เลนส์มือสอง', 'เลนส์มือ 1', 'เลนส์ใหม่', 'เลนส์แท้',
+
+    // English Terms - General
+    'lens', 'camera lens', 'lenses',
+    'used lens', 'second hand lens', 'new lens',
+    'genuine lens', 'original lens',
+
+    // Lens Types - Thai
+    'เลนส์มาตรฐาน', 'standard lens', 'เลนส์คิท',
+    'เลนส์ซูม', 'zoom lens', 'เลนส์ซูมไกล',
+    'เลนส์ฟิกซ์', 'fix lens', 'เลนส์ไพรม์',
+    'เลนส์ wide', 'เลนส์กว้าง', 'เลนส์มุมกว้าง',
+    'เลนส์เทเล', 'เลนส์ไกล', 'telephoto',
+    'เลนส์มาโคร', 'macro lens', 'เลนส์ถ่ายใกล้',
+    'เลนส์ฟิชอาย', 'fisheye', 'เลนส์ตาปลา',
+
+    // Lens Types - English
+    'standard lens', 'kit lens', 'normal lens',
+    'zoom lens', 'telephoto zoom',
+    'prime lens', 'fixed lens', 'prime',
+    'wide angle', 'wide angle lens', 'ultra wide',
+    'telephoto', 'telephoto lens', 'super telephoto',
+    'macro', 'macro lens', '1:1 macro',
+    'fisheye', 'fisheye lens',
+    'tilt shift', 'tilt-shift lens',
+
+    // Focal Length - Thai
+    'ความยาวโฟกัส', 'โฟกัส',
+    '24mm', '35mm', '50mm', '85mm', '100mm', '200mm',
+    '24-70', '70-200', '16-35',
+
+    // Focal Length - English
+    'focal length', 'mm', 'millimeter',
+    '14mm', '16mm', '18mm', '20mm', '24mm', '28mm',
+    '35mm', '40mm', '50mm', '85mm', '100mm', '105mm',
+    '135mm', '200mm', '300mm', '400mm', '600mm',
+    '10-18mm', '16-35mm', '24-70mm', '24-105mm',
+    '70-200mm', '100-400mm', '150-600mm',
+
+    // Aperture - Thai
+    'รูรับแสง', 'aperture', 'f-stop',
+    'f/1.4', 'f/1.8', 'f/2.8', 'f/4',
+    'เลนส์เอฟเล็ก', 'เลนส์เอฟใหญ่',
+
+    // Aperture - English
+    'aperture', 'f-stop', 'maximum aperture',
+    'f/1.2', 'f/1.4', 'f/1.8', 'f/2', 'f/2.8', 'f/4', 'f/5.6',
+    'constant aperture', 'variable aperture',
+    'fast lens', 'bright lens',
+
+    // Lens Mount - Thai
+    'เมาท์', 'mount', 'ขั้วเลนส์',
+
+    // Lens Mount - English
+    'mount', 'lens mount',
+    'canon ef', 'ef mount', 'ef-s', 'rf mount',
+    'nikon f', 'f mount', 'z mount',
+    'sony e', 'e mount', 'fe mount', 'a mount',
+    'fuji x mount', 'x mount',
+    'm43 mount', 'micro four thirds mount',
+    'l mount', 'leica m mount',
+
+    // Lens Features - Thai
+    'ระบบกันสั่น', 'is', 'vr', 'oss', 'vc',
+    'มอเตอร์โฟกัส', 'usm', 'stm', 'af',
+    'เลนส์กันละอองน้ำ', 'weather sealed',
+
+    // Lens Features - English
+    'image stabilization', 'is', 'vibration reduction', 'vr',
+    'optical stabilization', 'oss', 'vc',
+    'ultrasonic motor', 'usm', 'stepping motor', 'stm',
+    'silent wave motor', 'linear motor',
+    'autofocus', 'af', 'manual focus', 'mf',
+    'weather sealed', 'weather resistant',
+    'dust proof', 'moisture resistant',
+
+    // Lens Quality - Thai
+    'คมชัด', 'sharp', 'คุณภาพสูง',
+    'เลนส์โปร', 'professional lens',
+
+    // Lens Quality - English
+    'sharp', 'sharpness', 'professional lens',
+    'premium lens', 'high quality',
+    'pro grade', 'l series', 'gold ring',
+    'g master', 'gm', 'art lens', 'sport lens',
+
+    // Lens Brands - OEM
+    'canon', 'nikon', 'sony', 'fujifilm', 'olympus', 'panasonic', 'leica',
+
+    // Lens Brands - Third Party
+    'sigma', 'tamron', 'tokina', 'samyang', 'rokinon',
+    'zeiss', 'voigtlander', 'laowa', 'venus optics',
+    'viltrox', 'yongnuo', 'meike', 'ttartisan',
+
+    // Popular Lenses - Nicknames
+    'nifty fifty', '50mm 1.8', 'plastic fantastic',
+    'holy trinity', '24-70 2.8', '70-200 2.8',
+    'pancake', 'pancake lens',
+
+    // ========================================
+    // STUDIO EQUIPMENT / อุปกรณ์สตูดิโอ (804) - 80+ keywords
+    // ========================================
+    // Thai Terms - General
+    'อุปกรณ์สตูดิโอ', 'studio', 'สตูดิโอ',
+    'อุปกรณ์ถ่ายภาพ', 'อุปกรณ์กล้อง',
+
+    // English Terms - General
+    'studio equipment', 'photography equipment',
+    'camera accessories', 'camera gear',
+
+    // Lighting - Thai
+    'ไฟแฟลช', 'แฟลช', 'flash', 'สปีดไลท์',
+    'ไฟสตูดิโอ', 'studio light', 'ไฟต่อเนื่อง',
+    'ไฟ led', 'led light', 'ไฟวิดีโอ',
+    'ร่มกระจาย', 'ซอฟท์บ็อกซ์', 'softbox',
+
+    // Lighting - English
+    'flash', 'speedlight', 'speedlite', 'strobe',
+    'studio flash', 'studio strobe', 'monolight',
+    'continuous light', 'led light', 'led panel',
+    'video light', 'ring light',
+    'softbox', 'umbrella', 'beauty dish', 'reflector',
+    'light stand', 'boom arm', 'c-stand',
+
+    // Flash Brands
+    'godox', 'yongnuo', 'neewer', 'flashpoint',
+    'profoto', 'บ proถึงโต้', 'elinchrom', 'broncolor',
+
+    // Tripods - Thai
+    'ขาตั้งกล้อง', 'tripod', 'ไตรพอด',
+    'ขาตั้ง', 'monopod', 'โมโนพอด', 'ขาเดี่ยว',
+    'gimbal', 'กิมบอล', 'สเตบิไลเซอร์',
+
+    // Tripods - English
+    'tripod', 'camera tripod', 'travel tripod',
+    'monopod', 'monopod stand',
+    'ball head', 'pan tilt head', 'tripod head',
+    'gimbal', 'stabilizer', 'steadicam',
+    'slider', 'camera slider', 'dolly',
+
+    // Tripod Brands
+    'manfrotto', 'gitzo', 'benro', 'sirui', 'peak design',
+    'dji ronin', 'ronin', 'zhiyun', 'moza',
+
+    // Bags & Cases - Thai
+    'กระเป๋ากล้อง', 'camera bag', 'กระเป๋าสะพาย',
+    'กระเป๋าเป้กล้อง', 'backpack', 'กล่องกันความชื้น',
+
+    // Bags & Cases - English
+    'camera bag', 'camera backpack', 'shoulder bag',
+    'sling bag', 'messenger bag', 'rolling case',
+    'hard case', 'pelican case',
+    'dry cabinet', 'dry box', 'dehumidifier',
+
+    // Bag Brands
+    'peak design', 'lowepro', 'think tank', 'billingham',
+    'ona', 'f-stop', 'mindshift', 'tenba',
+
+    // Filters - Thai
+    'ฟิลเตอร์', 'filter', 'กรองแสง',
+    'ฟิลเตอร์ uv', 'ฟิลเตอร์ polarizer', 'ฟิลเตอร์ nd',
+
+    // Filters - English
+    'filter', 'lens filter', 'camera filter',
+    'uv filter', 'protection filter',
+    'polarizer', 'cpl', 'circular polarizer',
+    'nd filter', 'neutral density', 'variable nd',
+    'graduated nd', 'gnd filter',
+
+    // Filter Brands
+    'hoya', 'b+w', 'tiffen', 'nisi', 'lee filters', 'cokin',
+
+    // Memory Cards - Thai
+    'การ์ดความจำ', 'เมมโมรี่การ์ด', 'sd card',
+    'cf card', 'compact flash',
+
+    // Memory Cards - English
+    'memory card', 'sd card', 'sdxc', 'sdhc',
+    'cf card', 'cfexpress', 'compact flash',
+    'xqd card', 'micro sd',
+
+    // Memory Card Brands
+    'sandisk', 'lexar', 'sony', 'kingston',
+    'samsung', 'transcend', 'prograde',
+
+    // Batteries - Thai
+    'แบตเตอรี่', 'battery', 'แบต', 'แบตสำรอง',
+    'ที่ชาร์จแบต', 'charger',
+
+    // Batteries - English
+    'battery', 'camera battery', 'spare battery',
+    'battery grip', 'vertical grip',
+    'charger', 'battery charger', 'dual charger',
+
+    // Cleaning - Thai
+    'ชุดทำความสะอาด', 'cleaning kit',
+    'ผ้าเช็ดเลนส์', 'ลูกเป่า', 'blower',
+
+    // Cleaning - English
+    'cleaning kit', 'lens cleaning', 'sensor cleaning',
+    'microfiber cloth', 'lens cloth', 'lens pen',
+    'blower', 'rocket blower', 'air blower',
+    'cleaning solution', 'lens cleaner',
+
+    // Other Accessories - Thai
+    'สายคล้อง', 'strap', 'remote', 'รีโมท',
+    'หน้ากากฟิล์ม', 'screen protector',
+
+    // Other Accessories - English
+    'camera strap', 'neck strap', 'wrist strap',
+    'hand strap', 'shoulder strap',
+    'remote', 'remote shutter', 'intervalometer',
+    'hotshoe cover', 'body cap', 'lens cap',
+    'lens hood', 'screen protector', 'lcd protector',
+]
+
+// Total: 450+ keywords!

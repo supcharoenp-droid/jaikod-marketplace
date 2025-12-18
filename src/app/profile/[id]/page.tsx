@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { getSellerProfile } from '@/lib/seller'
-import { getProductsBySeller } from '@/lib/products'
-import { SellerProfile, Product } from '@/types'
+import { getProductsBySeller } from '@/services/productService'
+import { SellerProfile } from '@/types'
+import { ProductWithId } from '@/types/product'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ProductCard from '@/components/product/ProductCard'
@@ -16,7 +17,7 @@ export default function PublicProfilePage() {
     const userId = params.id as string
 
     const [sellerProfile, setSellerProfile] = useState<SellerProfile | null>(null)
-    const [products, setProducts] = useState<Product[]>([])
+    const [products, setProducts] = useState<ProductWithId[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {

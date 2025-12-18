@@ -3,19 +3,18 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Search, Camera, Sparkles, Zap, ShieldCheck } from 'lucide-react'
+import { Search, Camera, Sparkles, Zap, ShieldCheck, SlidersHorizontal } from 'lucide-react'
 import Button from '@/components/ui/Button'
+import AdvancedSearch from '@/components/search/AdvancedSearch'
+import SmartSearch from '@/components/search/SmartSearch'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function Hero() {
     const router = useRouter()
-    const [searchQuery, setSearchQuery] = useState('')
+    const { t } = useLanguage()
+    const [showAdvancedSearch, setShowAdvancedSearch] = useState(false)
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault()
-        if (searchQuery.trim()) {
-            router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
-        }
-    }
+
 
     return (
         <section className="relative pt-20 pb-20 lg:pt-32 lg:pb-32 overflow-hidden">
@@ -37,53 +36,62 @@ export default function Hero() {
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-purple"></span>
                             </span>
                             <span className="text-sm font-medium bg-gradient-to-r from-neon-purple to-coral-orange bg-clip-text text-transparent">
-                                AI Marketplace อันดับ 1 ในไทย
+                                {t('home.hero_badge')}
                             </span>
                         </div>
 
-                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold leading-[1.1] tracking-tight">
-                            เปลี่ยนของเก่า <br />
-                            <span className="text-gradient drop-shadow-sm">เป็นเงินก้อนใหม่</span> <br />
-                            ด้วยพลัง AI
+                        <h1
+                            className="font-display font-extrabold tracking-tight mb-6"
+                            style={{
+                                fontSize: 'clamp(2.4rem, 4vw, 4.5rem)',
+                                lineHeight: '1.15',
+                                fontWeight: 800
+                            }}
+                        >
+                            <div className="mb-2">
+                                {t('home.hero_title_1')}{' '}
+                                <span
+                                    style={{
+                                        backgroundImage: 'linear-gradient(90deg, #A855F7, #EC4899, #F97316)',
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                        backgroundClip: 'text',
+                                        color: 'transparent'
+                                    }}
+                                >
+                                    {t('home.hero_title_2')}
+                                </span>
+                            </div>
+                            <div>
+                                {t('home.hero_title_3')}
+                            </div>
                         </h1>
 
                         <p className="text-lg text-text-secondary dark:text-gray-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                            ลงขายสินค้าง่ายๆ แค่ถ่ายรูป เราใช้ AI ช่วยเขียนรายละเอียด
-                            และประเมินราคาให้ทันที ปลอดภัย รวดเร็ว ได้ราคาดีที่สุด
+                            <strong className="text-gray-700 dark:text-gray-300">{t('home.hero_desc_seller')}</strong> → {t('home.hero_desc_seller_text')}<br />
+                            <strong className="text-gray-700 dark:text-gray-300">{t('home.hero_desc_shop')}</strong> → {t('home.hero_desc_shop_text')}<br />
+                            <strong className="text-gray-700 dark:text-gray-300">{t('home.hero_desc_buyer')}</strong> → {t('home.hero_desc_buyer_text')}
                         </p>
 
                         {/* Search Bar - FUNCTIONAL */}
-                        <form onSubmit={handleSearch} className="max-w-xl mx-auto lg:mx-0 relative group">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-neon-purple to-coral-orange rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                            <div className="relative flex items-center bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-700 rounded-2xl p-2 shadow-xl">
-                                <Search className="w-5 h-5 text-gray-400 ml-3" />
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="อยากได้อะไร... ลองค้นหาดูสิ"
-                                    className="flex-1 bg-transparent border-none outline-none px-4 py-3 text-base placeholder:text-gray-400"
-                                    suppressHydrationWarning
-                                />
-                                <Button type="submit" size="md" className="rounded-xl px-6 bg-gradient-to-r from-neon-purple to-purple-600 hover:shadow-lg hover:shadow-neon-purple/30 border-none">
-                                    ค้นหา
-                                </Button>
-                            </div>
-                        </form>
+                        {/* Search Bar - SMART AI */}
+                        <div className="w-full max-w-xl mx-auto lg:mx-0">
+                            <SmartSearch />
+                        </div>
 
                         {/* Quick Stats / Trust */}
                         <div className="flex items-center justify-center lg:justify-start gap-8 pt-4 text-sm font-medium text-text-secondary dark:text-gray-400">
                             <div className="flex items-center gap-2">
                                 <Zap className="w-5 h-5 text-yellow-500 fill-current" />
-                                <span>ลงขายใน 30 วิ</span>
+                                <span>{t('home.stat_quick_sell')}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <ShieldCheck className="w-5 h-5 text-green-500 fill-current" />
-                                <span>ผู้ขายยืนยันตัวตน</span>
+                                <span>{t('home.stat_verified')}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Sparkles className="w-5 h-5 text-neon-purple fill-current" />
-                                <span>AI อัจฉริยะ</span>
+                                <span>{t('home.stat_ai')}</span>
                             </div>
                         </div>
                     </div>
@@ -138,6 +146,11 @@ export default function Hero() {
                     </div>
                 </div>
             </div>
+
+            {/* Advanced Search Modal */}
+            {showAdvancedSearch && (
+                <AdvancedSearch onClose={() => setShowAdvancedSearch(false)} />
+            )}
         </section>
     )
 }

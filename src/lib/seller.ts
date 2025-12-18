@@ -34,6 +34,10 @@ export async function createSellerProfile(
     data: {
         shop_name: string,
         shop_description: string,
+        shop_description_th?: string, // Added
+        shop_description_en?: string, // Added
+        shop_logo?: string,
+        is_verified?: boolean, // Added
         address: any
     }
 ): Promise<string> {
@@ -48,28 +52,42 @@ export async function createSellerProfile(
         const profileId = newProfileRef.id
 
         const profileData = {
-            user_id: userId,
-            shop_name: data.shop_name,
-            shop_slug: slug,
-            shop_description: data.shop_description,
+            owner_id: userId, // Match Store interface
+            user_id: userId, // Legacy support
+            name: data.shop_name, // Match Store interface
+            shop_name: data.shop_name, // Legacy
+            slug: slug, // Match Store interface
+            shop_slug: slug, // Legacy
+            description: data.shop_description, // Match Store interface
+            description_th: data.shop_description_th || '', // Localization
+            description_en: data.shop_description_en || '', // Localization
+            shop_description: data.shop_description, // Legacy
+            logo_url: data.shop_logo || '', // Match Store interface
+            shop_logo: data.shop_logo || '', // Legacy
+
             // Default Values
-            rating_score: 0,
-            rating_count: 0,
-            trust_score: 50, // Start with neutral trust
-            follower_count: 0,
+            type: 'general',
+            onboarding_progress: 1, // Start at step 1
+            rating_avg: 0,
+            sales_count: 0,
+            trust_score: data.is_verified ? 80 : 50, // Bonus for verification
+            followers_count: 0,
             response_rate: 100,
-            is_verified_seller: false,
+            verified_status: data.is_verified ? 'verified' : 'unverified',
+            seller_level: 'new',
+            badges: [],
+
             created_at: serverTimestamp(),
             updated_at: serverTimestamp(),
-            address: data.address
+            location: {
+                formatted_address: data.address ? `${data.address.detail} ${data.address.subdistrict} ${data.address.district} ${data.address.province} ${data.address.zipcode}` : '',
+                province: data.address?.province || '',
+                district: data.address?.district || ''
+            },
+            address: data.address // Legacy
         }
 
         await setDoc(newProfileRef, profileData)
-
-        // Also update user role to seller
-        // Note: In a real app, you might want to wait for verification first
-        // But for this MVP, we instantly promote them
-        // TODO: Update user collection if you have one linked
 
         return profileId
     } catch (error) {
@@ -96,5 +114,30 @@ export async function getSellerProfileBySlug(slug: string): Promise<SellerProfil
     } catch (error) {
         console.error('Error getting seller profile by slug:', error)
         return null
+    }
+}
+
+export async function updateSellerProfile(
+    userId: string,
+    data: Partial<SellerProfile>
+): Promise<boolean> {
+    try {
+        const q = query(collection(db, SELLER_COLLECTION), where('user_id', '==', userId))
+        const querySnapshot = await getDocs(q)
+
+        if (querySnapshot.empty) return false
+
+        const docRef = doc(db, SELLER_COLLECTION, querySnapshot.docs[0].id)
+
+        const updateData = {
+            ...data,
+            updated_at: serverTimestamp()
+        }
+
+        await updateDoc(docRef, updateData)
+        return true
+    } catch (error) {
+        console.error('Error updating seller profile:', error)
+        return false
     }
 }

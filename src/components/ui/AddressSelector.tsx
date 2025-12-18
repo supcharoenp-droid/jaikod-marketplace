@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { getProvinces, getAmphoes, getDistricts, getZipcode } from '@/services/thaiAddress'
 import { MapPin, ChevronDown, Loader2 } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface AddressSelectorProps {
     onAddressChange: (address: {
@@ -20,6 +21,7 @@ interface AddressSelectorProps {
 }
 
 export default function AddressSelector({ onAddressChange, initialValues }: AddressSelectorProps) {
+    const { t } = useLanguage()
     const [loading, setLoading] = useState(true)
     const [provinces, setProvinces] = useState<string[]>([])
     const [amphoes, setAmphoes] = useState<string[]>([])
@@ -113,7 +115,7 @@ export default function AddressSelector({ onAddressChange, initialValues }: Addr
             {/* Province */}
             <div className="space-y-1">
                 <label className="text-sm font-medium text-text-primary dark:text-text-light">
-                    จังหวัด
+                    {t('profile.address_province')}
                 </label>
                 <div className="relative">
                     <select
@@ -122,7 +124,7 @@ export default function AddressSelector({ onAddressChange, initialValues }: Addr
                         disabled={loading && provinces.length === 0}
                         className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark focus:ring-2 focus:ring-neon-purple focus:border-transparent outline-none appearance-none transition-all disabled:opacity-50"
                     >
-                        <option value="">เลือกจังหวัด</option>
+                        <option value="">{t('profile.address_province')}</option>
                         {provinces.map(p => (
                             <option key={p} value={p}>{p}</option>
                         ))}
@@ -135,7 +137,7 @@ export default function AddressSelector({ onAddressChange, initialValues }: Addr
             {/* Amphoe */}
             <div className="space-y-1">
                 <label className="text-sm font-medium text-text-primary dark:text-text-light">
-                    อำเภอ/เขต
+                    {t('profile.address_district')}
                 </label>
                 <div className="relative">
                     <select
@@ -144,7 +146,7 @@ export default function AddressSelector({ onAddressChange, initialValues }: Addr
                         disabled={!selected.province}
                         className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark focus:ring-2 focus:ring-neon-purple focus:border-transparent outline-none appearance-none transition-all disabled:opacity-50 disabled:bg-gray-50 dark:disabled:bg-gray-800"
                     >
-                        <option value="">เลือกอำเภอ/เขต</option>
+                        <option value="">{t('profile.address_district')}</option>
                         {amphoes.map(a => (
                             <option key={a} value={a}>{a}</option>
                         ))}
@@ -156,7 +158,7 @@ export default function AddressSelector({ onAddressChange, initialValues }: Addr
             {/* District */}
             <div className="space-y-1">
                 <label className="text-sm font-medium text-text-primary dark:text-text-light">
-                    ตำบล/แขวง
+                    {t('profile.address_subdistrict')}
                 </label>
                 <div className="relative">
                     <select
@@ -165,7 +167,7 @@ export default function AddressSelector({ onAddressChange, initialValues }: Addr
                         disabled={!selected.amphoe}
                         className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark focus:ring-2 focus:ring-neon-purple focus:border-transparent outline-none appearance-none transition-all disabled:opacity-50 disabled:bg-gray-50 dark:disabled:bg-gray-800"
                     >
-                        <option value="">เลือกตำบล/แขวง</option>
+                        <option value="">{t('profile.address_subdistrict')}</option>
                         {districts.map(d => (
                             <option key={d} value={d}>{d}</option>
                         ))}
@@ -177,7 +179,7 @@ export default function AddressSelector({ onAddressChange, initialValues }: Addr
             {/* Zipcode */}
             <div className="space-y-1">
                 <label className="text-sm font-medium text-text-primary dark:text-text-light">
-                    รหัสไปรษณีย์
+                    {t('profile.address_postal')}
                 </label>
                 <input
                     type="text"

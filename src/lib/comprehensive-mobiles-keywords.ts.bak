@@ -1,0 +1,580 @@
+/**
+ * COMPREHENSIVE MOBILES & TABLETS KEYWORDS - Category 3 (มือถือและแท็บเล็ต)
+ * 
+ * Coverage (7 Subcategories):
+ * 1. โทรศัพท์มือถือ (Mobile Phones) - ID 301
+ * 2. แท็บเล็ต (Tablets) - ID 302
+ * 3. อุปกรณ์สวมใส่ (Wearables) - ID 303
+ * 4. อุปกรณ์เสริมมือถือ (Accessories) - ID 304
+ * 5. อะไหล่มือถือ (Parts) - ID 305
+ * 6. ฟิล์ม/เคส (Film/Cases) - ID 306
+ * 7. แบตสำรอง (Power Banks) - ID 307
+ * 
+ * Total: 600+ keywords in Thai & English
+ */
+
+export const COMPREHENSIVE_MOBILES_KEYWORDS = [
+    // ========================================
+    // MOBILE PHONES / โทรศัพท์มือถือ (301) - 250+ keywords
+    // ========================================
+    // Thai Terms - General
+    'มือถือ', 'โทรศัพท์', 'โทรศัพท์มือถือ', 'สมาร์ทโฟน',
+    'มือถือมือสอง', 'มือถือใหม่', 'มือถือแท้', 'มือถือศูนย์',
+    'โทรศัพท์มือสอง', 'โทรศัพท์ใหม่', 'เครื่องศูนย์ไทย',
+    'โทรศัพท์สมาร์ทโฟน', 'สมาทโฟน', 'smart phone',
+
+    // English Terms - General
+    'mobile', 'phone', 'mobile phone', 'smartphone', 'smart phone',
+    'cellphone', 'cell phone', 'handset', 'device',
+    'used phone', 'second hand phone', 'new phone', 'brand new',
+    'genuine', 'original', 'official', 'warranty',
+
+    // Condition - Thai
+    'ใหม่', 'มือ 1', 'มือหนึ่ง', 'มือสอง', 'มือ 2', 'มือสอง',
+    'สภาพดี', 'สภาพสวย', 'สภาพใหม่', 'เหมือนใหม่',
+    'กล่องครบ', 'อุปกรณ์ครบ', 'ประกัน', 'ประกันศูนย์',
+    'ศูนย์ไทย', 'ศูนย์ทรูมูฟ', 'ศูนย์ ais', 'ศูนย์ดีแทค',
+
+    // Condition - English
+    'new', 'brand new', 'sealed', 'unopened',
+    'used', 'second hand', 'pre-owned', 'refurbished',
+    'like new', 'excellent condition', 'good condition',
+    'full box', 'complete box', 'full accessories',
+    'warranty', 'under warranty', 'with warranty',
+
+    // BRANDS - Apple iPhone
+    'iphone', 'ไอโฟน', 'ไอโฟ', 'apple', 'แอปเปิล',
+    'iphone 15', 'iphone 15 pro', 'iphone 15 pro max', 'iphone 15 plus',
+    'iphone 14', 'iphone 14 pro', 'iphone 14 pro max', 'iphone 14 plus',
+    'iphone 13', 'iphone 13 pro', 'iphone 13 pro max', 'iphone 13 mini',
+    'iphone 12', 'iphone 12 pro', 'iphone 12 pro max', 'iphone 12 mini',
+    'iphone 11', 'iphone 11 pro', 'iphone 11 pro max',
+    'iphone se', 'iphone se 2022', 'iphone se 2020',
+    'iphone xs', 'iphone xs max', 'iphone xr', 'iphone x',
+    'iphone 8', 'iphone 8 plus', 'iphone 7', 'iphone 7 plus',
+    'iphone 6s', 'iphone 6s plus', 'iphone 6', 'iphone 6 plus',
+
+    // BRANDS - Samsung
+    'samsung', 'ซัมซุง', 'ซัมซัง', 'แซมซุง',
+    'galaxy', 'กาแล็กซี่', 'กาแลคซี่',
+    'galaxy s24', 's24', 's24 ultra', 's24 plus',
+    'galaxy s23', 's23', 's23 ultra', 's23 plus', 's23 fe',
+    'galaxy s22', 's22', 's22 ultra', 's22 plus',
+    'galaxy s21', 's21', 's21 ultra', 's21 plus', 's21 fe',
+    'galaxy s20', 's20', 's20 ultra', 's20 plus', 's20 fe',
+    'galaxy note', 'note 20', 'note 20 ultra', 'note 10', 'note 9',
+    'galaxy z fold', 'z fold 5', 'z fold 4', 'z fold 3',
+    'galaxy z flip', 'z flip 5', 'z flip 4', 'z flip 3',
+    'galaxy a', 'a54', 'a34', 'a24', 'a14', 'a04',
+    'galaxy a73', 'a53', 'a33', 'a23', 'a13', 'a03',
+    'galaxy m', 'm34', 'm54', 'm14',
+    'galaxy f', 'f54', 'f14',
+
+    // BRANDS - Oppo
+    'oppo', 'ออปโป้', 'ออปโป', 'oppo phone',
+    'find x', 'find x6', 'find x5', 'find x3', 'find n',
+    'reno', 'reno 10', 'reno 9', 'reno 8', 'reno 7', 'reno 6',
+    'reno 10 pro', 'reno 9 pro', 'reno 8 pro',
+    'a', 'a98', 'a78', 'a58', 'a18', 'a17', 'a16',
+    'a77', 'a57', 'a38', 'a16k',
+
+    // BRANDS - Vivo
+    'vivo', 'วีโว่', 'วีโว', 'vivo phone',
+    'x90', 'x80', 'x70', 'x60',
+    'v29', 'v27', 'v25', 'v23',
+    'y', 'y100', 'y77', 'y36', 'y27', 'y22', 'y16', 'y02',
+    'y78', 'y56', 'y35', 'y21', 'y15',
+
+    // BRANDS - Xiaomi
+    'xiaomi', 'เสี่ยวหมี่', 'เสี่ยวมี่', 'mi', 'มี',
+    'redmi', 'เรดมี่', 'เรดมี', 'poco', 'โปโค่', 'โปโก',
+    'xiaomi 13', 'xiaomi 12', 'xiaomi 11',
+    '13 pro', '13 ultra', '12 pro', '11 pro',
+    'redmi note', 'note 13', 'note 12', 'note 11', 'note 10',
+    'redmi 13', 'redmi 12', 'redmi 11', 'redmi 10',
+    'redmi note 13 pro', 'note 12 pro', 'note 11 pro',
+    'poco x5', 'poco x4', 'poco x3', 'poco f5', 'poco f4',
+    'poco m5', 'poco m4', 'poco c55', 'poco c40',
+
+    // BRANDS - Realme
+    'realme', 'เรียลมี', 'เรียลมี่', 'realme phone',
+    'realme 11', 'realme 10', 'realme 9', 'realme 8',
+    '11 pro', '11 pro plus', '10 pro', '10 pro plus',
+    'realme c', 'c55', 'c53', 'c35', 'c33', 'c30',
+    'realme narzo', 'narzo 60', 'narzo 50',
+    'realme gt', 'gt neo', 'gt master',
+
+    // BRANDS - Huawei
+    'huawei', 'หัวเว่ย', 'ฮัวเว่ย', 'huawei phone',
+    'p60', 'p50', 'p40', 'p30',
+    'mate', 'mate 60', 'mate 50', 'mate 40',
+    'nova', 'nova 11', 'nova 10', 'nova 9',
+    'y9', 'y7', 'y6',
+
+    // BRANDS - OnePlus
+    'oneplus', 'วันพลัส', 'one plus',
+    'oneplus 11', 'oneplus 10', 'oneplus 9', 'oneplus 8',
+    '11 pro', '10 pro', '9 pro', '8 pro',
+    'oneplus nord', 'nord ce', 'nord 3', 'nord 2',
+
+    // BRANDS - Google
+    'google pixel', 'pixel', 'พิกเซล',
+    'pixel 8', 'pixel 8 pro', 'pixel 7', 'pixel 7 pro',
+    'pixel 7a', 'pixel 6a', 'pixel 6', 'pixel 6 pro',
+
+    // BRANDS - Sony
+    'sony', 'โซนี่', 'โซนี', 'xperia', 'เอ็กซ์พีเรีย',
+    'xperia 1', 'xperia 5', 'xperia 10',
+    'xperia 1 v', 'xperia 5 v', 'xperia 10 v',
+
+    // BRANDS - Asus
+    'asus', 'เอซุส', 'อะซุส', 'asus phone',
+    'rog phone', 'rog phone 7', 'rog phone 6', 'rog 7', 'rog 6',
+    'zenfone', 'zenfone 10', 'zenfone 9', 'zenfone 8',
+
+    // BRANDS - Motorola
+    'motorola', 'มอโตโรล่า', 'moto',
+    'moto g', 'moto e', 'moto edge',
+    'edge 40', 'edge 30', 'g73', 'g53', 'g23', 'e13',
+
+    // BRANDS - Nokia
+    'nokia', 'โนเกีย', 'โนเกีย',
+    'nokia g60', 'nokia g22', 'nokia c31', 'nokia c21',
+
+    // BRANDS - LG (Discontinued but still in market)
+    'lg', 'แอลจี', 'lg phone',
+    'lg velvet', 'lg wing', 'lg v60', 'lg v50',
+
+    // BRANDS - Others
+    'honor', 'ออนเนอร์', 'infinix', 'tecno',
+    'nothing phone', 'nothing phone 2', 'nothing phone 1',
+
+    // Storage Capacity - Thai
+    'ความจุ', 'พื้นที่เก็บข้อมูล', 'rom', 'รอม',
+    '64gb', '128gb', '256gb', '512gb', '1tb',
+    '64 gb', '128 gb', '256 gb', '512 gb', '1 tb',
+
+    // Storage Capacity - English
+    'storage', 'capacity', 'memory',
+    '64gb', '128gb', '256gb', '512gb', '1tb',
+    '64 gigabyte', '128 gigabyte', '256 gigabyte',
+
+    // RAM - Thai
+    'แรม', 'ram', 'หน่วยความจำ',
+    '4gb', '6gb', '8gb', '12gb', '16gb',
+    '4 gb ram', '6 gb ram', '8 gb ram', '12 gb ram',
+
+    // RAM - English
+    'ram', 'memory',
+    '4gb', '6gb', '8gb', '12gb', '16gb',
+    '4gb ram', '6gb ram', '8gb ram', '12gb ram', '16gb ram',
+
+    // Colors - Thai
+    'สี', 'สีดำ', 'สีขาว', 'สีทอง', 'สีเงิน', 'สีชมพู',
+    'สีม่วง', 'สีฟ้า', 'สีเทา', 'สีเขียว', 'สีแดง',
+    'สีน้ำเงิน', 'สีกุหลาบ', 'สีน้ำตาล',
+
+    // Colors - English
+    'color', 'black', 'white', 'gold', 'silver', 'pink',
+    'purple', 'blue', 'gray', 'grey', 'green', 'red',
+    'midnight', 'starlight', 'sierra blue', 'graphite',
+    'phantom black', 'phantom white', 'phantom silver',
+    'aurora', 'cosmic', 'midnight black', 'space gray',
+
+    // Features - Thai
+    '5g', 'ห้าจี', 'ไฟว์จี', '4g', 'โฟร์จี',
+    'dual sim', 'สองซิม', '2 ซิม', 'esim', 'อีซิม',
+    'กล้อง', 'กล้องหลัง', 'กล้องหน้า', 'เมกะพิกเซล',
+    'จอ', 'หน้าจอ', 'amoled', 'oled', 'ips',
+    '120hz', '90hz', '60hz',
+    'แบต', 'แบตเตอรี่', 'ชาร์จเร็ว', 'fast charge',
+    'ชาร์จไร้สาย', 'wireless charge',
+    'กันน้ำ', 'waterproof', 'ip68', 'ip67',
+
+    // Features - English
+    '5g', '5g phone', '4g', '4g lte',
+    'dual sim', 'dual sim card', 'esim',
+    'camera', 'rear camera', 'front camera',
+    'megapixel', 'mp', '48mp', '64mp', '108mp', '200mp',
+    'display', 'screen', 'amoled', 'super amoled', 'oled', 'ips',
+    'refresh rate', '120hz', '90hz', '60hz',
+    'battery', 'mah', 'fast charging', 'quick charge',
+    'wireless charging', 'reverse charging',
+    'waterproof', 'water resistant', 'ip rating', 'ip68', 'ip67',
+    'fingerprint', 'face unlock', 'face id',
+
+    // ========================================
+    // TABLETS / แท็บเล็ต (302) - 100+ keywords
+    // ========================================
+    // Thai Terms - General
+    'แท็บเล็ต', 'แทบเล็ต', 'แท็บเล็ท', 'tablet',
+    'แท็บเล็ตมือสอง', 'แท็บเล็ตใหม่', 'แท็บเล็ตแท้',
+    'iPad', 'ไอแพด', 'ไอแพ็ด',
+
+    // English Terms - General
+    'tablet', 'tablets', 'pad', 'slate',
+    'used tablet', 'new tablet', 'brand new tablet',
+
+    // iPad Models
+    'ipad', 'ipad pro', 'ipad air', 'ipad mini',
+    'ipad 10', 'ipad 9', 'ipad gen 10', 'ipad gen 9',
+    'ipad pro 12.9', 'ipad pro 11', 'ipad pro m2', 'ipad pro m1',
+    'ipad air 5', 'ipad air 4', 'ipad air 2022', 'ipad air 2020',
+    'ipad mini 6', 'ipad mini 5', 'ipad mini 2021',
+
+    // Samsung Tablets
+    'galaxy tab', 'tab s9', 'tab s8', 'tab s7', 'tab s6',
+    'tab s9 ultra', 'tab s9 plus', 'tab s8 ultra', 'tab s8 plus',
+    'tab a8', 'tab a7', 'tab a', 'tab active',
+
+    // Huawei Tablets
+    'huawei matepad', 'matepad', 'matepad pro', 'matepad 11',
+    'mediapad', 't10', 't8',
+
+    // Xiaomi Tablets
+    'xiaomi pad', 'mi pad', 'redmi pad', 'poco pad',
+    'pad 6', 'pad 5', 'redmi pad se',
+
+    // Lenovo Tablets
+    'lenovo tab', 'tab m10', 'tab m11', 'tab p11', 'tab p12',
+    'yoga tab', 'tab extreme',
+
+    // Other Brands
+    'oppo pad', 'realme pad', 'vivo pad',
+    'microsoft surface', 'surface pro', 'surface go',
+
+    // Tablet Sizes - Thai
+    'ขนาด', 'นิ้ว', 'inch',
+    '8 นิ้ว', '9 นิ้ว', '10 นิ้ว', '11 นิ้ว', '12 นิ้ว', '13 นิ้ว',
+    '7.9 นิ้ว', '8.3 นิ้ว', '10.2 นิ้ว', '10.9 นิ้ว', '11 นิ้ว', '12.9 นิ้ว',
+
+    // Tablet Sizes - English
+    'size', 'inch', 'inches',
+    '8 inch', '9 inch', '10 inch', '11 inch', '12 inch', '13 inch',
+    '7.9"', '8.3"', '10.2"', '10.9"', '11"', '12.9"',
+
+    // Connectivity - Thai
+    'wifi', 'ไวไฟ', 'wifi only', 'cellular', 'เซลลูล่าร์',
+    'wifi + cellular', '4g', '5g', 'sim card', 'ซิมการ์ด',
+
+    // Connectivity - English
+    'wifi', 'wi-fi', 'wifi only', 'wifi model',
+    'cellular', 'wifi + cellular', 'lte', '4g lte', '5g',
+    'sim card', 'esim',
+
+    // Storage - Thai
+    '32gb', '64gb', '128gb', '256gb', '512gb', '1tb',
+
+    // Storage - English
+    '32gb', '64gb', '128gb', '256gb', '512gb', '1tb',
+
+    // Accessories - Thai
+    'ปากกา', 'pencil', 'apple pencil', 's pen',
+    'คีย์บอร์ด', 'keyboard', 'magic keyboard', 'smart keyboard',
+    'เคส', 'case', 'cover', 'smart cover',
+
+    // Accessories - English
+    'pencil', 'stylus', 'apple pencil', 's pen', 'pen',
+    'keyboard', 'keyboard case', 'magic keyboard', 'smart keyboard',
+    'case', 'cover', 'smart cover', 'folio',
+
+    // ========================================
+    // WEARABLES / อุปกรณ์สวมใส่ (303) - 80+ keywords
+    // ========================================
+    // Thai Terms - General
+    'นาฬิกาอัจฉริยะ', 'สมาร์ทวอทช์', 'smart watch', 'นาฬิกา',
+    'สายรัดข้อมือ', 'fitness tracker', 'แทรคเกอร์',
+    'หูฟัง', 'หูฟังไร้สาย', 'หูฟังบลูทูธ', 'หูฟังไร้สาย',
+    'earbuds', 'เอียร์บัด', 'airpods', 'แอร์พอด',
+
+    // English Terms - General
+    'smartwatch', 'smart watch', 'watch', 'wearable',
+    'fitness tracker', 'activity tracker', 'fitness band',
+    'wireless earbuds', 'true wireless', 'tws',
+    'earbuds', 'earphones', 'headphones',
+
+    // Smart Watches - Apple
+    'apple watch', 'แอปเปิลวอทช์', 'apple watch ultra',
+    'watch ultra', 'watch ultra 2',
+    'apple watch series 9', 'watch series 9', 'series 9',
+    'apple watch series 8', 'series 8',
+    'apple watch se', 'watch se', 'se 2022', 'se 2020',
+    'apple watch series 7', 'series 7',
+    'apple watch series 6', 'series 6',
+
+    // Smart Watches - Samsung
+    'galaxy watch', 'galaxy watch 6', 'watch 6', 'watch 6 classic',
+    'galaxy watch 5', 'watch 5', 'watch 5 pro',
+    'galaxy watch 4', 'watch 4', 'watch 4 classic',
+    'galaxy watch active', 'watch active 2',
+    'galaxy fit', 'fit 2', 'fit 3',
+
+    // Smart Watches - Xiaomi
+    'mi watch', 'xiaomi watch', 'redmi watch',
+    'mi band', 'mi band 8', 'mi band 7', 'mi band 6',
+    'redmi watch 3', 'redmi watch 2',
+    'amazfit', 'amazfit gtr', 'amazfit gts', 'amazfit bip',
+
+    // Smart Watches - Huawei
+    'huawei watch', 'watch gt', 'watch gt 4', 'watch gt 3',
+    'watch fit', 'fit 2', 'band 8', 'band 7',
+
+    // Smart Watches - Fitbit
+    'fitbit', 'fitbit versa', 'versa 4', 'versa 3',
+    'fitbit sense', 'sense 2', 'fitbit charge', 'charge 5',
+    'fitbit inspire', 'inspire 3',
+
+    // Smart Watches - Garmin
+    'garmin', 'forerunner', 'fenix', 'venu', 'vivoactive',
+    'fenix 7', 'fenix 6', 'venu 3', 'venu 2',
+
+    // Smart Watches - Others
+    'oppo watch', 'realme watch', 'honor watch',
+    'fossil', 'skagen', 'ticwatch', 'amazfit',
+
+    // Wireless Earbuds - Apple
+    'airpods', 'airpods pro', 'airpods 3', 'airpods 2',
+    'airpods max', 'airpods pro 2', 'airpods gen 3',
+
+    // Wireless Earbuds - Samsung
+    'galaxy buds', 'buds 2', 'buds 2 pro', 'buds pro',
+    'buds live', 'buds plus', 'buds fe',
+
+    // Wireless Earbuds - Xiaomi
+    'redmi buds', 'buds 4', 'buds 3', 'buds 3 pro',
+    'mi buds', 'airdots',
+
+    // Wireless Earbuds - Others
+    'huawei freebuds', 'freebuds pro', 'freebuds 5',
+    'oppo enco', 'realme buds', 'sony wf', 'jabra',
+    'jbl', 'bose', 'beats', 'sennheiser',
+
+    // Features - Thai
+    'วัดหัวใจ', 'heart rate', 'วัดออกซิเจน', 'spo2',
+    'นับก้าว', 'step counter', 'นับแคลอรี่',
+    'กันน้ำ', 'waterproof', 'ติดตามการนอนหลับ',
+    'ตัดเสียงรบกวน', 'anc', 'noise cancelling',
+
+    // Features - English
+    'heart rate', 'heart rate monitor', 'spo2', 'blood oxygen',
+    'step counter', 'pedometer', 'calorie counter',
+    'gps', 'built-in gps', 'water resistant', 'waterproof',
+    'sleep tracking', 'sleep monitor',
+    'noise cancelling', 'anc', 'active noise cancellation',
+    'transparency mode', 'ambient mode',
+
+    // ========================================
+    // MOBILE ACCESSORIES / อุปกรณ์เสริมมือถือ (304) - 60+ keywords
+    // ========================================
+    // Thai Terms - General
+    'อุปกรณ์เสริม', 'อุปกรณ์มือถือ', 'อุปกรณ์', 'accessories',
+
+    // Chargers - Thai
+    'ที่ชาร์จ', 'ชาร์จเจอร์', 'หัวชาร์จ', 'adapter',
+    'สายชาร์จ', 'cable', 'สาย usb', 'สาย type-c',
+    'สายไลท์นิ่ง', 'lightning cable',
+    'ที่ชาร์จไร้สาย', 'wireless charger', 'ชาร์จไร้สาย',
+    'ที่ชาร์จเร็ว', 'fast charger', 'quick charge',
+
+    // Chargers - English
+    'charger', 'adapter', 'power adapter', 'wall charger',
+    'charging cable', 'cable', 'usb cable',
+    'type-c cable', 'usb-c cable', 'lightning cable',
+    'wireless charger', 'qi charger', 'magsafe',
+    'fast charger', 'quick charge', 'pd charger',
+    '20w', '25w', '33w', '65w', '100w',
+
+    // Earphones - Thai
+    'หูฟัง', 'หูฟังมือถือ', 'หูฟังแบบมีสาย',
+    'หูฟังบลูทูธ', 'หูฟังไร้สาย', 'หูฟังไร้เสียง',
+    'หูฟังตัดเสียง', 'หูฟัง in-ear', 'หูฟังครอบหู',
+
+    // Earphones - English
+    'earphones', 'headphones', 'earbuds', 'headset',
+    'wired earphones', 'wireless earphones',
+    'bluetooth earphones', 'bluetooth headphones',
+    'in-ear', 'over-ear', 'on-ear',
+    'noise cancelling', 'noise canceling',
+
+    // Phone Holders & Stands - Thai
+    'ที่วางโทรศัพท์', 'ขาตั้ง', 'ที่ตั้งมือถือ',
+    'ที่จับมือถือ', 'ring holder', 'pop socket',
+    'ที่จับในรถ', 'car holder', 'ที่วางในรถ',
+    'ไม้เซลฟี่', 'selfie stick', 'tripod',
+
+    // Phone Holders & Stands - English
+    'phone stand', 'phone holder', 'holder',
+    'ring holder', 'ring grip', 'pop socket',
+    'car holder', 'car mount', 'dashboard mount',
+    'selfie stick', 'tripod', 'gimbal',
+
+    // Screen Protectors (Light mention) - Thai
+    'ฟิล์ม', 'ฟิล์มกันรอย', 'กระจก', 'กระจกกันรอย',
+
+    // Screen Protectors (Light mention) - English
+    'screen protector', 'tempered glass', 'glass protector',
+
+    // Cases (Light mention) - Thai
+    'เคส', 'เคสมือถือ', 'เคสโทรศัพท์',
+
+    // Cases (Light mention) - English
+    'case', 'phone case', 'cover', 'protective case',
+
+    // ========================================
+    // MOBILE PARTS / อะไหล่มือถือ (305) - 50+ keywords
+    // ========================================
+    // Thai Terms - General
+    'อะไหล่', 'อะไหล่มือถือ', 'ชิ้นส่วน', 'spare parts',
+    'อะไหล่แท้', 'อะไหล่ศูนย์', 'อะไหล่ทดแทน',
+
+    // English Terms - General
+    'parts', 'spare parts', 'replacement parts',
+    'genuine parts', 'original parts', 'oem parts',
+
+    // Screens - Thai
+    'จอ', 'หน้าจอ', 'จอแตก', 'เปลี่ยนจอ',
+    'จอ lcd', 'จอ oled', 'จอ amoled',
+    'ทัชสกรีน', 'กระจกหน้าจอ',
+
+    // Screens - English
+    'screen', 'display', 'lcd', 'oled', 'amoled',
+    'touchscreen', 'digitizer', 'glass screen',
+    'screen replacement', 'lcd replacement',
+
+    // Batteries - Thai
+    'แบต', 'แบตเตอรี่', 'แบตมือถือ', 'แบตเตอรี่ภายใน',
+    'เปลี่ยนแบต', 'แบตเสื่อม', 'แบตบวม',
+
+    // Batteries - English
+    'battery', 'internal battery', 'replacement battery',
+    'battery replacement', 'phone battery',
+
+    // Other Parts - Thai
+    'กล้อง', 'กล้องหลัง', 'กล้องหน้า', 'เลนส์กล้อง',
+    'แผงวงจร', 'เมนบอร์ด', 'mainboard',
+    'ปุ่ม', 'ปุ่มเปิดปิด', 'ปุ่มเสียง',
+    'ลำโพง', 'speaker', 'ไมค์', 'microphone',
+    'ถาดซิม', 'sim tray', 'ช่องใส่ซิม',
+    'ตัวเครื่อง', 'body', 'ฝาหลัง', 'back cover',
+
+    // Other Parts - English
+    'camera', 'rear camera', 'front camera', 'camera lens',
+    'motherboard', 'mainboard', 'logic board',
+    'button', 'power button', 'volume button',
+    'speaker', 'earpiece', 'microphone', 'mic',
+    'sim tray', 'sim card tray',
+    'housing', 'body', 'back cover', 'back glass',
+    'charging port', 'flex cable', 'connector',
+
+    // ========================================
+    // FILM & CASES / ฟิล์มและเคส (306) - 60+ keywords
+    // ========================================
+    // Screen Protectors - Thai
+    'ฟิล์ม', 'ฟิล์มกันรอย', 'ฟิล์มกระจก', 'ฟิล์มใส',
+    'กระจก', 'กระจกกันรอย', 'กระจกนิรภัย',
+    'ฟิล์มเต็มจอ', 'ฟิล์มโค้ง', 'ฟิล์ม uv',
+    'ฟิล์มด้าน', 'ฟิล์มลดแสงสีน้ำเงิน',
+    'ฟิล์มกันแตก', 'ฟิล์มกันรอยขีดข่วน',
+
+    // Screen Protectors - English
+    'screen protector', 'film', 'screen film',
+    'tempered glass', 'glass protector', 'glass screen protector',
+    'clear film', 'matte film', 'anti glare',
+    'full cover', 'full screen', 'curved glass',
+    'uv glass', 'blue light filter',
+    '9h hardness', 'anti scratch', 'shatterproof',
+
+    // Cases - Thai
+    'เคส', 'เคสมือถือ', 'เคสโทรศัพท์', 'เคสไอโฟน',
+    'เคสซิลิโคน', 'เคสยาง', 'เคสนิ่ม',
+    'เคสพลาสติก', 'เคสแข็ง', 'เคสใส',
+    'เคสกันกระแทก', 'เคสกันน้ำ',
+    'เคสหนัง', 'เคสฝาพับ', 'flip case',
+    'เคสสวย', 'เคสลายการ์ตูน', 'เคสลาย',
+
+    // Cases - English
+    'case', 'phone case', 'mobile case', 'iphone case',
+    'silicone case', 'soft case', 'rubber case',
+    'hard case', 'plastic case', 'pc case',
+    'clear case', 'transparent case',
+    'shockproof case', 'armor case', 'rugged case',
+    'waterproof case', 'water resistant case',
+    'leather case', 'flip case', 'wallet case', 'folio case',
+    'slim case', 'thin case', 'ultra thin',
+    'cute case', 'designer case', 'fashion case',
+
+    // Case Features - Thai
+    'มีสายคล้อง', 'มีที่ใส่การ์ด', 'มีขาตั้ง',
+    'กันกระแทก', 'กันรอย', 'กันลื่น',
+
+    // Case Features - English
+    'with strap', 'with lanyard', 'card holder',
+    'kickstand', 'stand', 'magnetic',
+    'magsafe', 'shockproof', 'anti slip',
+
+    // Popular Case Brands
+    'otterbox', 'spigen', 'uag', 'ringke', 'nillkin',
+    'baseus', 'rock', 'usams', 'hoco',
+
+    // ========================================
+    // POWER BANKS / แบตสำรอง (307) - 50+ keywords
+    // ========================================
+    // Thai Terms - General
+    'แบตสำรอง', 'power bank', 'powerbank', 'แบตเตอรี่สำรอง',
+    'แบตเตอรี่พกพา', 'แบตพกพา', 'ที่ชาร์จพกพา',
+
+    // English Terms - General
+    'power bank', 'powerbank', 'portable charger',
+    'portable battery', 'external battery',
+    'power pack', 'battery pack',
+
+    // Capacity - Thai
+    'ความจุ', 'mah', 'มิลลิแอมป์',
+    '5000mah', '10000mah', '20000mah', '30000mah',
+    '5,000 mah', '10,000 mah', '20,000 mah',
+
+    // Capacity - English
+    'capacity', 'mah', 'milliampere',
+    '5000mah', '10000mah', '20000mah', '30000mah', '50000mah',
+    '5k', '10k', '20k', '30k',
+
+    // Features - Thai
+    'ชาร์จเร็ว', 'fast charge', 'quick charge',
+    'ชาร์จไร้สาย', 'wireless', 'ชาร์จได้หลายเครื่อง',
+    'มีสาย', 'ในตัว', 'สายในตัว',
+    'แบตกระทัดรัด', 'แบตขนาดเล็ก', 'แบตพกพาสะดวก',
+    'หน้าจอแสดงผล', 'มีไฟ led',
+
+    // Features - English
+    'fast charging', 'quick charge', 'pd charging',
+    'wireless charging', 'qi wireless',
+    'multi port', 'multiple ports', '2 ports', '3 ports',
+    'built-in cable', 'attached cable',
+    'compact', 'slim', 'portable', 'lightweight',
+    'led indicator', 'lcd display', 'digital display',
+    'solar', 'solar panel',
+
+    // Charging Ports - Thai
+    'usb', 'type-c', 'ไทป์ซี', 'lightning',
+    'micro usb', 'ไมโคร usb',
+
+    // Charging Ports - English
+    'usb', 'usb-a', 'usb-c', 'type-c',
+    'lightning', 'micro usb',
+
+    // Brands
+    'anker', 'xiaomi', 'samsung', 'romoss', 'baseus',
+    'aukey', 'ravpower', 'zendure', 'ugreen',
+    'hoco', 'remax', 'yoobao', 'eloop',
+
+    // Output Power - Thai
+    'วัตต์', 'w', 'watt',
+    '18w', '20w', '22.5w', '30w', '45w', '65w', '100w',
+
+    // Output Power - English
+    'watt', 'watts', 'w',
+    '18w', '20w', '22.5w', '30w', '45w', '65w', '100w',
+    'output', 'power output', 'charging speed',
+]
+
+// Total: 600+ keywords!

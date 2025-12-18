@@ -6,6 +6,7 @@ import ProductCard from '@/components/product/ProductCard'
 import { getAllProducts } from '@/services/productService'
 import type { ProductWithId } from '@/types/product'
 import Link from 'next/link'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface NewArrivalsProps {
     title?: string
@@ -14,10 +15,11 @@ interface NewArrivalsProps {
 }
 
 export default function NewArrivals({
-    title = "สินค้าใหม่ล่าสุด",
-    subtitle = "มาใหม่! เพิ่งลงขายบน JaiKod",
+    title,
+    subtitle,
     showViewAll = true
 }: NewArrivalsProps) {
+    const { t } = useLanguage()
     const [products, setProducts] = useState<ProductWithId[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -25,12 +27,14 @@ export default function NewArrivals({
     useEffect(() => {
         async function fetchNewProducts() {
             try {
+                console.log('[NewArrivals] Starting to fetch products...')
                 setLoading(true)
                 const allProducts = await getAllProducts(12)
+                console.log('[NewArrivals] Fetched products:', allProducts.length, allProducts)
                 setProducts(allProducts)
                 setError(null)
             } catch (err) {
-                console.error('Error fetching new products:', err)
+                console.error('[NewArrivals] Error fetching new products:', err)
                 setError('ไม่สามารถโหลดสินค้าใหม่ได้')
             } finally {
                 setLoading(false)
@@ -40,10 +44,8 @@ export default function NewArrivals({
         fetchNewProducts()
     }, [])
 
-    // Don't render if no products and not loading
-    if (!loading && products.length === 0 && !error) {
-        return null
-    }
+    // Always render to help debug
+    console.log('[NewArrivals] Render state:', { loading, productsCount: products.length, error })
 
     return (
         <section className="py-8">
@@ -59,14 +61,14 @@ export default function NewArrivals({
                         </div>
                         <div>
                             <h2 className="text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                {title}
+                                {title || t('home.new_title')}
                                 <span className="text-xs bg-gradient-to-r from-pink-500 to-rose-500 text-white px-2 py-0.5 rounded-full font-medium">
                                     NEW
                                 </span>
                             </h2>
                             <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
-                                {subtitle}
+                                {subtitle || t('home.new_subtitle')}
                             </p>
                         </div>
                     </div>
@@ -76,7 +78,7 @@ export default function NewArrivals({
                             href="/search?sort=newest"
                             className="hidden md:flex items-center text-sm font-medium text-neon-purple hover:text-purple-700 transition-colors group"
                         >
-                            ดูทั้งหมด
+                            {t('home.new_view_all')}
                             <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     )}
@@ -84,7 +86,7 @@ export default function NewArrivals({
 
                 {/* Loading State */}
                 {loading && (
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
                         {[1, 2, 3, 4, 5, 6].map((i) => (
                             <div key={i} className="animate-pulse">
                                 <div className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-xl mb-2"></div>
@@ -98,12 +100,12 @@ export default function NewArrivals({
                 {/* Error State */}
                 {error && (
                     <div className="text-center py-12 bg-red-50 dark:bg-red-900/20 rounded-xl">
-                        <p className="text-red-500">{error}</p>
+                        <p className="text-red-500">{t('home.loading_error')}</p>
                         <button
                             onClick={() => window.location.reload()}
                             className="mt-4 text-sm text-neon-purple hover:underline"
                         >
-                            ลองใหม่อีกครั้ง
+                            {t('home.retry')}
                         </button>
                     </div>
                 )}
@@ -111,7 +113,7 @@ export default function NewArrivals({
                 {/* Products Grid */}
                 {!loading && !error && products.length > 0 && (
                     <>
-                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
                             {products.map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
@@ -124,7 +126,7 @@ export default function NewArrivals({
                                     href="/search?sort=newest"
                                     className="inline-flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-neon-purple bg-purple-50 dark:bg-purple-900/20 rounded-xl hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
                                 >
-                                    ดูสินค้าใหม่ทั้งหมด
+                                    {t('home.new_view_all')}
                                     <ArrowRight className="w-4 h-4 ml-1" />
                                 </Link>
                             </div>
@@ -138,13 +140,13 @@ export default function NewArrivals({
                         <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30 rounded-2xl flex items-center justify-center">
                             <Sparkles className="w-10 h-10 text-pink-500" />
                         </div>
-                        <h3 className="text-lg font-bold mb-2">ยังไม่มีสินค้าใหม่</h3>
-                        <p className="text-gray-500 mb-4">เป็นคนแรกที่ลงขายสินค้าบน JaiKod!</p>
+                        <h3 className="text-lg font-bold mb-2">{t('home.empty_new_title')}</h3>
+                        <p className="text-gray-500 mb-4">{t('home.empty_new_desc')}</p>
                         <Link
                             href="/sell"
                             className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-neon-purple to-coral-orange text-white rounded-xl font-bold hover:shadow-lg transition-all"
                         >
-                            ลงขายสินค้าเลย →
+                            {t('home.empty_new_btn')} →
                         </Link>
                     </div>
                 )}

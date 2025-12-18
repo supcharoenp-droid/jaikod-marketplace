@@ -1,0 +1,405 @@
+/**
+ * COMPREHENSIVE HOME & GARDEN KEYWORDS - Category 13 (บ้านและสวน)
+ * 
+ * Coverage (5 Subcategories):
+ * 1. เฟอร์นิเจอร์ (Furniture) - ID 1301
+ * 2. ของตกแต่งบ้าน (Home Decor) - ID 1302
+ * 3. ต้นไม้/ทำสวน (Gardening) - ID 1303
+ * 4. เครื่องมือช่าง (Tools) - ID 1304
+ * 5. อุปกรณ์สวน (Garden Equipment) - ID 1305
+ * 
+ * Total: 400+ keywords in Thai & English
+ */
+
+export const COMPREHENSIVE_HOME_GARDEN_KEYWORDS = [
+    // ========================================
+    // FURNITURE / เฟอร์นิเจอร์ (1301) - 120+ keywords
+    // ========================================
+    // Thai Terms - General
+    'เฟอร์นิเจอร์', 'furniture', 'เฟอร์นิเจอร์บ้าน',
+    'เฟอร์นิเจอร์มือสอง', 'used furniture', 'เฟอร์นิเจอร์ใหม่',
+
+    // English Terms - General
+    'furniture', 'home furniture', 'used furniture',
+    'second hand furniture', 'new furniture',
+
+    // Living Room - Thai
+    'โซฟา', 'sofa', 'โซฟาเบด', 'sofa bed',
+    'เก้าอี้', 'chair', 'เก้าอี้นั่งเล่น',
+    'โต๊ะกลาง', 'coffee table', 'โต๊ะข้าง', 'side table',
+    'ชั้นวางทีวี', 'tv stand', 'tv rack',
+    'ชั้นหนังสือ', 'bookshelf', 'book rack',
+
+    // Living Room - English
+    'sofa', 'couch', 'sofa bed', 'sectional sofa',
+    'loveseat', '2 seater', '3 seater', 'l-shape sofa',
+    'armchair', 'recliner', 'lounge chair',
+    'coffee table', 'center table', 'side table',
+    'tv stand', 'tv cabinet', 'entertainment center',
+    'bookshelf', 'bookcase', 'display cabinet',
+
+    // Dining Room - Thai
+    'โต๊ะอาหาร', 'dining table', 'โต๊ะกินข้าว',
+    'เก้าอี้ทานอาหาร', 'dining chair',
+    'ชุดโต๊ะอาหาร', 'dining set',
+    'ตู้กับข้าว', 'sideboard', 'buffet',
+
+    // Dining Room - English
+    'dining table', 'dining set', 'dining chair',
+    'dining room furniture', 'extendable table',
+    '4 seater', '6 seater', '8 seater',
+    'sideboard', 'buffet', 'china cabinet',
+    'bar table', 'bar stool', 'counter stool',
+
+    // Bedroom - Thai
+    'เตียง', 'bed', 'เตียงนอน',
+    'เตียงไม้', 'wooden bed', 'เตียงเหล็ก',
+    'ที่นอน', 'mattress', 'เตียงสปริง',
+    'ตู้เสื้อผ้า', 'wardrobe', 'ตู้บานเลื่อน',
+    'โต๊ะเครื่องแป้ง', 'dressing table',
+    'โต๊ะข้างเตียง', 'bedside table', 'nightstand',
+
+    // Bedroom - English
+    'bed', 'bed frame', 'single bed', 'double bed',
+    'queen bed', 'king bed', 'super single',
+    'wooden bed', 'metal bed', 'upholstered bed',
+    'bunk bed', 'loft bed', 'platform bed',
+    'mattress', 'spring mattress', 'foam mattress',
+    'wardrobe', 'closet', 'armoire', 'sliding door',
+    'dressing table', 'vanity', 'dresser',
+    'bedside table', 'nightstand', 'chest of drawers',
+
+    // Office - Thai
+    'โต๊ะทำงาน', 'desk', 'work desk',
+    'เก้าอี้สำนักงาน', 'office chair', 'เก้าอี้ทำงาน',
+    'เก้าอี้เกมมิ่ง', 'gaming chair',
+    'ตู้เอกสาร', 'filing cabinet',
+
+    // Office - English
+    'desk', 'office desk', 'computer desk', 'study desk',
+    'writing desk', 'standing desk', 'adjustable desk',
+    'office chair', 'task chair', 'executive chair',
+    'ergonomic chair', 'mesh chair',
+    'gaming chair', 'racing chair',
+    'filing cabinet', 'drawer unit', 'storage cabinet',
+
+    // Storage - Thai
+    'ตู้', 'cabinet', 'ตู้เก็บของ',
+    'ชั้นวาง', 'shelf', 'shelving',
+    'ลิ้นชัก', 'drawer', 'ตู้ลิ้นชัก',
+
+    // Storage - English
+    'cabinet', 'storage cabinet', 'cupboard',
+    'shelf', 'shelving unit', 'rack',
+    'drawer', 'chest', 'storage box',
+
+    // Materials - Thai
+    'ไม้', 'wood', 'ไม้สัก', 'teak',
+    'ไม้สน', 'pine', 'ไม้โอ๊ก', 'oak',
+    'ไม้อัด', 'plywood', 'mdf',
+    'เหล็ก', 'metal', 'steel', 'สแตนเลส',
+    'พลาสติก', 'plastic', 'หวาย', 'rattan',
+
+    // Materials - English
+    'wood', 'wooden', 'solid wood',
+    'teak', 'oak', 'pine', 'walnut', 'mahogany',
+    'plywood', 'mdf', 'particle board',
+    'metal', 'steel', 'iron', 'stainless steel',
+    'plastic', 'rattan', 'bamboo', 'glass',
+    'leather', 'fabric', 'upholstered',
+
+    // ========================================
+    // HOME DECOR / ของตกแต่งบ้าน (1302) - 80+ keywords
+    // ========================================
+    // Thai Terms - General
+    'ของตกแต่ง', 'decor', 'ของตกแต่งบ้าน',
+    'ของตกแต่งห้อง', 'home decoration',
+
+    // English Terms - General
+    'home decor', 'decoration', 'home decoration',
+    'decorative item', 'ornament',
+
+    // Wall Decor - Thai
+    'ภาพแขวน', 'wall art', 'กรอบรูป',
+    'กระจก', 'mirror', 'กระจกแขวน',
+    'นาฬิกาแขวน', 'wall clock', 'นาฬิกาติดผนัง',
+    'ชั้นแขวน', 'wall shelf',
+
+    // Wall Decor - English
+    'wall art', 'wall painting', 'canvas art',
+    'picture frame', 'photo frame', 'poster frame',
+    'mirror', 'wall mirror', 'decorative mirror',
+    'wall clock', 'wall shelf', 'floating shelf',
+    'wall sticker', 'wallpaper', 'wall decal',
+
+    // Lighting - Thai
+    'โคมไฟ', 'lamp', 'โคมไฟตั้งโต๊ะ',
+    'โคมไฟตั้งพื้น', 'floor lamp', 'โคมไฟแขวน',
+    'โคมระย้า', 'chandelier', 'โคมไฟเพดาน',
+    'ไฟประดับ', 'string lights', 'fairy lights',
+
+    // Lighting - English
+    'lamp', 'table lamp', 'desk lamp',
+    'floor lamp', 'standing lamp',
+    'pendant light', 'hanging lamp', 'ceiling light',
+    'chandelier', 'spotlight', 'downlight',
+    'string lights', 'fairy lights', 'led strip',
+    'night light', 'decorative light',
+
+    // Textiles - Thai
+    'ผ้าม่าน', 'curtain', 'ม่าน',
+    'ผ้าปูโต๊ะ', 'tablecloth', 'ผ้ารองจาน',
+    'พรม', 'rug', 'carpet', 'พรมปูพื้น',
+    'หมอน', 'pillow', 'cushion', 'หมอนอิง',
+    'ผ้าห่ม', 'blanket', 'throw',
+
+    // Textiles - English
+    'curtain', 'drapes', 'blinds', 'sheer curtain',
+    'blackout curtain', 'curtain rod',
+    'tablecloth', 'table runner', 'placemat',
+    'rug', 'carpet', 'area rug', 'floor mat',
+    'pillow', 'cushion', 'throw pillow', 'decorative pillow',
+    'blanket', 'throw blanket', 'bedspread',
+
+    // Decorative Items - Thai
+    'แจกัน', 'vase', 'แจกันดอกไม้',
+    'ตุ๊กตา', 'doll', 'figurine', 'ของตกแต่งโต๊ะ',
+    'เทียน', 'candle', 'เทียนหอม', 'scented candle',
+    'กระถางต้นไม้', 'plant pot', 'flower pot',
+
+    // Decorative Items - English
+    'vase', 'flower vase', 'decorative vase',
+    'figurine', 'statue', 'sculpture',
+    'candle', 'scented candle', 'candle holder',
+    'plant pot', 'planter', 'flower pot',
+    'centerpiece', 'ornament', 'trinket',
+
+    // ========================================
+    // GARDENING / ต้นไม้ ทำสวน (1303) - 80+ keywords
+    // ========================================
+    // Thai Terms - General
+    'ต้นไม้', 'plant', 'plants', 'ไม้ประดับ',
+    'ทำสวน', 'gardening', 'จัดสวน',
+
+    // English Terms - General
+    'plant', 'plants', 'gardening', 'garden',
+    'landscaping', 'greenery',
+
+    // Indoor Plants - Thai
+    'ต้นไม้ในบ้าน', 'indoor plant', 'ไม้กระถาง',
+    'ไม้อวบน้ำ', 'succulent', 'กระบองเพชร',
+    'ไม้ฟอกอากาศ', 'air purifying plant',
+    'ไม้มงคล', 'lucky plant', 'ไม้ดูดสารพิษ',
+
+    // Indoor Plants - English
+    'indoor plant', 'houseplant', 'potted plant',
+    'succulent', 'cactus', 'cacti',
+    'air purifying plant', 'snake plant', 'sansevieria',
+    'money plant', 'lucky bamboo', 'jade plant',
+    'spider plant', 'pothos', 'monstera',
+    'peace lily', 'aloe vera', 'fern',
+
+    // Outdoor Plants - Thai
+    'ต้นไม้กลางแจ้ง', 'outdoor plant',
+    'ไม้ดอก', 'flowering plant', 'ไม้ดอกไม้ประดับ',
+    'ไม้ผล', 'fruit tree', 'ต้นไม้ผล',
+    'ไม้ยืนต้น', 'tree', 'ไม้พุ่ม', 'shrub',
+    'ไม้เลื้อย', 'climber', 'vine',
+
+    // Outdoor Plants - English
+    'outdoor plant', 'garden plant',
+    'flowering plant', 'flower', 'rose', 'orchid',
+    'fruit tree', 'mango tree', 'lemon tree',
+    'tree', 'palm tree', 'shrub', 'bush',
+    'climber', 'vine', 'creeper',
+    'grass', 'lawn', 'ground cover',
+
+    // Vegetables/Herbs - Thai
+    'ผัก', 'vegetable', 'ผักกินได้',
+    'สมุนไพร', 'herb', 'พืชผัก',
+    'มะเขือเทศ', 'tomato', 'พริก', 'chili',
+    'โหระพา', 'basil', 'กะเพรา',
+
+    // Vegetables/Herbs - English
+    'vegetable', 'vegetables', 'veggie',
+    'herb', 'herbs', 'basil', 'mint',
+    'tomato', 'chili', 'pepper',
+    'lettuce', 'kale', 'spinach',
+
+    // Seeds & Soil - Thai
+    'เมล็ดพันธุ์', 'seed', 'seeds',
+    'ดิน', 'soil', 'ดินปลูก',
+    'ปุ๋ย', 'fertilizer', 'ปุ๋ยอินทรีย์',
+    'วัสดุปลูก', 'growing medium',
+
+    // Seeds & Soil - English
+    'seed', 'seeds', 'seedling',
+    'soil', 'potting soil', 'garden soil',
+    'fertilizer', 'organic fertilizer', 'compost',
+    'growing medium', 'perlite', 'peat moss',
+
+    // Pots & Planters - Thai
+    'กระถาง', 'pot', 'flower pot',
+    'กระถางต้นไม้', 'plant pot', 'planter',
+    'กระถางเซรามิก', 'ceramic pot',
+    'กระถางพลาสติก', 'plastic pot',
+
+    // Pots & Planters - English
+    'pot', 'flower pot', 'plant pot', 'planter',
+    'ceramic pot', 'terracotta pot', 'clay pot',
+    'plastic pot', 'hanging basket',
+    'raised bed', 'garden bed',
+
+    // ========================================
+    // TOOLS / เครื่องมือช่าง (1304) - 80+ keywords
+    // ========================================
+    // Thai Terms - General
+    'เครื่องมือ', 'tool', 'tools', 'เครื่องมือช่าง',
+    'อุปกรณ์ช่าง', 'hand tools', 'power tools',
+
+    // English Terms - General
+    'tool', 'tools', 'hand tools', 'power tools',
+    'equipment', 'hardware',
+
+    // Hand Tools - Thai
+    'ค้อน', 'hammer', 'ค้อนตอกตะปู',
+    'ไขควง', 'screwdriver', 'ไขควงแบน',
+    'คีม', 'pliers', 'คีมปากแหลม',
+    'ประแจ', 'wrench', 'ประแจเลื่อน',
+    'เลื่อย', 'saw', 'เลื่อยมือ',
+    'สว่าน', 'drill', 'สว่านมือ',
+
+    // Hand Tools - English
+    'hammer', 'claw hammer', 'mallet',
+    'screwdriver', 'flathead', 'phillips', 'hex key',
+    'pliers', 'needle nose pliers', 'cutting pliers',
+    'wrench', 'spanner', 'adjustable wrench',
+    'saw', 'hand saw', 'hacksaw', 'coping saw',
+    'drill', 'hand drill', 'tape measure', 'ruler',
+
+    // Power Tools - Thai
+    'สว่านไฟฟ้า', 'electric drill', 'drill',
+    'สว่านไร้สาย', 'cordless drill',
+    'เลื่อยวงเดือน', 'circular saw',
+    'เครื่องขัด', 'sander', 'grinder',
+    'เครื่องเจียร', 'angle grinder',
+    'เครื่องเป่าลม', 'air blower',
+
+    // Power Tools - English
+    'electric drill', 'power drill', 'cordless drill',
+    'impact driver', 'hammer drill',
+    'circular saw', 'jigsaw', 'reciprocating saw',
+    'sander', 'orbital sander', 'belt sander',
+    'grinder', 'angle grinder', 'bench grinder',
+    'router', 'planer', 'air compressor',
+
+    // Tool Brands
+    'makita', 'มาคิต้า',
+    'bosch', 'บ็อช',
+    'dewalt', 'ดีวอลท์',
+    'black & decker', 'แบล็กแอนด์เดคเกอร์',
+    'milwaukee', 'มิลวอกี',
+    'ryobi', 'ริโอบิ',
+    'hitachi', 'ฮิตาชิ',
+
+    // Measuring Tools - Thai
+    'ตลับเมตร', 'tape measure', 'measuring tape',
+    'ระดับน้ำ', 'spirit level', 'level',
+    'ฉาก', 'square', 'try square',
+
+    // Measuring Tools - English
+    'tape measure', 'measuring tape', 'ruler',
+    'spirit level', 'level', 'laser level',
+    'square', 'try square', 'speed square',
+    'caliper', 'protractor',
+
+    // Safety Equipment - Thai
+    'แว่นนิรภัย', 'safety glasses', 'safety goggles',
+    'ถุงมือ', 'gloves', 'work gloves',
+    'หน้ากาก', 'mask', 'dust mask',
+
+    // Safety Equipment - English
+    'safety glasses', 'safety goggles', 'eye protection',
+    'gloves', 'work gloves', 'safety gloves',
+    'mask', 'dust mask', 'respirator',
+    'ear protection', 'hard hat', 'safety boots',
+
+    // ========================================
+    // GARDEN EQUIPMENT / อุปกรณ์สวน (1305) - 60+ keywords
+    // ========================================
+    // Thai Terms - General
+    'อุปกรณ์สวน', 'garden equipment', 'garden tools',
+    'เครื่องมือทำสวน', 'gardening tools',
+
+    // English Terms - General
+    'garden equipment', 'garden tools', 'gardening tools',
+    'lawn equipment', 'outdoor equipment',
+
+    // Basic Tools - Thai
+    'จอบ', 'hoe', 'shovel', 'พลั่ว',
+    'เสียม', 'spade', 'garden spade',
+    'คราด', 'rake', 'garden rake',
+    'กรรไกรตัดกิ่ง', 'pruning shears', 'secateurs',
+    'พรวน', 'cultivator', 'hand cultivator',
+
+    // Basic Tools - English
+    'hoe', 'garden hoe', 'shovel', 'spade',
+    'rake', 'garden rake', 'leaf rake',
+    'pruning shears', 'secateurs', 'hedge shears',
+    'cultivator', 'hand fork', 'trowel',
+    'weeder', 'weed puller',
+
+    // Watering - Thai
+    'สายยาง', 'hose', 'garden hose',
+    'บัวรดน้ำ', 'watering can', 'sprinkler',
+    'หัวฉีด', 'spray nozzle', 'nozzle',
+    'ปั๊มน้ำ', 'water pump', 'pump',
+
+    // Watering - English
+    'hose', 'garden hose', 'watering hose',
+    'watering can', 'sprinkler', 'spray head',
+    'nozzle', 'spray nozzle', 'hose reel',
+    'water pump', 'irrigation system', 'drip system',
+
+    // Lawn Care - Thai
+    'เครื่องตัดหญ้า', 'lawn mower', 'grass cutter',
+    'เครื่องตัดหญ้าไฟฟ้า', 'electric mower',
+    'เครื่องตัดหญ้าแบตเตอรี่', 'cordless mower',
+
+    // Lawn Care - English
+    'lawn mower', 'grass cutter', 'electric mower',
+    'cordless mower', 'petrol mower', 'gas mower',
+    'ride on mower', 'trimmer', 'grass trimmer',
+    'edge trimmer', 'strimmer', 'weed eater',
+    'leaf blower', 'vacuum blower',
+
+    // Sprayers - Thai
+    'ถังพ่นยา', 'sprayer', 'pump sprayer',
+    'เครื่องพ่นยา', 'spray machine',
+
+    // Sprayers - English
+    'sprayer', 'garden sprayer', 'pump sprayer',
+    'pressure sprayer', 'backpack sprayer',
+    'spray bottle', 'mist sprayer',
+
+    // Wheelbarrows & Carts - Thai
+    'รถเข็น', 'wheelbarrow', 'cart',
+    'รถเข็นสวน', 'garden cart',
+
+    // Wheelbarrows & Carts - English
+    'wheelbarrow', 'garden cart', 'utility cart',
+    'wagon', 'trolley',
+
+    // Accessories - Thai
+    'ถุงมือทำสวน', 'garden gloves', 'gardening gloves',
+    'หมวก', 'hat', 'sun hat',
+    'เข่าคุกสวน', 'knee pad', 'kneeling pad',
+
+    // Accessories - English
+    'garden gloves', 'gardening gloves', 'work gloves',
+    'knee pad', 'kneeling pad', 'garden kneeler',
+    'sun hat', 'gardening apron', 'tool belt',
+    'garden basket', 'trug', 'bucket',
+]
+
+// Total: 400+ keywords!

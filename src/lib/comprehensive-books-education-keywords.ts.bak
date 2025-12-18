@@ -1,0 +1,422 @@
+/**
+ * COMPREHENSIVE BOOKS & EDUCATION KEYWORDS - Category 16 (หนังสือและการศึกษา)
+ * 
+ * Coverage (6 Subcategories):
+ * 1. หนังสือทั่วไป (General Books) - ID 1601
+ * 2. หนังสือการ์ตูน/มังงะ (Comics & Manga) - ID 1602
+ * 3. นิตยสาร (Magazines) - ID 1603
+ * 4. หนังสือเรียน/อ้างอิง (Textbooks) - ID 1604
+ * 5. คอร์สออนไลน์ (Online Courses) - ID 1605
+ * 6. เครื่องเขียน/อุปกรณ์การเรียน (Stationery) - ID 1606
+ * 
+ * Total: 400+ keywords in Thai & English
+ */
+
+export const COMPREHENSIVE_BOOKS_EDUCATION_KEYWORDS = [
+    // ========================================
+    // GENERAL BOOKS / หนังสือทั่วไป (1601) - 120+ keywords
+    // ========================================
+    // Thai Terms - General
+    'หนังสือ', 'book', 'books', 'หนังสือมือสอง',
+    'หนังสือใหม่', 'new book', 'second hand book',
+
+    // English Terms - General
+    'book', 'books', 'novel', 'paperback',
+    'hardcover', 'hardback', 'ebook', 'e-book',
+
+    // Fiction - Thai
+    'นิยาย', 'novel', 'fiction', 'เรื่องสั้น',
+    'นิยายแฟนตาซี', 'fantasy', 'นิยายโรแมนติก',
+    'นิยายสืบสวน', 'mystery', 'นิยายระทึกขวัญ',
+
+    // Fiction - English
+    'novel', 'fiction', 'literary fiction',
+    'fantasy', 'science fiction', 'sci-fi',
+    'romance', 'romantic novel', 'love story',
+    'mystery', 'thriller', 'horror', 'suspense',
+    'crime', 'detective', 'adventure',
+    'historical fiction', 'contemporary fiction',
+
+    // Non-Fiction - Thai
+    'หนังสือสารคดี', 'non-fiction', 'non fiction',
+    'ประวัติศาสตร์', 'history', 'ชีวประวัติ',
+    'อัตชีวประวัติ', 'autobiography', 'memoir',
+
+    // Non-Fiction - English
+    'non-fiction', 'non fiction', 'essay',
+    'biography', 'autobiography', 'memoir',
+    'history', 'historical', 'politics',
+    'philosophy', 'psychology', 'sociology',
+    'science', 'nature', 'travel',
+
+    // Self-Help & Development - Thai
+    'หนังสือพัฒนาตนเอง', 'self-help', 'self help',
+    'แรงบันดาลใจ', 'inspiration', 'motivational',
+    'ธุรกิจ', 'business', 'การเงิน', 'finance',
+
+    // Self-Help & Development - English
+    'self-help', 'self help', 'self improvement',
+    'personal development', 'motivational',
+    'inspirational', 'motivation', 'success',
+    'business', 'entrepreneurship', 'leadership',
+    'finance', 'investment', 'money',
+    'productivity', 'time management',
+
+    // Health & Lifestyle - Thai
+    'สุขภาพ', 'health', 'อาหาร', 'cooking',
+    'ทำอาหาร', 'recipe', 'สูตรอาหาร',
+    'ฟิตเนส', 'fitness', 'โยคะ', 'yoga',
+
+    // Health & Lifestyle - English
+    'health', 'wellness', 'diet', 'nutrition',
+    'cooking', 'cookbook', 'recipe', 'food',
+    'fitness', 'exercise', 'yoga', 'meditation',
+    'lifestyle', 'beauty', 'fashion',
+
+    // Children's Books - Thai
+    'หนังสือเด็ก', 'children\'s book', 'หนังสือเด็กเล็ก',
+    'นิทาน', 'fairy tale', 'นิทานก่อนนอน',
+
+    // Children's Books - English
+    'children\'s book', 'kids book', 'picture book',
+    'fairy tale', 'bedtime story', 'storybook',
+    'young adult', 'ya', 'teen', 'juvenile',
+
+    // Religious & Spiritual - Thai
+    'หนังสือธรรม', 'dhamma book', 'ธรรมะ',
+    'พระพุทธศาสนา', 'buddhism', 'ศาสนา',
+
+    // Religious & Spiritual - English
+    'religious', 'spiritual', 'spirituality',
+    'buddhism', 'christianity', 'islam',
+    'meditation', 'mindfulness', 'dhamma',
+
+    // Art & Photography - Thai
+    'ศิลปะ', 'art', 'ภาพถ่าย', 'photography',
+    'จิตรกรรม', 'painting', 'ออกแบบ', 'design',
+
+    // Art & Photography - English
+    'art', 'art book', 'coffee table book',
+    'photography', 'photo book', 'visual arts',
+    'design', 'graphic design', 'architecture',
+    'painting', 'drawing', 'illustration',
+
+    // Popular Authors - Thai
+    'นักเขียนไทย', 'thai author', 'thai writer',
+    'วีรวรรณ', 'วินทร์ เลียววาริน',
+    'ส.ศิวรักษ์', 'เสนีย์ เสาวพงษ์',
+
+    // Popular Authors - English
+    'stephen king', 'j.k. rowling', 'haruki murakami',
+    'dan brown', 'john grisham', 'agatha christie',
+    'paulo coelho', 'malcolm gladwell',
+
+    // Book Condition - Thai
+    'หนังสือใหม่', 'new', 'ใหม่',
+    'หนังสือมือสอง', 'used', 'second hand',
+    'สภาพดี', 'good condition', 'สภาพดีมาก',
+
+    // Book Condition - English
+    'new', 'brand new', 'mint condition',
+    'used', 'second hand', 'pre-owned',
+    'good condition', 'very good', 'excellent',
+    'like new', 'fair condition',
+
+    // ========================================
+    // COMICS & MANGA / การ์ตูน มังงะ (1602) - 80+ keywords
+    // ========================================
+    // Thai Terms - General
+    'การ์ตูน', 'comic', 'comics', 'มังงะ',
+    'manga', 'การ์ตูนญี่ปุ่น', 'japanese manga',
+
+    // English Terms - General
+    'comic', 'comics', 'comic book', 'graphic novel',
+    'manga', 'manhwa', 'manhua',
+
+    // Manga Types - Thai
+    'มังงะ', 'manga', 'การ์ตูนญี่ปุ่น',
+    'โชเนน', 'shonen', 'โชโจ', 'shojo',
+    'มังงะแอคชั่น', 'action manga',
+
+    // Manga Types - English
+    'manga', 'japanese manga', 'shonen', 'shounen',
+    'shojo', 'shoujo', 'seinen', 'josei',
+    'action manga', 'romance manga', 'fantasy manga',
+    'sports manga', 'slice of life',
+
+    // Popular Manga Series
+    'one piece', 'วันพีซ', 'วันพีช',
+    'naruto', 'นารูโตะ',
+    'dragon ball', 'ดราก้อนบอล',
+    'demon slayer', 'kimetsu no yaiba', 'ดาบพิฆาตอสูร',
+    'attack on titan', 'shingeki no kyojin',
+    'my hero academia', 'boku no hero',
+    'jujutsu kaisen', 'จุจุตสึไคเซ็น',
+    'spy x family', 'สปายแฟมิลี่',
+    'tokyo revengers', 'โตเกียว รีเวนเจอร์ส',
+
+    // Comics - Thai
+    'การ์ตูนอเมริกัน', 'american comics',
+    'ซูเปอร์ฮีโร่', 'superhero', 'marvel', 'dc',
+
+    // Comics - English
+    'american comics', 'superhero comics',
+    'marvel', 'dc comics', 'image comics',
+    'batman', 'superman', 'spider-man', 'spiderman',
+    'iron man', 'captain america', 'avengers',
+
+    // Korean/Chinese - Thai
+    'manhwa', 'มันฮวา', 'การ์ตูนเกาหลี',
+    'manhua', 'มันฮัว', 'การ์ตูนจีน',
+
+    // Korean/Chinese - English
+    'manhwa', 'korean comics', 'webtoon',
+    'manhua', 'chinese comics',
+    'solo leveling', 'tower of god', 'noblesse',
+
+    // Format - Thai
+    'เล่มเดี่ยว', 'single volume', 'ฉบับรวม',
+    'box set', 'บ็อกเซ็ต', 'ชุด',
+
+    // Format - English
+    'single volume', 'collected edition', 'omnibus',
+    'box set', 'complete set', 'series',
+    'volume', 'vol', 'chapter',
+
+    // ========================================
+    // MAGAZINES / นิตยสาร (1603) - 40+ keywords
+    // ========================================
+    // Thai Terms - General
+    'นิตยสาร', 'magazine', 'mag', 'วารสาร',
+
+    // English Terms - General
+    'magazine', 'mag', 'journal', 'periodical',
+
+    // Types - Thai
+    'นิตยสารแฟชั่น', 'fashion magazine',
+    'นิตยสารผู้หญิง', 'women\'s magazine',
+    'นิตยสารผู้ชาย', 'men\'s magazine',
+    'นิตยสารท่องเที่ยว', 'travel magazine',
+
+    // Types - English
+    'fashion magazine', 'lifestyle magazine',
+    'women\'s magazine', 'men\'s magazine',
+    'travel magazine', 'food magazine',
+    'tech magazine', 'business magazine',
+    'sports magazine', 'car magazine',
+
+    // Popular Magazines - Thai
+    'คอสโม', 'cosmopolitan', 'แอลลี่',
+    'เอลเล่', 'elle', 'vogue', 'โว้ก',
+
+    // Popular Magazines - English
+    'cosmopolitan', 'vogue', 'elle', 'allure',
+    'marie claire', 'harper\'s bazaar',
+    'national geographic', 'time',
+    'forbes', 'entrepreneur',
+
+    // Format - Thai
+    'ฉบับปัจจุบัน', 'current issue', 'ฉบับเก่า',
+    'ฉบับสะสม', 'collector\'s edition',
+
+    // Format - English
+    'current issue', 'latest issue', 'back issue',
+    'collector\'s edition', 'special edition',
+    'subscription', 'monthly', 'weekly',
+
+    // ========================================
+    // TEXTBOOKS / หนังสือเรียน อ้างอิง (1604) - 70+ keywords
+    // ========================================
+    // Thai Terms - General
+    'หนังสือเรียน', 'textbook', 'หนังสือเรียนมือสอง',
+    'หนังสืออ้างอิง', 'reference book',
+
+    // English Terms - General
+    'textbook', 'reference book', 'study guide',
+    'workbook', 'exercise book',
+
+    // School Levels - Thai
+    'ประถม', 'primary', 'มัธยม', 'secondary',
+    'ม.ต้น', 'lower secondary', 'ม.ปลาย',
+    'มหาวิทยาลัย', 'university', 'อุดมศึกษา',
+
+    // School Levels - English
+    'primary school', 'elementary', 'kindergarten',
+    'secondary school', 'high school', 'middle school',
+    'university', 'college', 'higher education',
+
+    // Subjects - Thai
+    'คณิตศาสตร์', 'math', 'mathematics', 'คณิต',
+    'วิทยาศาสตร์', 'science', 'วิทย์',
+    'ฟิสิกส์', 'physics', 'เคมี', 'chemistry',
+    'ชีววิทยา', 'biology', 'ชีวะ',
+    'ภาษาอังกฤษ', 'english', 'อังกฤษ',
+    'ภาษาไทย', 'thai', 'ไทย',
+    'สังคม', 'social studies', 'ประวัติศาสตร์',
+
+    // Subjects - English
+    'math', 'mathematics', 'algebra', 'calculus',
+    'geometry', 'statistics', 'trigonometry',
+    'science', 'physics', 'chemistry', 'biology',
+    'english', 'literature', 'grammar',
+    'social studies', 'history', 'geography',
+    'economics', 'accounting', 'law',
+    'engineering', 'computer science', 'programming',
+
+    // Test Prep - Thai
+    'เตรียมสอบ', 'test prep', 'o-net', 'โอเน็ต',
+    'a-level', 'เอเลเวล', 'sat', 'toeic', 'toefl',
+    'ielts', 'ติวสอบ', 'สอบเข้า',
+
+    // Test Prep - English
+    'test prep', 'exam preparation', 'study guide',
+    'o-net', 'a-level', 'sat', 'gre', 'gmat',
+    'toeic', 'toefl', 'ielts', 'entrance exam',
+
+    // Dictionary - Thai
+    'พจนานุกรม', 'dictionary', 'dict',
+    'พจนานุกรมอังกฤษ', 'english dictionary',
+    'พจนานุกรมไทย', 'thai dictionary',
+
+    // Dictionary - English
+    'dictionary', 'thesaurus', 'encyclopedia',
+    'english dictionary', 'thai dictionary',
+    'bilingual dictionary', 'translation dictionary',
+
+    // ========================================
+    // ONLINE COURSES / คอร์สออนไลน์ (1605) - 40+ keywords
+    // ========================================
+    // Thai Terms - General
+    'คอร์สออนไลน์', 'online course', 'course',
+    'เรียนออนไลน์', 'online learning', 'e-learning',
+
+    // English Terms - General
+    'online course', 'e-learning', 'online class',
+    'digital course', 'video course', 'webinar',
+
+    // Course Types - Thai
+    'คอร์สเรียน', 'course', 'หลักสูตร',
+    'คอร์สภาษา', 'language course',
+    'คอร์สโปรแกรม', 'programming course',
+    'คอร์สธุรกิจ', 'business course',
+
+    // Course Types - English
+    'course', 'online training', 'certification',
+    'programming course', 'coding course',
+    'language course', 'business course',
+    'marketing course', 'design course',
+    'photography course', 'music course',
+
+    // Platforms - Thai/English
+    'udemy', 'ยูดีมี่',
+    'coursera', 'คอร์เซร่า',
+    'skillshare', 'สกิลแชร์',
+    'masterclass', 'มาสเตอร์คลาส',
+
+    // Skills - Thai
+    'เขียนโปรแกรม', 'programming', 'coding',
+    'ภาษา', 'language', 'ธุรกิจ', 'business',
+    'การตลาด', 'marketing', 'ออกแบบ', 'design',
+
+    // Skills - English
+    'programming', 'coding', 'web development',
+    'python', 'javascript', 'java', 'php',
+    'data science', 'machine learning', 'ai',
+    'digital marketing', 'seo', 'social media',
+    'graphic design', 'video editing', 'photography',
+
+    // Format - Thai
+    'วิดีโอ', 'video', 'บทเรียน', 'lesson',
+    'ใบรับรอง', 'certificate', 'เซอร์ติฟิเคต',
+
+    // Format - English
+    'video', 'lecture', 'lesson', 'tutorial',
+    'certificate', 'certification', 'diploma',
+    'lifetime access', 'downloadable',
+
+    // ========================================
+    // STATIONERY / เครื่องเขียน อุปกรณ์การเรียน (1606) - 80+ keywords
+    // ========================================
+    // Thai Terms - General
+    'เครื่องเขียน', 'stationery', 'อุปกรณ์การเรียน',
+    'อุปกรณ์เขียน', 'writing supplies',
+
+    // English Terms - General
+    'stationery', 'school supplies', 'office supplies',
+    'writing supplies', 'art supplies',
+
+    // Writing Tools - Thai
+    'ปากกา', 'pen', 'ดินสอ', 'pencil',
+    'ปากกาลูกลื่น', 'ballpoint pen', 'ปากกาเจล',
+    'ไฮไลท์', 'highlighter', 'มาร์คเกอร์', 'marker',
+
+    // Writing Tools - English
+    'pen', 'ballpoint pen', 'gel pen', 'fountain pen',
+    'rollerball pen', 'felt tip pen',
+    'pencil', 'mechanical pencil', 'colored pencil',
+    'highlighter', 'marker', 'permanent marker',
+    'whiteboard marker', 'dry erase marker',
+
+    // Notebooks & Paper - Thai
+    'สมุด', 'notebook', 'สมุดบันทึก',
+    'สมุดวาดเขียน', 'sketchbook', 'กระดาษ', 'paper',
+
+    // Notebooks & Paper - English
+    'notebook', 'notepad', 'exercise book',
+    'sketchbook', 'drawing book', 'diary', 'journal',
+    'planner', 'organizer', 'calendar',
+    'paper', 'a4 paper', 'printer paper',
+    'sticky notes', 'post-it', 'memo pad',
+
+    // Art Supplies - Thai
+    'สีไม้', 'colored pencil', 'สีเทียน', 'crayon',
+    'สีน้ำ', 'watercolor', 'สีโปสเตอร์', 'poster color',
+
+    // Art Supplies - English
+    'colored pencil', 'crayon', 'oil pastel',
+    'watercolor', 'acrylic paint', 'poster color',
+    'paintbrush', 'canvas', 'palette',
+    'drawing paper', 'sketch pad',
+
+    // Tools & Accessories - Thai
+    'ไม้บรรทัด', 'ruler', 'ยางลบ', 'eraser',
+    'กบเหลา', 'sharpener', 'กาว', 'glue',
+    'เทป', 'tape', 'กรรไกร', 'scissors',
+
+    // Tools & Accessories - English
+    'ruler', 'eraser', 'sharpener', 'pencil sharpener',
+    'glue', 'glue stick', 'tape', 'scotch tape',
+    'double sided tape', 'scissors', 'stapler',
+    'paper clip', 'binder clip', 'push pin',
+    'thumbtack', 'correction fluid', 'correction tape',
+
+    // Storage & Organization - Thai
+    'กล่องดินสอ', 'pencil case', 'กระเป๋าใส่ปากกา',
+    'แฟ้ม', 'folder', 'file', 'กล่องเก็บของ',
+
+    // Storage & Organization - English
+    'pencil case', 'pen holder', 'desk organizer',
+    'folder', 'clear folder', 'file folder',
+    'binder', 'ring binder', 'document folder',
+    'storage box', 'drawer organizer',
+
+    // Bags - Thai
+    'กระเป๋านักเรียน', 'school bag', 'backpack',
+    'กระเป๋าเป้', 'กระเป๋าสะพายหลัง',
+
+    // Bags - English
+    'school bag', 'backpack', 'bookbag',
+    'messenger bag', 'tote bag', 'laptop bag',
+
+    // Brands - Thai/English
+    'zebra', 'ซีบร้า',
+    'pilot', 'ไพลอท',
+    'uni', 'ยูนิ', 'uni ball',
+    'stabilo', 'สตาบิโล',
+    'faber castell', 'ฟาเบอร์ คาสเทล',
+    'staedtler', 'สเต็ดเลอร์',
+    'sakura', 'ซากุระ',
+    'campus', 'แคมปัส',
+]
+
+// Total: 400+ keywords!

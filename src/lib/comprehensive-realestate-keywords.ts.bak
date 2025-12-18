@@ -1,0 +1,608 @@
+/**
+ * COMPREHENSIVE REAL ESTATE KEYWORDS - Category 2 (อสังหาริมทรัพย์)
+ * 
+ * Coverage (8 Subcategories):
+ * 1. บ้านเดี่ยว (House) - ID 201
+ * 2. คอนโดมิเนียม (Condo) - ID 202
+ * 3. ที่ดิน (Land) - ID 203
+ * 4. ทาวน์เฮ้าส์ (Townhouse) - ID 204
+ * 5. อาคารพาณิชย์ (Commercial) - ID 205
+ * 6. หอพัก/ห้องเช่า (Apartment for Rent) - ID 206
+ * 7. โกดัง/โรงงาน (Warehouse/Factory) - ID 207
+ * 8. พื้นที่สำนักงาน (Office Space) - ID 208
+ * 
+ * Total: 500+ keywords in Thai & English
+ */
+
+export const COMPREHENSIVE_REALESTATE_KEYWORDS = [
+    // ========================================
+    // GENERAL REAL ESTATE / อสังหาริมทรัพย์ทั่วไป - 50+ keywords
+    // ========================================
+    // Thai Terms - General
+    'อสังหา', 'อสังหาริมทรัพย์', 'อสังหาฯ', 'ทรัพย์สิน',
+    'ที่อยู่อาศัย', 'บ้านพักอาศัย', 'เพื่ออยู่อาศัย',
+    'ซื้อ', 'ขาย', 'ให้เช่า', 'เช่า', 'เช่า-ขาय', 'เช่าซื้อ',
+    'ซื้อ-ขาย', 'ขายด่วน', 'ขายถูก', 'ลดราคา', 'ต่อรองได้',
+    'พร้อมโอน', 'โอนก่อนไฟแนนซ์', 'โอนฟรี', 'ไม่ต้องใช้ไฟแนนซ์',
+    'เจ้าของขายเอง', 'ขายเอง', 'ขายพร้อมเฟอร์', 'ราคาพิเศษ',
+
+    // English Terms - General
+    'real estate', 'property', 'properties', 'realestate',
+    'for sale', 'for rent', 'sale', 'rent', 'lease',
+    'buy', 'sell', 'rental', 'rent to own',
+    'urgent sale', 'bargain', 'negotiable', 'reduced price',
+    'owner sale', 'direct owner', 'freehold', 'leasehold',
+    'ready to move', 'move in ready', 'furnished', 'unfurnished',
+
+    // Transaction Types - Thai
+    'ขายดาวน์', 'ขายฝาก', 'ขายเชิงพาณิชย์',
+    'ให้เช่ารายเดือน', 'ให้เช่ารายปี', 'เช่าระยะสั้น', 'เช่าระยะยาว',
+    'ซื้อ-ขายที่ดิน', 'โฮมออฟฟิศ', 'home office',
+
+    // English Terms - Transaction
+    'transfer', 'ownership', 'title deed', 'chanote',
+    'monthly rent', 'yearly rent', 'short term', 'long term',
+    'investment', 'residential', 'commercial',
+
+    // ========================================
+    // HOUSE / บ้านเดี่ยว (201) - 80+ keywords
+    // ========================================
+    // Thai Terms - General
+    'บ้าน', 'บ้านเดี่ยว', 'บ้านเดียว', 'single house',
+    'บ้านเดี่ยวมือสอง', 'บ้านมือสอง', 'บ้านใหม่', 'บ้านสร้างใหม่',
+    'บ้านแฝด', 'บ้านแฝดเดี่ยว', 'semi detached',
+    'บ้านสวน', 'บ้านพักตากอากาศ', 'บ้านสไตล์รีสอร์ท',
+    'บ้าน 2 ชั้น', 'บ้านสองชั้น', 'บ้านชั้นเดียว', 'บ้าน 1 ชั้น',
+    'บ้านโมเดิร์น', 'บ้านร่วมสมัย', 'บ้านสไตล์ลอฟท์',
+    'บ้านสวย', 'บ้านหรู', 'บ้านใหญ่', 'บ้านหลังใหญ่',
+
+    // English Terms - General
+    'house', 'home', 'detached house', 'single house',
+    'single family home', 'standalone house',
+    'used house', 'second hand house', 'new house', 'brand new house',
+    'semi detached', 'semi-detached house', 'twin house',
+    'villa', 'luxury house', 'luxury villa', 'pool villa',
+    'garden house', 'vacation home', 'resort style',
+    'modern house', 'contemporary house', 'loft style',
+    'tropical house', 'minimalist house', 'colonial house',
+
+    // Size & Layout - Thai
+    'บ้าน 2 ห้องนอน', 'บ้าน 3 ห้องนอน', 'บ้าน 4 ห้องนอน', 'บ้าน 5 ห้องนอน',
+    '2 ห้องนอน', '3 ห้องนอน', '4 ห้องนอน', '5 ห้องนอน',
+    '2 ห้องน้ำ', '3 ห้องน้ำ', '4 ห้องน้ำ',
+    'มีสระว่ายน้ำ', 'สระว่ายน้ำส่วนตัว', 'มีสระ', 'pool',
+    'มีสวน', 'สวนหน้าบ้าน', 'สวนหลังบ้าน',
+    'จอดรถ 2 คัน', 'จอดรถ 3 คัน', 'จอดรถได้หลายคัน',
+    'พื้นที่ใช้สอย', 'ที่ดิน', 'เนื้อที่', 'ตารางวา', 'ตร.ว.', 'ตร.ม.',
+
+    // Size & Layout - English
+    '2 bedroom', '3 bedroom', '4 bedroom', '5 bedroom',
+    '2 bed', '3 bed', '4 bed', '5 bed',
+    '2 bath', '3 bath', '4 bath', '5 bath',
+    'swimming pool', 'private pool', 'pool villa',
+    'garden', 'front garden', 'back garden', 'backyard',
+    'parking', '2 car parking', '3 car parking', 'garage',
+    'living space', 'land size', 'plot size',
+    'sqm', 'square meter', 'sq.m.', 'sqw', 'square wah',
+
+    // Features - Thai
+    'ตกแต่งสวย', 'ตกแต่งพร้อมอยู่', 'ตกแต่งครบ',
+    'เฟอร์นิเจอร์ครบ', 'พร้อมเฟอร์', 'ครัวบิ้วอิน',
+    'ระบบรักษาความปลอดภัย', 'กล้อง cctv', 'รั้วล้อมรอบ',
+    'ทำเลดี', 'ทำเลสวย', 'ใกล้ถนนใหญ่', 'ติดถนนใหญ่',
+    'ใกล้ห้าง', 'ใกล้โรงเรียน', 'ใกล้โรงพยาบาล',
+    'ใกล้ bts', 'ใกล้ mrt', 'ใกล้รถไฟฟ้า',
+
+    // Features - English
+    'fully furnished', 'semi furnished', 'unfurnished',
+    'built-in kitchen', 'western kitchen', 'maid room',
+    'security system', 'cctv', 'gated', 'fenced',
+    'good location', 'prime location', 'near main road',
+    'near shopping mall', 'near school', 'near hospital',
+    'near bts', 'near mrt', 'near skytrain', 'near airport',
+
+    // Developers & Projects - Thai
+    'หมู่บ้าน', 'หมู่บ้านจัดสรร', 'โครงการ', 'โครงการหรู',
+    'บ้านจัดสรร', 'ในหมู่บ้าน', 'นอกโครงการ',
+
+    // Developers & Projects - English
+    'housing estate', 'housing project', 'village', 'gated community',
+    'residential estate', 'development', 'project',
+
+    // ========================================
+    // CONDO / คอนโดมิเนียม (202) - 100+ keywords_
+    // ========================================
+    // Thai Terms - General
+    'คอนโด', 'คอนโดมิเนียม', 'คอนโดมิเนี่ยม', 'คอม', 'condo',
+    'คอนโดมือสอง', 'คอนโดมือ 1', 'คอนโดมือเดียว',
+    'คอนโดใหม่', 'คอนโดพร้อมอยู่', 'คอนโดเปล่า',
+    'คอนโดหรู', 'คอนโดลักชูรี่', 'คอนโดสวย',
+    'ห้องชุด', 'ห้องพัก', 'ยูนิต', 'unit',
+
+    // English Terms - General
+    'condo', 'condominium', 'apartment', 'flat',
+    'used condo', 'resale condo', 'new condo', 'ready to move',
+    'luxury condo', 'high rise', 'low rise', 'mid rise',
+    'studio', 'penthouse', 'duplex', 'loft',
+
+    // Room Types - Thai
+    'ห้องสตูดิโอ', 'สตูดิโอ', 'studio',
+    '1 ห้องนอน', '2 ห้องนอน', '3 ห้องนอน', '4 ห้องนอน',
+    '1 เบด', '2 เบด', '3 เบด',
+    '1 ห้องน้ำ', '2 ห้องน้ำ',
+    'เพนท์เฮ้าส์', 'เพนท์เฮาส์', 'penthouse',
+    'ดูเพล็กซ์', 'duplex', '2 ชั้น',
+
+    // Room Types - English
+    'studio', 'studio unit', 'studio condo',
+    '1 bedroom', '2 bedroom', '3 bedroom', '4 bedroom',
+    '1 bed', '2 bed', '3 bed', '4 bed',
+    '1 bath', '2 bath', '3 bath',
+    'penthouse', 'duplex', 'two storey', 'double storey',
+
+    // Size - Thai
+    'ขนาด', 'พื้นที่', 'ตารางเมตร', 'ตร.ม.',
+    '25 ตร.ม.', '30 ตร.ม.', '35 ตร.ม.', '40 ตร.ม.',
+    '45 ตร.ม.', '50 ตร.ม.', '60 ตร.ม.', '70 ตร.ม.',
+    '80 ตร.ม.', '100 ตร.ม.', '120 ตร.ม.', '150 ตร.ม.',
+
+    // Size - English
+    'size', 'area', 'square meter', 'sqm', 'sq.m.',
+    '25 sqm', '30 sqm', '35 sqm', '40 sqm', '45 sqm',
+    '50 sqm', '60 sqm', '70 sqm', '80 sqm', '100 sqm',
+    '120 sqm', '150 sqm', '200 sqm',
+
+    // Floor Level - Thai
+    'ชั้น', 'ชั้นสูง', 'ชั้นต่ำ', 'ชั้นกลาง',
+    'ชั้นบน', 'ชั้นล่าง', 'ชั้น 5', 'ชั้น 10', 'ชั้น 15', 'ชั้น 20',
+    'ชั้นที่', 'เลขชั้น',
+
+    // Floor Level - English
+    'floor', 'high floor', 'low floor', 'mid floor',
+    'top floor', 'ground floor',
+    '5th floor', '10th floor', '15th floor', '20th floor',
+    '25th floor', '30th floor', '35th floor', '40th floor',
+
+    // View - Thai
+    'วิวสวย', 'วิวทะเล', 'วิวเมือง', 'วิวสระ', 'วิวภูเขา',
+    'วิวสวน', 'วิวแม่น้ำ', 'วิวสนามกอล์ฟ',
+    'ไม่บล็อกวิว', 'วิวโล่ง',
+
+    // View - English
+    'nice view', 'sea view', 'city view', 'pool view', 'mountain view',
+    'garden view', 'river view', 'golf view',
+    'unblock view', 'panoramic view', 'skyline view',
+
+    // Facilities - Thai
+    'สระว่ายน้ำ', 'ฟิตเนส', 'ห้องฟิตเนส', 'gym', 'ยิม',
+    'สวน', 'สวนส่วนกลาง', 'สนามเด็กเล่น',
+    'ที่จอดรถ', 'จอดรถ', 'parking', 'ลานจอดรถ',
+    'ระบบคีย์การ์ด', 'keycard', 'รักษาความปลอดภัย 24 ชม.',
+    'ส่วนกลาง', 'สิ่งอำนวยความสะดวก', 'ห้องส่วนกลาง',
+
+    // Facilities - English
+    'swimming pool', 'fitness', 'gym', 'sauna', 'jacuzzi',
+    'garden', 'playground', 'children playground',
+    'parking', 'car park', 'parking space',
+    'security', '24hr security', 'cctv', 'keycard',
+    'facilities', 'common area', 'lobby', 'co-working space',
+    'function room', 'library', 'sky lounge', 'rooftop',
+
+    // Location Near - Thai
+    'ใกล้ bts', 'ใกล้ mrt', 'ติด bts', 'ติด mrt',
+    'ใกล้รถไฟฟ้า', 'ใกล้ห้าง', 'ใกล้เซ็นทรัล', 'ใกล้เทอมินอล 21',
+    'ใกล้สถานีรถไฟฟ้า', 'เดินไป bts', 'เดินไป mrt',
+    'ใกล้ออฟฟิศ', 'ใกล้ที่ทำงาน', 'ใกล้โรงพยาบาล',
+
+    // Location Near - English
+    'near bts', 'near mrt', 'bts connected', 'mrt connected',
+    'near skytrain', 'near shopping mall', 'near central',
+    'walking distance to bts', 'walking distance to mrt',
+    'near office', 'near hospital', 'cbd', 'central business district',
+
+    // Famous Condo Projects/Developers - Thai
+    'คอนโดแอชตัน', 'คอนโดริทึ่ม', 'คอนโดไอดีโอ',
+    'ศุภาลัย', 'เอพี', 'พฤกษา', 'สันสิริ', 'แลนด์แอนด์เฮ้าส์',
+    'เอสซี แอสเสท', 'ออริจิ้น', 'แมกโนเลีย', 'เอ็มบีเค',
+
+    // Famous Developers - English
+    'ashton', 'rhythm', 'ideo', 'q house', 'the base',
+    'supalai', 'ap', 'pruksa', 'sansiri', 'land and house',
+    'sc asset', 'origin', 'magnolia', 'mqdc', 'ananda',
+
+    // ========================================
+    // LAND / ที่ดิน (203) - 70+ keywords
+    // ========================================
+    // Thai Terms - General
+    'ที่ดิน', 'ที่ดินเปล่า', 'ที่ดินว่าง', 'ดิน', 'แปลง',
+    'ที่ดินสวย', 'ที่ดินแปลงสวย', 'ที่ดินพร้อมสร้าง',
+    'ที่ดินสำหรับสร้างบ้าน', 'ที่ดินราคาถูก',
+
+    // English Terms - General
+    'land', 'vacant land', 'empty land', 'plot', 'lot',
+    'land for sale', 'nice plot', 'ready to build',
+    'building plot', 'cheap land',
+
+    // Land Types - Thai
+    'ที่ดินเปล่า', 'ที่นา', 'นา', 'สวน', 'ที่สวน',
+    'ที่ดินทำการเกษตร', 'ที่ดินเกษตร',
+    'ที่ดินเพื่อการเกษตร', 'ที่ดินเชิงพาณิชย์',
+    'ที่ดินเพื่อการพัฒนา', 'ที่ดินโครงการ',
+
+    // Land Types - English
+    'vacant land', 'agricultural land', 'farm land', 'farmland',
+    'rice field', 'plantation', 'orchard',
+    'commercial land', 'residential land',
+    'development land', 'project land',
+
+    // Land Size - Thai
+    'ไร่', 'งาน', 'ตารางวา', 'ตร.ว.', 'ว่า',
+    '1 ไร่', '2 ไร่', '3 ไร่', '5 ไร่', '10 ไร่',
+    '1 งาน', '2 งาน', '3 งาน',
+    '50 ตร.ว.', '100 ตร.ว.', '200 ตร.ว.', '400 ตร.ว.',
+
+    // Land Size - English
+    'rai', 'ngan', 'wah', 'square wah', 'sqw',
+    '1 rai', '2 rai', '3 rai', '5 rai', '10 rai',
+    '50 wah', '100 wah', '200 wah', '400 wah',
+    'acre', 'hectare',
+
+    // Title Deed - Thai
+    'โฉนด', 'โฉนดที่ดิน', 'นส.3', 'นส.3ก', 'นส.3ก.', 'น.ส.3ก.',
+    'นส.4', 'สปก', 'ส.ป.ก.', 'ส.ค.1',
+    'โฉนดแบ่งได้', 'โฉนดพร้อมโอน',
+
+    // Title Deed - English
+    'chanote', 'title deed', 'nor sor 3', 'nor sor 4',
+    'land title', 'ownership', 'freehold',
+    'transferable', 'ready to transfer',
+
+    // Location & Features - Thai
+    'ติดถนน', 'ติดถนนใหญ่', 'ติดถนนคอนกรีต',
+    'หน้ากว้าง', 'แปลงมุม', 'ที่ดินมุม',
+    'ติดแม่น้ำ', 'ติดคลอง', 'ใกล้น้ำ', 'ใกล้ทะเล',
+    'วิวสวย', 'วิวทะเล', 'วิวภูเขา',
+    'มีไฟฟ้า', 'มีน้ำประปา', 'ถมแล้ว',
+    'ทำเลดี', 'ทำเลทอง', 'ทำเลศักยภาพสูง',
+
+    // Location & Features - English
+    'road frontage', 'main road', 'paved road', 'concrete road',
+    'wide frontage', 'corner plot', 'corner land',
+    'river front', 'lake front', 'near water', 'beach front',
+    'nice view', 'sea view', 'mountain view',
+    'with electricity', 'with water supply', 'filled land',
+    'good location', 'prime location', 'investment land',
+
+    // Popular Areas - Thai
+    'ที่ดินกรุงเทพ', 'ที่ดินพัทยา', 'ที่ดินภูเก็ต',
+    'ที่ดินเชียงใหม่', 'ที่ดินหัวหิน', 'ที่ดินระยอง',
+    'ที่ดินชลบุรี', 'ที่ดินสมุทรปราการ', 'ที่ดินนนทบุรี',
+
+    // Popular Areas - English
+    'bangkok land', 'pattaya land', 'phuket land',
+    'chiang mai land', 'hua hin land', 'rayong land',
+
+    // ========================================
+    // TOWNHOUSE / ทาวน์เฮ้าส์ (204) - 60+ keywords
+    // ========================================
+    // Thai Terms - General
+    'ทาวน์เฮ้าส์', 'ทาวน์เฮ้าส', 'ทาวเฮ้าส์', 'ทาวน์โฮม',
+    'ทาวเฮาส์', 'ทาวน์', 'townhouse', 'townhome',
+    'ทาวน์เฮ้าส์มือสอง', 'ทาวน์เฮ้าส์ใหม่',
+    'ทาวเฮาส์สวย', 'ทาวน์เฮ้าส์พร้อมอยู่',
+
+    // English Terms - General
+    'townhouse', 'townhome', 'town house', 'town home',
+    'terraced house', 'row house',
+    'used townhouse', 'new townhouse',
+
+    // Position - Thai
+    'หัวมุม', 'ปลายแถว', 'ริม', 'กลางแถว',
+    'ตำแหน่งสวย', 'ตำแหน่งดี',
+
+    // Position - English
+    'corner unit', 'end unit', 'end of row', 'middle unit',
+    'interior unit', 'prime position',
+
+    // Size & Layout - Thai
+    'ทาวน์เฮ้าส์ 2 ชั้น', 'ทาวน์เฮ้าส์ 3 ชั้น',
+    '2 ห้องนอน', '3 ห้องนอน', '4 ห้องนอน',
+    '2 ห้องน้ำ', '3 ห้องน้ำ', '4 ห้องน้ำ',
+    'จอดรถ 1 คัน', 'จอดรถ 2 คัน',
+    'พื้นที่ใช้สอย', 'เนื้อที่', '16 ตร.ว.', '18 ตร.ว.', '20 ตร.ว.',
+    '22 ตร.ว.', '25 ตร.ว.', '30 ตร.ว.',
+
+    // Size & Layout - English
+    '2 storey', '3 storey', 'two storey', 'three storey',
+    '2 bedroom', '3 bedroom', '4 bedroom',
+    '2 bed', '3 bed', '4 bed',
+    '2 bath', '3 bath', '4 bath',
+    '1 parking', '2 parking',
+    'living area', 'land size',
+    '16 sqw', '18 sqw', '20 sqw', '22 sqw', '25 sqw', '30 sqw',
+
+    // Features - Thai
+    'ตกแต่งใหม่', 'รีโนเวทใหม่', 'renovate',
+    'เพิ่มเติมพื้นที่', 'ต่อเติม', 'ต่อเติมแล้ว',
+    'ครัวบิ้วอิน', 'แอร์ทุกห้อง', 'เฟอร์นิเจอร์ครบ',
+    'ทาสีใหม่', 'มีระบบรักษาความปลอดภัย',
+
+    // Features - English
+    'renovated', 'newly renovated', 'extended',
+    'built-in kitchen', 'all air con', 'fully furnished',
+    'newly painted', 'security system',
+
+    // Location - Thai
+    'ในหมู่บ้าน', 'หมู่บ้านจัดสรร', 'โครงการ',
+    'ทำเลดี', 'ใกล้ถนนใหญ่', 'ใกล้ห้าง', 'ใกล้โรงเรียน',
+
+    // Location - English
+    'in village', 'housing estate', 'project',
+    'good location', 'near main road', 'near mall', 'near school',
+
+    // ========================================
+    // COMMERCIAL BUILDING / อาคารพาณิชย์ (205) - 60+ keywords
+    // ========================================
+    // Thai Terms - General
+    'อาคารพาณิชย์', 'ตึกแถว', 'ตึก', 'shophouse',
+    'อาคารพาณิชย์มือสอง', 'อาคารพาณิชย์ใหม่',
+    'อาคารพาณิชย์สวย', 'อาคารพาณิชย์พร้อมประกอบการ',
+    'อาคารพาณิชย์ทำเลทอง', 'อาคารพาณิชย์เชิงพาณิชย์',
+
+    // English Terms - General
+    'commercial building', 'shop house', 'shophouse',
+    'commercial property', 'shop building',
+    'retail building', 'mixed use building',
+    'used commercial', 'new commercial',
+
+    // Position - Thai
+    'หัวมุม', 'ปลายแถว', 'ริมถนน', 'ติดถนน',
+    'ติดถนนใหญ่', 'มุมโค้ง', 'แปลงมุม',
+    '2 หน้าติดถนน', '3 หน้าติดถนน',
+
+    // Position - English
+    'corner unit', 'end unit', 'road frontage', 'main road',
+    'prime corner', '2 road frontage', '3 road frontage',
+
+    // Size & Layout - Thai
+    'อาคาร 2 ชั้น', 'อาคาร 3 ชั้น', 'อาคาร 4 ชั้น', 'อาคาร 5 ชั้น',
+    'ตึก 3 ชั้น', 'ตึก 4 ชั้น',
+    'หน้ากว้าง', 'แนวลึก', 'ที่ดิน', 'เนื้อที่',
+    '3 คูหา', '4 คูหา', '5 คูหา',
+    'พื้นที่ใช้สอย', 'ตารางเมตร', 'ตารางวา',
+
+    // Size & Layout - English
+    '2 storey', '3 storey', '4 storey', '5 storey',
+    'width', 'depth', 'land area', 'plot size',
+    '3 units', '4 units', '5 units',
+    'usable area', 'square meter', 'square wah',
+
+    // Business Types - Thai
+    'ทำร้านอาหาร', 'ทำร้านค้า', 'ทำออฟฟิศ',
+    'ทำคลินิก', 'ทำโชว์รูม', 'ทำโกดัง',
+    'เหมาะทำธุรกิจ', 'เหมาะเปิดร้าน',
+    'พร้อมประกอบการ', 'ดำเนินกิจการ',
+
+    // Business Types - English
+    'for restaurant', 'for shop', 'for office',
+    'for clinic', 'for showroom', 'for warehouse',
+    'suitable for business', 'ready for business',
+    'operating business', 'with business',
+
+    // Features - Thai
+    'ตกแต่งพร้อม', 'ต่อเติมครบ', 'ต่อเติมครบถ้วน',
+    'แอร์ครบ', 'ระบบไฟฟ้า 3 เฟส',
+    'ลิฟท์', 'มีลิฟท์', 'จอดรถหน้าร้าน',
+    'มีป้ายร้าน', 'มีหน้าร้าน',
+
+    // Features - English
+    'fully decorated', 'fully extended', 'fully furnished',
+    'all air con', '3 phase electricity', '3 phase power',
+    'elevator', 'lift', 'parking in front',
+    'with signage', 'with shopfront',
+
+    // Location - Thai
+    'ทำเลดี', 'ทำเลทอง', 'ใจกลางเมือง', 'ย่านธุรกิจ',
+    'ย่านพาณิชย์', 'ชุมชนหนาแน่น', 'ติดตลาด',
+    'ติดห้าง', 'ติดวิทยาลัย', 'ติดมหาวิทยาลัย',
+
+    // Location - English
+    'prime location', 'city center', 'business district',
+    'commercial area', 'high traffic area',
+    'near market', 'near mall', 'near university',
+
+    // ========================================
+    // APARTMENT FOR RENT / หอพัก ห้องเช่า (206) - 50+ keywords
+    // ========================================
+    // Thai Terms - General
+    'หอพัก', 'หอ', 'ห้องพัก', 'ห้องเช่า', 'ห้อง',
+    'แมนชั่น', 'mansion', 'apartment',
+    'ให้เช่า', 'เช่า', 'ห้องเช่ารายเดือน',
+
+    // English Terms - General
+    'dormitory', 'dorm', 'hostel', 'apartment',
+    'room for rent', 'rental room', 'monthly rent',
+    'for rent', 'to rent', 'to let',
+
+    // Room Types - Thai
+    'ห้องพัดลม', 'ห้องแอร์', 'ห้องแอร์เย็น',
+    'ห้องเดี่ยว', 'ห้องคู่', 'ห้องรวม',
+    'ห้องสตูดิโอ', 'ห้อง 1 ห้องนอน',
+    'มีห้องน้ำในตัว', 'ห้องน้ำส่วนตัว', 'ห้องน้ำรวม',
+    'มีระเบียง', 'มีที่จอดรถ',
+
+    // Room Types - English
+    'fan room', 'air con room', 'ac room',
+    'single room', 'double room', 'shared room',
+    'studio room', '1 bedroom',
+    'private bathroom', 'ensuite', 'shared bathroom',
+    'with balcony', 'with parking',
+
+    // Monthly Rent - Thai
+    'เช่ารายเดือน', 'ค่าเช่าเดือนละ',
+    '2000 บาท', '3000 บาท', '4000 บาท', '5000 บาท',
+    '6000 บาท', '7000 บาท', '8000 บาท', '10000 บาท',
+
+    // Monthly Rent - English
+    'monthly rent', 'rent per month',
+    '2000 baht', '3000 baht', '4000 baht', '5000 baht',
+    '6000 baht', '8000 baht', '10000 baht',
+
+    // Facilities - Thai
+    'มีเฟอร์นิเจอร์', 'ครบครัน', 'พร้อมอยู่',
+    'เตียง', 'ตู้', 'โต๊ะทำงาน', 'เครื่องทำน้ำอุ่น',
+    'ตู้เย็น', 'ทีวี', 'wifi ฟรี', 'ไวไฟฟรี',
+    'น้ำดื่มฟรี', 'ค่าน้ำฟรี', 'ค่าไฟฟรี',
+    'กล้อง cctv', 'รักษาความปลอดภัย 24 ชม.',
+    'คีย์การ์ด', 'ลิฟท์', 'ที่จอดรถ',
+
+    // Facilities - English
+    'furnished', 'fully furnished', 'ready to move in',
+    'bed', 'wardrobe', 'work desk', 'water heater',
+    'refrigerator', 'tv', 'free wifi', 'free water',
+    'cctv', '24hr security', 'keycard', 'elevator', 'parking',
+
+    // Target Tenants - Thai
+    'นักศึกษา', 'พนักงานบริษัท', 'คนทำงาน',
+    'เจ้าของรับเอง', 'ไม่ผ่านนายหน้า',
+    'เข้าอยู่ได้เลย', 'ห้องว่าง', 'มีห้องว่าง',
+
+    // Target Tenants - English
+    'student', 'office worker', 'working person',
+    'owner direct', 'no agent', 'available now',
+    'vacant', 'vacancy available',
+
+    // Location - Thai
+    'ใกล้มหาวิทยาลัย', 'ใกล้ bts', 'ใกล้ mrt',
+    'ใกล้สถานี', 'ใกล้โรงเรียน', 'ใกล้ตลาด',
+    'ใกล้ 7-11', 'ใกล้ห้าง', 'ใกล้โรงพยาบาล',
+
+    // Location - English
+    'near university', 'near bts', 'near mrt',
+    'near station', 'near school', 'near market',
+    'near 7-11', 'near mall', 'near hospital',
+
+    // ========================================
+    // WAREHOUSE/FACTORY / โกดัง โรงงาน (207) - 40+ keywords
+    // ========================================
+    // Thai Terms - General
+    'โกดัง', 'โรงงาน', 'คลังสินค้า', 'warehouse',
+    'โกดังให้เช่า', 'โกดังพร้อมสำนักงาน',
+    'โรงงานพร้อมใช้งาน', 'โรงงานเปิดดำเนินการ',
+    'โกดังสำเร็จรูป', 'โกดังสร้างใหม่',
+
+    // English Terms - General
+    'warehouse', 'factory', 'storage', 'distribution center',
+    'warehouse for rent', 'warehouse for sale',
+    'ready warehouse', 'factory building',
+    'industrial building', 'logistics center',
+
+    // Size - Thai
+    'พื้นที่', 'ตารางเมตร', 'ตร.ม.', 'ไร่',
+    '100 ตร.ม.', '200 ตร.ม.', '500 ตร.ม.', '1000 ตร.ม.',
+    '1 ไร่', '2 ไร่', '3 ไร่', '5 ไร่', '10 ไร่',
+    'ความสูงเพดาน', 'เพดานสูง',
+
+    // Size - English
+    'area', 'square meter', 'sqm', 'rai',
+    '100 sqm', '200 sqm', '500 sqm', '1000 sqm',
+    '1 rai', '2 rai', '5 rai', '10 rai',
+    'ceiling height', 'high ceiling',
+
+    // Features - Thai
+    'มีสำนักงาน', 'ออฟฟิศในตัว', 'มีห้องทำงาน',
+    'ไฟฟ้า 3 เฟส', 'ระบบไฟฟ้าแรง',
+    'ประตูทางเข้า-ออก', 'ทางเข้า-ออก 2 ทาง',
+    'พื้นยกระดับ', 'พื้นเสริมเหล็ก',
+    'ลานจอดรถบรรทุก', 'ลานจอดรถกว้าง',
+    'ระบบระบายอากาศ', 'ระบบรักษาความปลอดภัย',
+
+    // Features - English
+    'with office', 'built-in office', 'office space',
+    '3 phase power', '3 phase electricity', 'high voltage',
+    'loading dock', 'ramp', 'roller shutter',
+    'entrance exit', '2 way access', 'wide access',
+    'raised floor', 'reinforced floor',
+    'truck parking', 'wide parking area',
+    'ventilation system', 'security system',
+
+    // Location - Thai
+    'นิคมอุตสาหกรรม', 'ใกล้ทางด่วน', 'ใกล้มอเตอร์เวย์',
+    'ติดถนนใหญ่', 'เข้า-ออกสะดวก',
+    'ใกล้ท่าเรือ', 'ใกล้สนามบิน', 'ใกล้ตลาดกลาง',
+
+    // Location - English
+    'industrial estate', 'near expressway', 'near highway',
+    'near motorway', 'main road access', 'easy access',
+    'near port', 'near airport', 'near wholesale market',
+
+    // ========================================
+    // OFFICE SPACE / พื้นที่สำนักงาน (208) - 50+ keywords
+    // ========================================
+    // Thai Terms - General
+    'สำนักงาน', 'ออฟฟิศ', 'office', 'พื้นที่สำนักงาน',
+    'สำนักงานให้เช่า', 'ออฟฟิศให้เช่า',
+    'สำนักงานพร้อมใช้งาน', 'ออฟฟิศตกแต่งพร้อม',
+    'โฮมออฟฟิศ', 'home office',
+
+    // English Terms - General
+    'office', 'office space', 'office building',
+    'office for rent', 'office for sale',
+    'serviced office', 'virtual office',
+    'co-working space', 'shared office',
+    'private office', 'commercial office',
+
+    // Size - Thai
+    'พื้นที่', 'ตารางเมตร', 'ตร.ม.',
+    '50 ตร.ม.', '100 ตร.ม.', '150 ตร.ม.', '200 ตร.ม.',
+    '300 ตร.ม.', '500 ตร.ม.', '1000 ตร.ม.',
+    'ชั้น', 'ชั้นสูง', 'ชั้นที่',
+
+    // Size - English
+    'area', 'square meter', 'sqm', 'sq.m.',
+    '50 sqm', '100 sqm', '150 sqm', '200 sqm',
+    '300 sqm', '500 sqm', '1000 sqm',
+    'floor', 'high floor', 'floor level',
+
+    // Layout - Thai
+    'ห้องประชุม', 'ห้องมีทติ้ง', 'ห้องผู้บริหาร',
+    'โล่งเปิดโล่ง', 'พาร์ติชั่น', 'ห้องเปิดโล่ง',
+    'ห้องแบ่งสัดส่วน', 'โซนทำงาน',
+
+    // Layout - English
+    'meeting room', 'conference room', 'executive room',
+    'open plan', 'open space', 'partition',
+    'private room', 'cubicle', 'workstation',
+
+    // Features - Thai
+    'ตกแต่งพร้อม', 'ตกแต่งสวย', 'ตกแต่งครบ',
+    'แอร์ส่วนกลาง', 'แอร์ครบ',
+    'ห้องน้ำในตัว', 'ห้องน้ำส่วนกลาง',
+    'ห้องพักพนักงาน', 'ห้องครัว', 'pantry',
+    'ที่จอดรถ', 'จอดรถส่วนกลาง',
+    'คีย์การ์ด', 'รักษาความปลอดภัย 24 ชม.',
+    'ลิฟท์', 'มีลิฟท์', 'recep', 'เคาน์เตอร์ต้อนรับ',
+
+    // Features - English
+    'fully furnished', 'beautifully decorated', 'ready to use',
+    'central air', 'air conditioning', 'ac',
+    'private bathroom', 'common bathroom',
+    'pantry', 'kitchen', 'staff room',
+    'parking', 'car park', 'parking space',
+    'keycard', '24hr security', 'cctv',
+    'elevator', 'lift', 'reception', 'lobby',
+
+    // Location - Thai
+    'ใจกลางเมือง', 'ย่านธุรกิจ', 'cbd',
+    'ใกล้ bts', 'ใกล้ mrt', 'ติด bts', 'ติด mrt',
+    'เดินถึง bts', 'ย่านสาทร', 'ย่านสีลม', 'ย่านอโศก',
+    'ย่านพระราม 9', 'ย่านรัชดา',
+
+    // Location - English
+    'city center', 'business district', 'cbd',
+    'near bts', 'near mrt', 'bts connected', 'mrt connected',
+    'walking distance to bts', 'silom', 'sathorn', 'asoke',
+    'rama 9', 'ratchada', 'sukhumvit',
+]
+
+// Total: 500+ keywords!

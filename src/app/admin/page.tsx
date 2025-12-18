@@ -6,6 +6,7 @@
 
 import { useEffect, useState } from 'react'
 import { useAdmin } from '@/contexts/AdminContext'
+import { useLanguage } from '@/contexts/LanguageContext'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { AdminStats } from '@/types/admin'
 import {
@@ -18,11 +19,17 @@ import {
     DollarSign,
     AlertCircle,
     CheckCircle,
-    Clock
+    Clock,
+    Zap,
+    ShieldAlert,
+    Activity
 } from 'lucide-react'
+import { mockAIDetection } from '@/lib/ai-admin'
+import Link from 'next/link'
 
 export default function AdminDashboard() {
     const { adminUser } = useAdmin()
+    const { t } = useLanguage()
     const [stats, setStats] = useState<AdminStats>({
         total_users: 0,
         total_buyers: 0,
@@ -75,85 +82,85 @@ export default function AdminDashboard() {
 
     const statCards = [
         {
-            title: 'ผู้ใช้ทั้งหมด',
+            title: t('admin.total_users'),
             value: stats.total_users.toLocaleString(),
             change: `+${stats.user_growth_rate}%`,
             trend: 'up',
             icon: Users,
             color: 'blue',
-            subtitle: `ใหม่วันนี้: ${stats.new_users_today}`
+            subtitle: `${t('admin.new_today')}: ${stats.new_users_today}`
         },
         {
-            title: 'ผู้ขาย',
+            title: t('admin.sellers'),
             value: stats.total_sellers.toLocaleString(),
             change: `+${stats.seller_growth_rate}%`,
             trend: 'up',
             icon: Store,
             color: 'green',
-            subtitle: `ผู้ซื้อ: ${stats.total_buyers.toLocaleString()}`
+            subtitle: `${t('admin.buyers')}: ${stats.total_buyers.toLocaleString()}`
         },
         {
-            title: 'สินค้าทั้งหมด',
+            title: t('admin.total_products'),
             value: stats.total_products.toLocaleString(),
-            change: `รอตรวจ: ${stats.pending_review}`,
+            change: `${t('admin.pending_review')}: ${stats.pending_review}`,
             trend: 'neutral',
             icon: Package,
             color: 'purple',
-            subtitle: `ใช้งาน: ${stats.active_products.toLocaleString()}`
+            subtitle: `${t('admin.active')}: ${stats.active_products.toLocaleString()}`
         },
         {
-            title: 'คำสั่งซื้อ',
+            title: t('admin.orders'),
             value: stats.total_orders.toLocaleString(),
-            change: `วันนี้: ${stats.orders_today}`,
+            change: `${t('admin.today')}: ${stats.orders_today}`,
             trend: 'up',
             icon: ShoppingCart,
             color: 'orange',
-            subtitle: `รอดำเนินการ: ${stats.pending_orders}`
+            subtitle: `${t('admin.pending')}: ${stats.pending_orders}`
         },
         {
-            title: 'GMV (ยอดขายรวม)',
+            title: t('admin.gmv_total_sales'),
             value: `฿${(stats.gmv / 1000000).toFixed(1)}M`,
             change: `+${stats.gmv_growth_rate}%`,
             trend: 'up',
             icon: TrendingUp,
             color: 'emerald',
-            subtitle: 'เดือนนี้'
+            subtitle: t('admin.this_month')
         },
         {
-            title: 'รายได้แพลตฟอร์ม',
+            title: t('admin.platform_revenue'),
             value: `฿${(stats.platform_revenue / 1000).toFixed(0)}K`,
-            change: 'ค่าธรรมเนียม',
+            change: t('admin.commission'),
             trend: 'up',
             icon: DollarSign,
             color: 'amber',
-            subtitle: 'เดือนนี้'
+            subtitle: t('admin.this_month')
         }
     ]
 
     const quickActions = [
         {
-            title: 'รอตรวจสอบ KYC',
+            title: t('admin.pending_kyc'),
             count: 23,
             icon: Clock,
             color: 'yellow',
             link: '/admin/sellers/pending'
         },
         {
-            title: 'สินค้าถูกรายงาน',
+            title: t('admin.reported_products'),
             count: 12,
             icon: AlertCircle,
             color: 'red',
             link: '/admin/products/reported'
         },
         {
-            title: 'คำขอถอนเงิน',
+            title: t('admin.withdrawal_requests'),
             count: 45,
             icon: DollarSign,
             color: 'blue',
             link: '/admin/finance/withdrawals'
         },
         {
-            title: 'ข้อพิพาท',
+            title: t('admin.disputes'),
             count: 8,
             icon: AlertCircle,
             color: 'orange',
@@ -177,10 +184,10 @@ export default function AdminDashboard() {
                 {/* Header */}
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                        แดชบอร์ด
+                        {t('admin.dashboard')}
                     </h1>
                     <p className="text-gray-500 dark:text-gray-400 mt-1">
-                        ยินดีต้อนรับ, {adminUser?.displayName} 👋
+                        {t('admin.welcome')}, {adminUser?.displayName} 👋
                     </p>
                 </div>
 
@@ -204,10 +211,10 @@ export default function AdminDashboard() {
                                         <div className="flex items-center gap-2">
                                             <span
                                                 className={`text-sm font-medium ${card.trend === 'up'
-                                                        ? 'text-green-600'
-                                                        : card.trend === 'down'
-                                                            ? 'text-red-600'
-                                                            : 'text-gray-600'
+                                                    ? 'text-green-600'
+                                                    : card.trend === 'down'
+                                                        ? 'text-red-600'
+                                                        : 'text-gray-600'
                                                     }`}
                                             >
                                                 {card.change}
@@ -231,7 +238,7 @@ export default function AdminDashboard() {
                 {/* Quick Actions */}
                 <div>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                        ต้องดำเนินการ
+                        {t('admin.action_required')}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {quickActions.map((action, index) => {
@@ -259,26 +266,154 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
+                {/* AI & System Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left: AI Alerts */}
+                    <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <Zap className="w-6 h-6 text-yellow-500" />
+                                {t('admin.ai_control_center')}
+                            </h2>
+                            <Link href="/admin/ai-features" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
+                                {t('admin.view_all')} &rarr;
+                            </Link>
+                        </div>
+
+                        <div className="space-y-4">
+                            {mockAIDetection.map((alert, i) => (
+                                <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800">
+                                    <div className={`p-2 rounded-lg ${alert.riskLevel === 'critical' ? 'bg-red-100 text-red-600' :
+                                        alert.riskLevel === 'high' ? 'bg-orange-100 text-orange-600' :
+                                            'bg-blue-100 text-blue-600'
+                                        }`}>
+                                        <ShieldAlert className="w-6 h-6" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <h3 className="font-bold text-gray-900 dark:text-white text-sm">
+                                                    {t(`admin.${alert.reason}`) || alert.reason}
+                                                </h3>
+                                                <p className="text-xs text-gray-500 mt-1">
+                                                    {t('admin.user')}: <span className="font-medium text-purple-600">{alert.userName}</span>
+                                                </p>
+                                            </div>
+                                            <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${alert.riskLevel === 'critical' ? 'bg-red-100 text-red-700' :
+                                                alert.riskLevel === 'high' ? 'bg-orange-100 text-orange-700' :
+                                                    'bg-blue-100 text-blue-700'
+                                                }`}>
+                                                {t(`admin.risk_${alert.riskLevel}`) || alert.riskLevel}
+                                            </span>
+                                        </div>
+                                        <div className="mt-3 flex gap-2">
+                                            <button className="px-3 py-1 bg-white border border-gray-200 rounded-lg text-xs font-medium hover:bg-gray-50 shadow-sm">
+                                                {t('admin.review')}
+                                            </button>
+                                            <button className="px-3 py-1 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 shadow-sm">
+                                                {t('admin.suspend_immediately')}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div className="text-center px-2">
+                                        <div className="text-2xl font-bold text-gray-900 dark:text-white">{alert.score}</div>
+                                        <div className="text-[10px] text-gray-400 uppercase">{t('admin.score')}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Right: Support & System Health */}
+                    <div className="space-y-6">
+                        {/* Support Report */}
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <Activity className="w-5 h-5 text-blue-500" />
+                                {t('admin.top_issues')}
+                            </h2>
+                            <div className="col-span-1">
+                                <ul className="space-y-3">
+                                    <li className="flex justify-between items-center text-sm">
+                                        <span className="text-gray-600">{t('admin.payment_issues')}</span>
+                                        <span className="font-bold text-red-500">42 {t('admin.cases')}</span>
+                                    </li>
+                                    <li className="flex justify-between items-center text-sm">
+                                        <span className="text-gray-600">{t('admin.kyc_failed')}</span>
+                                        <span className="font-bold text-orange-500">28 {t('admin.cases')}</span>
+                                    </li>
+                                    <li className="flex justify-between items-center text-sm">
+                                        <span className="text-gray-600">{t('admin.counterfeit_reports')}</span>
+                                        <span className="font-bold text-yellow-500">15 {t('admin.cases')}</span>
+                                    </li>
+                                    <li className="flex justify-between items-center text-sm">
+                                        <span className="text-gray-600">{t('admin.refund_requests')}</span>
+                                        <span className="font-bold text-gray-700">9 {t('admin.cases')}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        {/* System Health */}
+                        <div className="bg-gradient-to-br from-purple-900 to-indigo-900 rounded-xl p-6 text-white shadow-lg">
+                            <h2 className="font-bold mb-4 flex items-center gap-2">
+                                <Activity className="w-5 h-5" />
+                                {t('admin.system_health')}
+                            </h2>
+                            <div className="space-y-4">
+                                <div>
+                                    <div className="flex justify-between text-sm mb-1">
+                                        <span className="text-purple-200">{t('admin.server_load')}</span>
+                                        <span className="font-bold">24%</span>
+                                    </div>
+                                    <div className="h-2 bg-purple-900/50 rounded-full overflow-hidden">
+                                        <div className="h-full bg-green-400 w-[24%]"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="flex justify-between text-sm mb-1">
+                                        <span className="text-purple-200">{t('admin.database_latency')}</span>
+                                        <span className="font-bold">12ms</span>
+                                    </div>
+                                    <div className="h-2 bg-purple-900/50 rounded-full overflow-hidden">
+                                        <div className="h-full bg-blue-400 w-[10%]"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="flex justify-between text-sm mb-1">
+                                        <span className="text-purple-200">{t('admin.ai_processing')}</span>
+                                        <span className="font-bold">Active</span>
+                                    </div>
+                                    <div className="flex gap-1 mt-1">
+                                        <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                                        <span className="text-xs text-purple-200">{t('admin.online_monitoring')}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Recent Activity Placeholder */}
                 <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                        กิจกรรมล่าสุด
+                        {t('admin.recent_activity')}
                     </h2>
                     <div className="space-y-4">
-                        {[1, 2, 3, 4, 5].map((i) => (
+                        {[1, 2, 3].map((i) => (
                             <div
                                 key={i}
                                 className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50"
                             >
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
-                                    {i}
+                                    A
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                        กิจกรรมตัวอย่าง #{i}
+                                        {t('admin.admin_reviewed_product')} #8823{i}
                                     </p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                                        {i} นาทีที่แล้ว
+                                        {i * 15} {t('admin.minutes_ago')}
                                     </p>
                                 </div>
                                 <CheckCircle className="w-5 h-5 text-green-500" />

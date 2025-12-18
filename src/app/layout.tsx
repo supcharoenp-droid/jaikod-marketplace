@@ -1,8 +1,11 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { LanguageProvider } from '@/contexts/LanguageContext'
 import { AdminProvider } from '@/contexts/AdminContext'
 import { SiteSettingsProvider } from '@/contexts/SiteSettingsContext'
+import { WishlistProvider } from '@/contexts/WishlistContext'
+import CookieConsent from '@/components/common/CookieConsent'
 
 export const metadata: Metadata = {
     title: 'JaiKod - ขายง่าย ซื้อใจ ด้วยพลัง AI',
@@ -18,7 +21,8 @@ export const metadata: Metadata = {
     viewport: {
         width: 'device-width',
         initialScale: 1,
-        maximumScale: 5,
+        maximumScale: 1, // Lock zoom
+        userScalable: false, // Disable pinch zoom
     },
     themeColor: '#8B5CF6',
 }
@@ -34,13 +38,18 @@ export default function RootLayout({
                 <link rel="icon" href="/favicon.ico" />
             </head>
             <body className="font-primary antialiased" suppressHydrationWarning>
-                <AuthProvider>
-                    <AdminProvider>
-                        <SiteSettingsProvider>
-                            {children}
-                        </SiteSettingsProvider>
-                    </AdminProvider>
-                </AuthProvider>
+                <LanguageProvider>
+                    <AuthProvider>
+                        <AdminProvider>
+                            <SiteSettingsProvider>
+                                <WishlistProvider>
+                                    {children}
+                                    <CookieConsent />
+                                </WishlistProvider>
+                            </SiteSettingsProvider>
+                        </AdminProvider>
+                    </AuthProvider>
+                </LanguageProvider>
             </body>
         </html>
     )

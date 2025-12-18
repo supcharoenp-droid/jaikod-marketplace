@@ -23,6 +23,16 @@ export function hasPermission(role: AdminRole, permission: Permission): boolean 
  */
 export function canPerform(admin: AdminUser | null, permission: Permission): boolean {
     if (!admin || !admin.is_active) return false
+
+    // Super admin has all permissions
+    if (admin.role === 'super_admin') return true
+
+    // 1. Check specific user permissions (Custom/Granular)
+    if (admin.permissions && admin.permissions.includes(permission)) {
+        return true
+    }
+
+    // 2. Check Role defined permissions
     return hasPermission(admin.role, permission)
 }
 

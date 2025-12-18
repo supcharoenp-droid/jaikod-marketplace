@@ -1,17 +1,65 @@
-import { Product, User } from '@/types'
+import { Product, SellerProfile } from '@/types'
 import { CATEGORIES } from './categories'
 
-const MOCK_SELLER: User = {
-    id: '1',
-    role: 'seller',
-    email: 'hello@jaikod.com',
-    displayName: 'JaiKod Official',
-    photoURL: null,
-    phoneNumber: null,
-    is_verified: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-} as unknown as User
+const MOCK_SELLERS: SellerProfile[] = [
+    {
+        id: 's1',
+        owner_id: 'u1',
+        name: 'JaiKod Official Store',
+        slug: 'jaikod-official',
+        description: 'ร้านค้าอย่างเป็นทางการของ JaiKod การันตีคุณภาพสินค้าทุกชิ้น',
+        verified_status: 'verified',
+        type: 'official',
+        rating_avg: 4.9,
+        trust_score: 98,
+        followers_count: 5000,
+        response_rate: 99,
+        response_time_minutes: 5,
+        sales_count: 5000,
+        badges: ['official_store', 'top_seller', 'fast_reply'],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        seller_level: 'official'
+    },
+    {
+        id: 's2',
+        owner_id: 'u2',
+        name: 'Camera Pro Shop',
+        slug: 'camera-pro',
+        description: 'จำหน่ายกล้องมือสองสภาพเทพ รับประกันทุกตัว',
+        verified_status: 'verified',
+        type: 'general',
+        rating_avg: 4.7,
+        trust_score: 85,
+        followers_count: 850,
+        response_rate: 95,
+        response_time_minutes: 20,
+        sales_count: 450,
+        badges: ['verified_seller', 'highly_rated'],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        seller_level: 'pro'
+    },
+    {
+        id: 's3',
+        owner_id: 'u3',
+        name: 'Somchai Gadgets',
+        slug: 'somchai-gadgets',
+        description: 'ขายของสะสมส่วนตัวครับ',
+        verified_status: 'pending',
+        type: 'general',
+        rating_avg: 4.2,
+        trust_score: 60,
+        followers_count: 40,
+        response_rate: 80,
+        response_time_minutes: 120,
+        sales_count: 12,
+        badges: [],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        seller_level: 'standard'
+    }
+]
 
 const createMockProduct = (
     id: number | string,
@@ -23,6 +71,10 @@ const createMockProduct = (
 ): Product => {
     const category = CATEGORIES.find(c => c.slug === categorySlug)
     if (!category) throw new Error(`Category ${categorySlug} not found`)
+
+    // Pick a random seller based on category affinity (logic simplified for mock)
+    // 60% chance of official/verified, 40% individual
+    const seller = Math.random() > 0.4 ? (Math.random() > 0.5 ? MOCK_SELLERS[0] : MOCK_SELLERS[1]) : MOCK_SELLERS[2]
 
     // Use Picsum with seed for deterministic random images
     const getPlaceholderImage = (slug: string, index: number) => {
@@ -37,9 +89,10 @@ const createMockProduct = (
 
     return {
         id: id.toString(),
-        seller_id: MOCK_SELLER.id,
-        seller: undefined, // Type mismatch User vs SellerProfile. Keeping undefined to avoid complexity or need to cast
-        seller_name: MOCK_SELLER.displayName,
+        seller_id: seller.id,
+        seller: seller,
+        seller_name: seller.name,
+        seller_avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(seller.name)}&background=random`,
         title,
         description: `This is a detailed description for ${title}. It is in great condition and ready for a new owner.`,
         category_id: category.id.toString(),
@@ -87,12 +140,12 @@ export const MOCK_PRODUCTS: Product[] = [
     createMockProduct(204, 'cameras', 'DJI Mini 4 Pro', 32000, 4, 'ชลบุรี'),
     createMockProduct(205, 'cameras', 'GoPro Hero 12', 11500, 5, 'ภูเก็ต'),
 
-    // 3. Home Living (was Home Decor)
-    createMockProduct(301, 'home-living', 'Sofa Bed IKEA', 4500, 1),
-    createMockProduct(302, 'home-living', 'lamp Minimal', 890, 2, 'นนทบุรี'),
-    createMockProduct(303, 'home-living', 'Monstera Albo', 3500, 3, 'นครราชสีมา'),
-    createMockProduct(304, 'home-living', 'Wooden Desk', 2200, 4, 'ปทุมธานี'),
-    createMockProduct(305, 'home-living', 'Ceramic Vase', 450, 5, 'เชียงใหม่'),
+    // 3. Home & Garden (Fixed from home-living)
+    createMockProduct(301, 'home-garden', 'Sofa Bed IKEA', 4500, 1),
+    createMockProduct(302, 'home-garden', 'lamp Minimal', 890, 2, 'นนทบุรี'),
+    createMockProduct(303, 'home-garden', 'Monstera Albo', 3500, 3, 'นครราชสีมา'),
+    createMockProduct(304, 'home-garden', 'Wooden Desk', 2200, 4, 'ปทุมธานี'),
+    createMockProduct(305, 'home-garden', 'Ceramic Vase', 450, 5, 'เชียงใหม่'),
 
     // 4. Fashion
     createMockProduct(401, 'fashion', 'Nike Dunk Low Panda', 3200, 1),
@@ -108,12 +161,12 @@ export const MOCK_PRODUCTS: Product[] = [
     createMockProduct(504, 'computers', 'Keychron K2', 2200, 4),
     createMockProduct(505, 'computers', 'Ram DDR4 16GB', 1200, 5, 'สมุทรปราการ'),
 
-    // 6. Collectibles
-    createMockProduct(601, 'collectibles', 'Molly Space 400%', 8500, 1),
-    createMockProduct(602, 'collectibles', 'Luang Phor Koon Coin', 15000, 2, 'นครราชสีมา'),
-    createMockProduct(603, 'collectibles', 'Rare Banknotes 999', 2500, 3),
-    createMockProduct(604, 'collectibles', 'Thai Stamps Set', 4500, 4, 'เชียงใหม่'),
-    createMockProduct(605, 'collectibles', 'Bearbrick 1000%', 18900, 5),
+    // 6. Amulets & Collectibles (Fixed from collectibles)
+    createMockProduct(601, 'amulets-collectibles', 'Molly Space 400%', 8500, 1),
+    createMockProduct(602, 'amulets-collectibles', 'Luang Phor Koon Coin', 15000, 2, 'นครราชสีมา'),
+    createMockProduct(603, 'amulets-collectibles', 'Rare Banknotes 999', 2500, 3),
+    createMockProduct(604, 'amulets-collectibles', 'Thai Stamps Set', 4500, 4, 'เชียงใหม่'),
+    createMockProduct(605, 'amulets-collectibles', 'Bearbrick 1000%', 18900, 5),
 
     // 7. Sports
     createMockProduct(701, 'sports', 'Yonex Astrox 88D', 4200, 1),
@@ -122,31 +175,32 @@ export const MOCK_PRODUCTS: Product[] = [
     createMockProduct(704, 'sports', 'Dumbbell 24kg', 2500, 4),
     createMockProduct(705, 'sports', 'Hoka Clifton 9', 3500, 5, 'อุดรธานี'),
 
-    // 8. Home Appliances (was Electronics)
+    // 8. Home Appliances
     createMockProduct(801, 'home-appliances', 'Samsung Fridge', 4500, 1),
     createMockProduct(802, 'home-appliances', 'LG Washing Machine', 5900, 2, 'สมุทรปราการ'),
     createMockProduct(803, 'home-appliances', 'Xiaomi Air Fryer', 790, 3, 'ปทุมธานี'),
     createMockProduct(804, 'home-appliances', 'TCL TV 55"', 6500, 4, 'ชลบุรี'),
     createMockProduct(805, 'home-appliances', 'Hatari Air Cooler', 1200, 5),
 
-    // 9. Books
-    createMockProduct(901, 'books', 'Sapiens', 350, 1),
-    createMockProduct(902, 'books', 'One Piece Set', 3500, 2, 'นนทบุรี'),
-    createMockProduct(903, 'books', 'Vogue Magazine', 250, 3),
-    createMockProduct(904, 'books', 'English Grammar', 200, 4, 'ขอนแก่น'),
-    createMockProduct(905, 'books', 'Harry Potter Boxset', 2500, 5, 'เชียงใหม่'),
+    // 9. Others (Was Books)
+    createMockProduct(901, 'others', 'Sapiens Book', 350, 1),
+    createMockProduct(902, 'others', 'One Piece Set', 3500, 2, 'นนทบุรี'),
+    createMockProduct(903, 'others', 'Vogue Magazine', 250, 3),
+    createMockProduct(904, 'others', 'English Grammar Spec', 200, 4, 'ขอนแก่น'),
+    createMockProduct(905, 'others', 'Harry Potter Boxset', 2500, 5, 'เชียงใหม่'),
 
-    // 10. Toys & Hobbies
-    createMockProduct(1001, 'toys-hobbies', 'Nintendo Switch OLED', 8900, 1),
-    createMockProduct(1002, 'toys-hobbies', 'PS5 God of War', 1200, 2, 'สมุทรปราการ'),
-    createMockProduct(1003, 'toys-hobbies', 'Lego Ferrari', 12000, 3, 'นนทบุรี'),
-    createMockProduct(1004, 'toys-hobbies', 'Catan Thai', 950, 4),
-    createMockProduct(1005, 'toys-hobbies', 'Care Bears', 550, 5, 'ชลบุรี'),
+    // 10. Gaming & Gadgets (Was Toys & Hobbies - Split for accuracy)
+    createMockProduct(1001, 'gaming', 'Nintendo Switch OLED', 8900, 1),
+    createMockProduct(1002, 'gaming', 'PS5 God of War', 1200, 2, 'สมุทรปราการ'),
+    // Moved toys to amulets-collectibles or others
+    createMockProduct(1003, 'amulets-collectibles', 'Lego Ferrari', 12000, 3, 'นนทบุรี'),
+    createMockProduct(1004, 'others', 'Catan Thai Board Game', 950, 4),
+    createMockProduct(1005, 'others', 'Care Bears Plush', 550, 5, 'ชลบุรี'),
 
     // 11. Others
     createMockProduct(1101, 'others', 'Yamaha F310 Guitar', 2900, 1),
     createMockProduct(1102, 'others', 'Central Voucher', 4500, 2, 'สมุทรปราการ'),
-    createMockProduct(1103, 'others', 'Cat Food 10kg', 1800, 3, 'ปทุมธานี'),
+    createMockProduct(1103, 'pets', 'Cat Food 10kg', 1800, 3, 'ปทุมธานี'), // Moved to pets
     createMockProduct(1104, 'others', 'Fish Tank 24"', 800, 4),
-    createMockProduct(1105, 'others', 'Bosch Drill', 2500, 5, 'นนทบุรี'),
+    createMockProduct(1105, 'home-garden', 'Bosch Drill', 2500, 5, 'นนทบุรี'), // Moved to home-garden (Tools)
 ]

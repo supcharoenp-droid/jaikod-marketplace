@@ -1,0 +1,193 @@
+﻿
+> jaikod@1.0.0 build
+> next build
+
+node.exe :  โ `eslint` 
+configuration in 
+next.config.js is no longer 
+supported. See more info 
+here: https://nextjs.org/docs
+/app/api-reference/cli/next#n
+ext-lint-options
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: ( โ `e   
+ slint` c...xt-lint-optio    
+ns:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+ โ Invalid next.config.js 
+options detected: 
+ โ     Unrecognized key(s) 
+in object: 'eslint'
+ โ See more info here: https
+://nextjs.org/docs/messages/i
+nvalid-next-config
+   โ–ฒ Next.js 16.0.7 (Turbopack)
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build 
+failed with 2 errors:
+./src/app/api/test/create-sam
+ple-products/route.ts:2:1
+Module not found: Can't 
+resolve 
+'@/lib/firebase-admin'
+[0m [90m 1 |[39m 
+[36mimport[39m { [33mNextR
+equest[39m[33m,[39m 
+[33mNextResponse[39m } 
+[36mfrom[39m 
+[32m'next/server'[39m
+[31m[1m>[22m[39m[90m 2 
+|[39m [36mimport[39m { 
+adminDb } [36mfrom[39m [32
+m'@/lib/firebase-admin'[39m
+ [90m   |[39m [31m[1m^[2
+2m[39m[31m[1m^[22m[39m[
+31m[1m^[22m[39m[31m[1m^
+[22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1m
+^[22m[39m[31m[1m^[22m[3
+9m[31m[1m^[22m[39m[31m[
+1m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31m
+[1m^[22m[39m[31m[1m^[22
+m[39m[31m[1m^[22m[39m[3
+1m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1m^
+[22m[39m[31m[1m^[22m[39
+m[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m[
+39m[31m[1m^[22m[39m[31m
+[1m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m[1m^[2
+2m[39m[31m[1m^[22m[39m[
+31m[1m^[22m[39m[31m[1m^
+[22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1m
+^[22m[39m[31m[1m^[22m[3
+9m[31m[1m^[22m[39m[31m[
+1m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31m
+[1m^[22m[39m[31m[1m^[22
+m[39m[31m[1m^[22m[39m[3
+1m[1m^[22m[39m[31m[1m^[
+22m[39m
+ [90m 3 |[39m 
+[36mimport[39m { 
+[33mFieldValue[39m } 
+[36mfrom[39m [32m'firebase
+-admin/firestore'[39m
+ [90m 4 |[39m
+ [90m 5 |[39m [90m// 
+Sample products data[39m[0m
+
+Import map: aliased to 
+relative 
+'./src/lib/firebase-admin' 
+inside of [project]/
+
+
+https://nextjs.org/docs/messa
+ges/module-not-found
+
+
+./src/app/api/test/create-sam
+ple-products/route.ts:3:1
+Module not found: Can't 
+resolve 
+'firebase-admin/firestore'
+[0m [90m 1 |[39m 
+[36mimport[39m { [33mNextR
+equest[39m[33m,[39m 
+[33mNextResponse[39m } 
+[36mfrom[39m 
+[32m'next/server'[39m
+ [90m 2 |[39m 
+[36mimport[39m { adminDb } 
+[36mfrom[39m [32m'@/lib/fi
+rebase-admin'[39m
+[31m[1m>[22m[39m[90m 3 
+|[39m [36mimport[39m { 
+[33mFieldValue[39m } 
+[36mfrom[39m [32m'firebase
+-admin/firestore'[39m
+ [90m   |[39m [31m[1m^[2
+2m[39m[31m[1m^[22m[39m[
+31m[1m^[22m[39m[31m[1m^
+[22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1m
+^[22m[39m[31m[1m^[22m[3
+9m[31m[1m^[22m[39m[31m[
+1m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31m
+[1m^[22m[39m[31m[1m^[22
+m[39m[31m[1m^[22m[39m[3
+1m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1m^
+[22m[39m[31m[1m^[22m[39
+m[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m[
+39m[31m[1m^[22m[39m[31m
+[1m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31
+m[1m^[22m[39m[31m[1m^[2
+2m[39m[31m[1m^[22m[39m[
+31m[1m^[22m[39m[31m[1m^
+[22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1m
+^[22m[39m[31m[1m^[22m[3
+9m[31m[1m^[22m[39m[31m[
+1m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31m
+[1m^[22m[39m[31m[1m^[22
+m[39m[31m[1m^[22m[39m[3
+1m[1m^[22m[39m[31m[1m^[
+22m[39m[31m[1m^[22m[39m
+[31m[1m^[22m[39m[31m[1m^
+[22m[39m[31m[1m^[22m[39
+m[31m[1m^[22m[39m[31m[1
+m^[22m[39m[31m[1m^[22m[
+39m
+ [90m 4 |[39m
+ [90m 5 |[39m [90m// 
+Sample products data[39m
+ [90m 6 |[39m 
+[36mconst[39m 
+sampleProducts [33m=[39m 
+[[0m
+
+
+
+https://nextjs.org/docs/messa
+ges/module-not-found
+
+
+    at <unknown> (./src/app/a
+pi/test/create-sample-product
+s/route.ts:2:1)
+    at <unknown> (https://nex
+tjs.org/docs/messages/module-
+not-found)
+    at <unknown> (./src/app/a
+pi/test/create-sample-product
+s/route.ts:3:1)
+    at <unknown> (https://nex
+tjs.org/docs/messages/module-
+not-found)

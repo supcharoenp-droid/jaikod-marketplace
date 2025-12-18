@@ -253,24 +253,44 @@ export async function getProductById(productId: string): Promise<ProductWithId |
  */
 export async function getAllProducts(limitCount: number = 50): Promise<ProductWithId[]> {
     try {
+        console.log('[getAllProducts] Starting fetch with limit:', limitCount)
+
+        // Simplified query without where clause to avoid composite index requirement
         const q = query(
             collection(db, PRODUCTS_COLLECTION),
-            where('status', '==', 'active'),
             orderBy('created_at', 'desc'),
-            limit(limitCount)
+            limit(limitCount * 2) // Fetch more to account for filtering
         )
 
+        console.log('[getAllProducts] Executing query...')
         const snapshot = await getDocs(q)
+        console.log('[getAllProducts] Query complete. Total docs:', snapshot.size)
 
-        return snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            created_at: doc.data().created_at?.toDate?.() || new Date(),
-            updated_at: doc.data().updated_at?.toDate?.() || new Date()
-        })) as ProductWithId[]
+        // Filter active products in application layer
+        const products = snapshot.docs
+            .map(doc => {
+                const data = doc.data()
+                console.log('[getAllProducts] Product:', doc.id, 'Status:', data.status)
+                return {
+                    id: doc.id,
+                    ...data,
+                    created_at: data.created_at?.toDate?.() || new Date(),
+                    updated_at: data.updated_at?.toDate?.() || new Date()
+                }
+            }) as ProductWithId[]
+
+        console.log('[getAllProducts] Mapped products:', products.length)
+
+        // Filter and limit
+        const filtered = products
+            .filter(p => p.status === 'active')
+            .slice(0, limitCount)
+
+        console.log('[getAllProducts] Filtered active products:', filtered.length)
+        return filtered
 
     } catch (error) {
-        console.error('[GetAllProducts] Error:', error)
+        console.error('[getAllProducts] Error:', error)
         throw error
     }
 }
@@ -280,20 +300,23 @@ export async function getAllProducts(limitCount: number = 50): Promise<ProductWi
  */
 export async function getProductsBySeller(sellerId: string): Promise<ProductWithId[]> {
     try {
+        // Simplified query without orderBy to avoid composite index requirement
         const q = query(
             collection(db, PRODUCTS_COLLECTION),
-            where('seller_id', '==', sellerId),
-            orderBy('created_at', 'desc')
+            where('seller_id', '==', sellerId)
         )
 
         const snapshot = await getDocs(q)
 
-        return snapshot.docs.map(doc => ({
+        const products = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
             created_at: doc.data().created_at?.toDate?.() || new Date(),
             updated_at: doc.data().updated_at?.toDate?.() || new Date()
         })) as ProductWithId[]
+
+        // Sort by created_at in application layer
+        return products.sort((a, b) => b.created_at.getTime() - a.created_at.getTime())
 
     } catch (error) {
         console.error('[GetSellerProducts] Error:', error)

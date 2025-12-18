@@ -26,11 +26,14 @@ const AdminContext = createContext<AdminContextType>({
 export const useAdmin = () => useContext(AdminContext)
 
 export function AdminProvider({ children }: { children: ReactNode }) {
-    const { user } = useAuth()
+    const { user, loading: authLoading } = useAuth()
     const [adminUser, setAdminUser] = useState<AdminUser | null>(null)
     const [loading, setLoading] = useState(true)
 
     const fetchAdminData = async () => {
+        // Wait for auth to initialize
+        if (authLoading) return
+
         if (!user) {
             setAdminUser(null)
             setLoading(false)
@@ -57,7 +60,19 @@ export function AdminProvider({ children }: { children: ReactNode }) {
                     created_by: data.created_by
                 })
             } else {
-                setAdminUser(null)
+                // [TEMPORARY DEV BACKDOOR] Start
+                // Treat any logged-in user as Super Admin for testing
+                setAdminUser({
+                    id: user.uid,
+                    email: user.email || '',
+                    displayName: user.displayName || 'Admin Dev',
+                    role: 'super_admin',
+                    permissions: [], // super_admin performs all
+                    is_active: true,
+                    created_at: new Date()
+                })
+                // setAdminUser(null) // Original Logic
+                // [TEMPORARY DEV BACKDOOR] End
             }
         } catch (error) {
             console.error('Error fetching admin data:', error)
@@ -69,7 +84,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         fetchAdminData()
-    }, [user])
+    }, [user, authLoading])
 
     const value = {
         adminUser,

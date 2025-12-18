@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { History, Sparkles, Heart, TrendingUp, Search } from 'lucide-react'
+import { History, Sparkles, Heart, TrendingUp, Search, MapPin, Zap, Flame, Tag } from 'lucide-react'
+import Link from 'next/link'
 import ProductSection from './ProductSection'
 import { Product } from '@/types'
 import {
@@ -10,43 +11,61 @@ import {
     getPersonalizedRecommendations,
     getBasedOnFavorites,
     getTrendingInInterests,
+    getNearMeProducts,
+    getHotDeals,
+    getTopSearches,
     trackVisit
 } from '@/services/behaviorTracking'
+import { getTrendingProducts, getBestSellingProducts } from '@/lib/products'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function PersonalizedSections() {
+    const { t } = useLanguage()
+    // Dynamic Data
     const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([])
     const [searchBasedData, setSearchBasedData] = useState<{ query: string; products: Product[] } | null>(null)
     const [recommendations, setRecommendations] = useState<Product[]>([])
-    const [favoriteBased, setFavoriteBased] = useState<Product[]>([])
-    const [trendingInterests, setTrendingInterests] = useState<Product[]>([])
+    // const [favoriteBased, setFavoriteBased] = useState<Product[]>([])
+    // const [trendingInterests, setTrendingInterests] = useState<Product[]>([])
+    const [nearMeProducts, setNearMeProducts] = useState<Product[]>([])
+    const [hotItems, setHotItems] = useState<Product[]>([])
+    const [trendingNow, setTrendingNow] = useState<Product[]>([])
+    const [topSearches, setTopSearches] = useState<string[]>([])
+
     const [isLoaded, setIsLoaded] = useState(false)
 
     useEffect(() => {
         const loadData = async () => {
-            // Track page visit
             trackVisit()
 
             try {
-                // Load personalized data
+                // Parallel fetching for performance
+                // Refined for specific zones requested
                 const [
                     recent,
                     searchBased,
                     recom,
-                    favBased,
-                    trendInterest
+                    nearMe,
+                    hot,
+                    trend,
+                    searches
                 ] = await Promise.all([
                     getRecentlyViewed(10),
                     getBasedOnSearchHistory(8),
                     getPersonalizedRecommendations(20),
-                    getBasedOnFavorites(8),
-                    getTrendingInInterests(10)
+                    getNearMeProducts(10),
+                    getBestSellingProducts(12), // Use best selling or most engaged for 'Hot Items'
+                    getTrendingProducts(10),   // Use trending logic for 'Trending Now'
+                    getTopSearches(5)
                 ])
 
                 setRecentlyViewed(recent)
                 setSearchBasedData(searchBased)
                 setRecommendations(recom)
-                setFavoriteBased(favBased)
-                setTrendingInterests(trendInterest)
+                setNearMeProducts(nearMe)
+                setHotItems(hot)
+                setTrendingNow(trend)
+                setTopSearches(searches)
             } catch (error) {
                 console.error('Error loading personalized data:', error)
             } finally {
@@ -57,68 +76,87 @@ export default function PersonalizedSections() {
         loadData()
     }, [])
 
-    if (!isLoaded) return null
+    if (!isLoaded) return <div className="h-96 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div></div>
+
+    // Layout Structure based on User Request
+    // 1. Trending Now (Carousal)
+    // 2. HOT Items (Grid)
+    // 3. Near You (Grid or Slider with Button)
 
     return (
-        <div className="space-y-4">
-            {/* Recently Viewed */}
-            {recentlyViewed.length > 0 && (
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 py-4 rounded-2xl mx-4">
+        <div className="space-y-12 pb-12">
+
+            {/* Zone 1: 🔥 Trending Now (กำลังเป็นกระแสวันนี้) */}
+            {trendingNow.length > 0 && (
+                <ProductSection
+                    title={t('home.trending_today')}
+                    subtitle={t('home.trending_today_desc')}
+                    products={trendingNow}
+                    layout="slider"
+                />
+            )}
+
+            {/* Zone 2: HOT Items (สินค้ายอดนิยม) - Grid 4 cols */}
+            {hotItems.length > 0 && (
+                <div className="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/10 dark:to-red-900/10 py-8 rounded-3xl mx-[-1rem] px-4 md:mx-0">
                     <ProductSection
-                        title="สินค้าที่เพิ่งดู"
-                        subtitle="กลับมาดูอีกครั้ง ก่อนหมดโอกาส"
-                        icon={<History className="w-6 h-6 text-blue-500" />}
-                        products={recentlyViewed}
-                        layout="slider"
+                        title={t('home.hot_items')}
+                        subtitle={t('home.hot_items_desc')}
+                        icon={<Flame className="w-6 h-6 text-red-500 animate-pulse" />}
+                        products={hotItems}
+                        layout="grid"
                     />
                 </div>
             )}
 
-            {/* Based on Search History */}
-            {searchBasedData && searchBasedData.products.length > 0 && (
+            {/* Zone 3: Near You (ของใกล้บ้านคุณ) */}
+            {nearMeProducts.length > 0 ? (
                 <ProductSection
-                    title={`เพราะคุณค้นหา "${searchBasedData.query}"`}
-                    subtitle="สินค้าที่ตรงกับสิ่งที่คุณกำลังหา"
-                    icon={<Search className="w-6 h-6 text-emerald-500" />}
-                    products={searchBasedData.products}
+                    title={t('home.near_you')}
+                    subtitle={t('home.near_you_desc')}
+                    icon={<MapPin className="w-6 h-6 text-green-500" />}
+                    products={nearMeProducts}
                     layout="slider"
+                    actionButton={
+                        <Link href="/search?sort=nearest" className="hidden md:inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-full transition-colors shadow-md hover:shadow-lg gap-2">
+                            <MapPin className="w-4 h-4" />
+                            {t('home.near_you_btn')}
+                        </Link>
+                    }
                 />
+            ) : (
+                // Fallback for Near You if location not sharing or no items
+                <div className="text-center py-8 bg-gray-50 dark:bg-surface-dark rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                    <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{t('home.near_you_fallback_title')}</h3>
+                    <p className="text-gray-500 mb-4 max-w-md mx-auto">{t('home.near_you_fallback_desc')}</p>
+                    <Link href="/search?sort=nearest" className="inline-flex items-center px-6 py-2 bg-purple-600 text-white rounded-full font-medium hover:bg-purple-700 transition shadow-lg">
+                        {t('home.near_you_fallback_btn')}
+                    </Link>
+                </div>
             )}
 
-            {/* Based on Favorites */}
-            {favoriteBased.length > 0 && (
-                <ProductSection
-                    title="คล้ายกับที่คุณถูกใจ"
-                    subtitle="เลือกดูเพิ่มเติมจากสิ่งที่คุณชอบ"
-                    icon={<Heart className="w-6 h-6 text-rose-500" />}
-                    products={favoriteBased}
-                    layout="slider"
-                />
-            )}
-
-            {/* Trending in Your Interests */}
-            {trendingInterests.length > 0 && (
-                <ProductSection
-                    title="มาแรงในหมวดที่คุณสนใจ"
-                    subtitle="สินค้ายอดนิยมที่คุณอาจพลาด"
-                    icon={<TrendingUp className="w-6 h-6 text-orange-500" />}
-                    products={trendingInterests}
-                    layout="slider"
-                />
-            )}
-
-            {/* AI Personalized Recommendations */}
+            {/* 4. Personalized (AI For You) - High priority fallback */}
             {recommendations.length > 0 && (
-                <div className="mt-8">
+                <div className="border-t border-gray-100 dark:border-gray-800 pt-8">
                     <ProductSection
-                        title="AI แนะนำสำหรับคุณโดยเฉพาะ"
-                        subtitle="เลือกสรรจากพฤติกรรมการใช้งานของคุณ"
-                        icon={<Sparkles className="w-6 h-6 text-neon-purple" />}
+                        title={t('home.ai_for_you_title')}
+                        subtitle={t('home.ai_for_you_desc')}
                         products={recommendations}
                         layout="grid"
                         viewAllLink="/search"
                     />
                 </div>
+            )}
+
+            {/* 5. Contextual History (Recently Viewed) */}
+            {recentlyViewed.length > 0 && (
+                <ProductSection
+                    title={t('home.recently_viewed')}
+                    icon={<History className="w-5 h-5 text-gray-400" />}
+                    products={recentlyViewed}
+                    layout="slider"
+                />
             )}
         </div>
     )

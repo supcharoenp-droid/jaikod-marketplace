@@ -7,6 +7,7 @@
 import { useState } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { useAdmin } from '@/contexts/AdminContext'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { canPerform } from '@/lib/rbac'
 import { SystemModule, ModuleConfig } from '@/types/admin'
 import { ADMIN_ROLES } from '@/types/admin'
@@ -40,6 +41,7 @@ const MODULE_ICONS: Record<SystemModule, any> = {
 
 export default function SystemConfigPage() {
     const { adminUser } = useAdmin()
+    const { t, language } = useLanguage()
     const [modules, setModules] = useState<ModuleConfig[]>([
         { id: 'marketplace', name: 'Marketplace', name_th: 'ระบบตลาด', enabled: true },
         { id: 'chat', name: 'Chat', name_th: 'ระบบแชท', enabled: true },
@@ -63,7 +65,7 @@ export default function SystemConfigPage() {
 
     const toggleModule = (moduleId: SystemModule) => {
         if (!canPerform(adminUser, 'system.manage_modules')) {
-            alert('คุณไม่มีสิทธิ์จัดการโมดูล')
+            alert(t('admin.no_permission_module'))
             return
         }
 
@@ -76,11 +78,11 @@ export default function SystemConfigPage() {
 
     const handleSaveSettings = () => {
         if (!canPerform(adminUser, 'system.edit_config')) {
-            alert('คุณไม่มีสิทธิ์แก้ไขการตั้งค่า')
+            alert(t('admin.no_permission_config'))
             return
         }
 
-        alert('บันทึกการตั้งค่าสำเร็จ')
+        alert(t('admin.settings_saved_success'))
     }
 
     return (
@@ -89,10 +91,10 @@ export default function SystemConfigPage() {
                 {/* Header */}
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                        ตั้งค่าระบบ
+                        {t('admin.system_config')}
                     </h1>
                     <p className="text-gray-500 dark:text-gray-400 mt-1">
-                        จัดการโมดูลและการตั้งค่าแพลตฟอร์ม
+                        {t('admin.system_config_desc')}
                     </p>
                 </div>
 
@@ -101,10 +103,10 @@ export default function SystemConfigPage() {
                     <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                             <Settings className="w-5 h-5" />
-                            โมดูลระบบ
+                            {t('admin.system_modules')}
                         </h2>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            เปิด/ปิดฟีเจอร์หลักของแพลตฟอร์ม
+                            {t('admin.system_modules_desc')}
                         </p>
                     </div>
                     <div className="p-6">
@@ -118,15 +120,15 @@ export default function SystemConfigPage() {
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className={`p-2 rounded-lg ${module.enabled
-                                                    ? 'bg-green-100 dark:bg-green-900/30'
-                                                    : 'bg-gray-100 dark:bg-gray-700'
+                                                ? 'bg-green-100 dark:bg-green-900/30'
+                                                : 'bg-gray-100 dark:bg-gray-700'
                                                 }`}>
                                                 <Icon className={`w-5 h-5 ${module.enabled ? 'text-green-600' : 'text-gray-400'
                                                     }`} />
                                             </div>
                                             <div>
                                                 <p className="font-medium text-gray-900 dark:text-white">
-                                                    {module.name_th}
+                                                    {t(`admin.${module.id}_system`)}
                                                 </p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">
                                                     {module.name}
@@ -154,14 +156,14 @@ export default function SystemConfigPage() {
                 <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                     <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                            การตั้งค่าแพลตฟอร์ม
+                            {t('admin.platform_settings')}
                         </h2>
                     </div>
                     <div className="p-6 space-y-6">
                         {/* Commission */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                ค่าธรรมเนียมแพลตฟอร์ม (%)
+                                {t('admin.platform_commission')}
                             </label>
                             <input
                                 type="number"
@@ -175,7 +177,7 @@ export default function SystemConfigPage() {
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    ถอนเงินขั้นต่ำ (฿)
+                                    {t('admin.min_withdrawal')}
                                 </label>
                                 <input
                                     type="number"
@@ -186,7 +188,7 @@ export default function SystemConfigPage() {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    ถอนเงินสูงสุด (฿)
+                                    {t('admin.max_withdrawal')}
                                 </label>
                                 <input
                                     type="number"
@@ -202,10 +204,10 @@ export default function SystemConfigPage() {
                             <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                                 <div>
                                     <p className="font-medium text-gray-900 dark:text-white">
-                                        อนุมัติสินค้าอัตโนมัติ
+                                        {t('admin.auto_approve_products')}
                                     </p>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        ไม่ต้องตรวจสอบสินค้าใหม่
+                                        {t('admin.auto_approve_desc')}
                                     </p>
                                 </div>
                                 <button
@@ -223,10 +225,10 @@ export default function SystemConfigPage() {
                             <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                                 <div>
                                     <p className="font-medium text-gray-900 dark:text-white">
-                                        บังคับยืนยัน KYC
+                                        {t('admin.require_kyc')}
                                     </p>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        ผู้ขายต้องยืนยันตัวตนก่อนขาย
+                                        {t('admin.require_kyc_desc')}
                                     </p>
                                 </div>
                                 <button
@@ -244,10 +246,10 @@ export default function SystemConfigPage() {
                             <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
                                 <div>
                                     <p className="font-medium text-gray-900 dark:text-white">
-                                        เปิดใช้ COD (เก็บเงินปลายทาง)
+                                        {t('admin.enable_cod_setting')}
                                     </p>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        อนุญาตให้ชำระเงินปลายทาง
+                                        {t('admin.enable_cod_desc')}
                                     </p>
                                 </div>
                                 <button
@@ -265,10 +267,10 @@ export default function SystemConfigPage() {
                             <div className="flex items-center justify-between p-4 border-2 border-red-200 dark:border-red-800 rounded-lg bg-red-50 dark:bg-red-900/10">
                                 <div>
                                     <p className="font-medium text-red-900 dark:text-red-400">
-                                        โหมดปิดปรับปรุง
+                                        {t('admin.maintenance_mode')}
                                     </p>
                                     <p className="text-sm text-red-600 dark:text-red-500">
-                                        ปิดเว็บไซต์ชั่วคราว (เฉพาะ Admin เข้าได้)
+                                        {t('admin.maintenance_desc')}
                                     </p>
                                 </div>
                                 <button
@@ -290,7 +292,7 @@ export default function SystemConfigPage() {
                             className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
                         >
                             <Save className="w-5 h-5" />
-                            บันทึกการตั้งค่า
+                            {t('admin.save_settings')}
                         </button>
                     </div>
                 </div>
@@ -300,7 +302,7 @@ export default function SystemConfigPage() {
                     <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                             <Shield className="w-5 h-5" />
-                            บทบาทผู้ดูแล
+                            {t('admin.admin_roles')}
                         </h2>
                     </div>
                     <div className="p-6">
@@ -314,7 +316,7 @@ export default function SystemConfigPage() {
                                         <div className={`w-3 h-3 rounded-full bg-${role.color}-500`}></div>
                                         <div>
                                             <p className="font-medium text-gray-900 dark:text-white">
-                                                {role.name_th}
+                                                {language === 'th' ? role.name_th : role.name}
                                             </p>
                                             <p className="text-xs text-gray-500 dark:text-gray-400">
                                                 {role.description}
@@ -322,10 +324,47 @@ export default function SystemConfigPage() {
                                         </div>
                                     </div>
                                     <span className="text-sm text-gray-500 dark:text-gray-400">
-                                        Level {role.level}
+                                        {t('admin.level')} {role.level}
                                     </span>
                                 </div>
                             ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Maintenance Scripts */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 border-l-4 border-l-orange-500">
+                    <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <Save className="w-5 h-5 text-orange-500" />
+                            Maintenance Scripts & Migrations
+                        </h2>
+                    </div>
+                    <div className="p-6">
+                        <div className="flex items-center justify-between p-4 bg-orange-50 dark:bg-orange-900/10 rounded-lg border border-orange-100 dark:border-orange-900/50">
+                            <div>
+                                <p className="font-bold text-gray-900 dark:text-white">Initialize Trust Scores</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    Calculate and populate 'trustScore' and 'riskLevel' for all existing users based on current data.
+                                    <br /><span className="text-xs text-orange-600">Run this once after deploying Trust & Safety module.</span>
+                                </p>
+                            </div>
+                            <button
+                                onClick={async () => {
+                                    if (!adminUser) return
+                                    if (!confirm('Are you sure you want to run this migration? It may take a while.')) return;
+                                    try {
+                                        const { runTrustScoreMigration } = await import('@/lib/admin/system-scripts')
+                                        const res = await runTrustScoreMigration(adminUser)
+                                        alert(`Migration Complete!\nProcessed: ${res.processed}\nUpdated: ${res.updated}\nErrors: ${res.errors}`)
+                                    } catch (e) {
+                                        alert('Migration Failed. Check console.')
+                                    }
+                                }}
+                                className="px-4 py-2 bg-white border border-gray-300 shadow-sm rounded-lg text-sm font-medium hover:bg-gray-50 text-gray-700"
+                            >
+                                Run Script
+                            </button>
                         </div>
                     </div>
                 </div>

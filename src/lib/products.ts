@@ -33,6 +33,8 @@ const PRODUCTS_COLLECTION = 'products'
 export interface CreateProductInput {
     title: string
     description: string
+    description_th?: string
+    description_en?: string
     category_id: string
     price: number
     original_price?: number
@@ -135,7 +137,9 @@ export async function createProduct(
 
         const productData = {
             title: input.title,
-            description: input.description,
+            description: input.description, // Main description (usually TH or EN based on context, legacy)
+            description_th: input.description_th || '',
+            description_en: input.description_en || '',
             category_id: parseInt(input.category_id) || input.category_id,
             price: input.price,
             original_price: input.original_price || null,
@@ -305,6 +309,90 @@ export async function getProductsBySeller(sellerId: string): Promise<Product[]> 
 }
 
 /**
+ * Get products by category (including subcategories)
+ */
+export async function getProductsByCategory(
+    categoryId: string | number,
+    limitCount: number = 20
+): Promise<Product[]> {
+    try {
+        const catIdNum = Number(categoryId);
+        const category = CATEGORIES.find(c => c.id === catIdNum);
+
+        let categoryIds: number[] = [catIdNum];
+        if (category && category.subcategories) {
+            // Includes subcategories in the query
+            category.subcategories.forEach(sub => categoryIds.push(sub.id));
+        }
+
+        // Handle case where categoryId implies a subcategory that behaves as a parent? 
+        // Currently structure is 2 levels: Main -> Sub. 
+        // If we pass a Subcategory ID, it has no children in `CATEGORIES` array defining it as root.
+        // So this logic works for Main Category -> Fetch all subs.
+        // If passed SubID, category is found (if flatten? No, CATEGORIES is possibly nested or flat list?)
+        // src/constants/categories.ts shows nested structure.
+        // So if I pass SubID (e.g. 101), find(c => c.id === 101) might fail if I only search top level.
+
+        // Let's refine finding logic.
+        let targetCategory = CATEGORIES.find(c => c.id === catIdNum);
+        if (!targetCategory) {
+            // Check subcategories
+            for (const c of CATEGORIES) {
+                if (c.subcategories) {
+                    const sub = c.subcategories.find(s => s.id === catIdNum);
+                    if (sub) {
+                        targetCategory = sub as any; // Cast specific type if needed
+                        break;
+                    }
+                }
+            }
+        }
+
+        // If targetCategory not found, just use the ID.
+        if (!targetCategory) {
+            categoryIds = [catIdNum];
+        }
+
+        // Firestore 'in' limit is 30.
+        if (categoryIds.length > 30) {
+            console.warn('Category has too many subcategories for simple IN query. Truncating.');
+            categoryIds = categoryIds.slice(0, 30);
+        }
+
+        const q = query(
+            collection(db, PRODUCTS_COLLECTION),
+            where('status', '==', 'active'),
+            where('category_id', 'in', categoryIds),
+            orderBy('created_at', 'desc'),
+            limit(limitCount)
+        );
+
+        const snapshot = await getDocs(q);
+
+        return snapshot.docs.map(docSnap => {
+            const data = docSnap.data();
+            // Need to find category info again for each product... simpler is generic find
+            // Let's use helper or just raw lookup
+            // We assume main category finding is enough for UI display
+            const pCategory = CATEGORIES.find(c => c.id === data.category_id) ||
+                CATEGORIES.flatMap(c => c.subcategories || []).find(s => s.id === data.category_id);
+
+            return {
+                id: docSnap.id,
+                ...data,
+                category: pCategory || null,
+                created_at: data.created_at?.toDate?.() || new Date(),
+                updated_at: data.updated_at?.toDate?.() || new Date(),
+            } as unknown as Product;
+        });
+
+    } catch (error) {
+        console.error('Error getting products by category:', error);
+        return [];
+    }
+}
+
+/**
  * Get all active products
  */
 export async function getAllProducts(limitCount: number = 50): Promise<Product[]> {
@@ -337,6 +425,9 @@ export async function getAllProducts(limitCount: number = 50): Promise<Product[]
 /**
  * Search products
  */
+/**
+ * Search products
+ */
 export async function searchProducts(searchQuery: string): Promise<Product[]> {
     // Note: Firestore doesn't support full-text search natively
     try {
@@ -353,14 +444,157 @@ export async function searchProducts(searchQuery: string): Promise<Product[]> {
     }
 }
 
+/**
+ * Advanced Search with Location & Sorting
+ */
+export interface SearchOptions {
+    query?: string
+    categoryId?: string | number
+    minPrice?: number
+    maxPrice?: number
+    sortBy?: 'latest' | 'price_asc' | 'price_desc' | 'nearest' | 'relevance'
+    userLocation?: { latitude: number, longitude: number }
+    maxDistanceKm?: number
+}
+
+export async function searchProductsAdvanced(options: SearchOptions): Promise<Product[]> {
+    try {
+        // 1. Fetch base list (Optimization: Use specific queries if possible, but Firestore limits multi-range)
+        // For MVP, fetch recent/active and filter in-memory.
+        let products = await getAllProducts(100);
+
+        // 2. Filter by Query
+        if (options.query) {
+            const lowerQuery = options.query.toLowerCase();
+            products = products.filter(p =>
+                p.title.toLowerCase().includes(lowerQuery) ||
+                p.description.toLowerCase().includes(lowerQuery)
+            );
+        }
+
+        // 3. Filter by Category
+        if (options.categoryId) {
+            const catId = Number(options.categoryId);
+            // Simple match or subcategory match
+            products = products.filter(p => {
+                if (p.category_id === catId) return true;
+                // Check if p.category_id is a child of the requested category?
+                // This logic is complex without a flattened map. 
+                // For now, strict match or reliance on `getProductsByCategory` being called separately.
+                // Let's assume strict match for filter.
+                return Number(p.category_id) === catId;
+            });
+        }
+
+        // 4. Filter by Price
+        if (options.minPrice !== undefined) products = products.filter(p => p.price >= options.minPrice!);
+        if (options.maxPrice !== undefined) products = products.filter(p => p.price <= options.maxPrice!);
+
+        // 5. Calculate Distances (if sorting by nearest or max distance set)
+        let productsWithDist: { p: Product, dist: number }[] = [];
+
+        // Dynamic import to avoid circular dep issues on load if any
+        const { calculateDistance, getProvinceCoordinates } = await import('./geolocation');
+
+        // We need user location for distance logic
+        if (options.userLocation || (options.sortBy === 'nearest')) {
+            // If userLocation not passed but sort requested, we can't sort accurately without it.
+            // Assume caller handles getting location.
+            const userLoc = options.userLocation;
+
+            if (userLoc) {
+                productsWithDist = products.map(p => {
+                    let dist = Infinity;
+                    if (p.location_province) {
+                        const coords = getProvinceCoordinates(p.location_province);
+                        if (coords) {
+                            dist = calculateDistance(userLoc, coords);
+                        }
+                    }
+                    return { p, dist };
+                });
+
+                // Filter by Max Distance
+                if (options.maxDistanceKm) {
+                    productsWithDist = productsWithDist.filter(item => item.dist <= options.maxDistanceKm!);
+                    products = productsWithDist.map(item => item.p); // Update main list
+                }
+            }
+        }
+
+        // 6. Sorting
+        switch (options.sortBy) {
+            case 'price_asc':
+                products.sort((a, b) => a.price - b.price);
+                break;
+            case 'price_desc':
+                products.sort((a, b) => b.price - a.price);
+                break;
+            case 'nearest':
+                if (productsWithDist.length > 0) {
+                    // Sort by pre-calculated distance
+                    products = productsWithDist.sort((a, b) => a.dist - b.dist).map(i => i.p);
+                }
+                break;
+            case 'latest':
+            default:
+                // Already sorted by created_at desc in fetch
+                products.sort((a, b) => {
+                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                });
+                break;
+        }
+
+        return products;
+
+    } catch (error) {
+        console.error('Error in advanced search:', error);
+        return [];
+    }
+}
+
 export async function updateProduct(
     productId: string,
     updates: Partial<CreateProductInput>
 ): Promise<void> {
     try {
         const docRef = doc(db, PRODUCTS_COLLECTION, productId)
+
+        // Handle Image Uploads if images provided
+        let finalUpdates: any = { ...updates }
+
+        if (updates.images) {
+            const finalImages: string[] = []
+            console.log(`[updateProduct] Processing ${updates.images.length} images...`)
+
+            for (let i = 0; i < updates.images.length; i++) {
+                const img = updates.images[i]
+                try {
+                    if (img instanceof File) {
+                        console.log(`[updateProduct] Uploading new image ${i}...`)
+                        const url = await uploadImage(img, productId, i)
+                        finalImages.push(url)
+                    } else if (typeof img === 'string') {
+                        finalImages.push(img)
+                    } else if ((img as any).url) {
+                        // Handle case where it might be { url: string } object
+                        finalImages.push((img as any).url)
+                    }
+                } catch (err) {
+                    console.error(`Failed to handle image ${i} in update:`, err)
+                }
+            }
+
+            finalUpdates.images = finalImages.map((url, i) => ({ url, order: i })) // Store as object array like createProduct
+
+            // Update thumbnail
+            if (finalImages.length > 0) {
+                finalUpdates.thumbnail_url = finalImages[0]
+            }
+        }
+
         await updateDoc(docRef, {
-            ...updates,
+            ...finalUpdates,
             updated_at: serverTimestamp()
         })
         console.log('Product updated:', productId)
@@ -375,18 +609,27 @@ export async function updateProduct(
  */
 export async function deleteProduct(productId: string): Promise<void> {
     try {
+        console.log('[deleteProduct] Starting deletion for:', productId)
+
         // Get product to delete images
         const product = await getProductById(productId)
-        if (product && product.images) {
-            await deleteProductImages(productId, product.images.map(i => i.url))
+        console.log('[deleteProduct] Product found:', product ? 'yes' : 'no')
+
+        if (product && product.images && product.images.length > 0) {
+            // Handle both string[] and ProductImage[] formats
+            const imageUrls = product.images.map(img =>
+                typeof img === 'string' ? img : img.url
+            )
+            console.log('[deleteProduct] Deleting images:', imageUrls.length)
+            await deleteProductImages(productId, imageUrls)
         }
 
         // Delete document
         const docRef = doc(db, PRODUCTS_COLLECTION, productId)
         await deleteDoc(docRef)
-        console.log('Product deleted:', productId)
+        console.log('[deleteProduct] Product deleted successfully:', productId)
     } catch (error) {
-        console.error('Error deleting product:', error)
+        console.error('[deleteProduct] Error deleting product:', error)
         throw error
     }
 }
@@ -519,6 +762,43 @@ export async function getTrendingProducts(limitCount: number = 10): Promise<Prod
     }
 }
 
+/**
+ * Get hot deals (products with discount)
+ */
+export async function getHotDealsProducts(limitCount: number = 10): Promise<Product[]> {
+    try {
+        const q = query(
+            collection(db, PRODUCTS_COLLECTION),
+            where('status', '==', 'active'),
+            orderBy('created_at', 'desc'),
+            limit(50) // Fetch more then filter
+        )
+        const snapshot = await getDocs(q)
+
+        const products = snapshot.docs.map(docSnap => {
+            const data = docSnap.data()
+            const category = CATEGORIES.find(c => c.id === data.category_id)
+            return {
+                id: docSnap.id,
+                ...data,
+                category: category || null,
+                created_at: data.created_at?.toDate?.() || new Date(),
+                updated_at: data.updated_at?.toDate?.() || new Date(),
+            } as unknown as Product
+        })
+
+        // Filter for deals: has original_price AND original_price > price
+        const deals = products.filter(p =>
+            p.original_price && p.original_price > p.price
+        )
+
+        return deals.slice(0, limitCount)
+    } catch (error) {
+        console.error('Error getting hot deals:', error)
+        return []
+    }
+}
+
 export async function deleteProductImage(productId: string, imageUrl: string): Promise<void> {
     try {
         const product = await getProductById(productId)
@@ -532,24 +812,27 @@ export async function deleteProductImage(productId: string, imageUrl: string): P
             // Check if object not found, ignore if so (maybe already deleted)
             if (error.code !== 'storage/object-not-found') {
                 console.error('Error deleting image from storage:', error)
-                // We typically continue to remove it from DB anyway to fix consistency
             }
         }
 
         // 2. Remove from images array
-        const newImages = product.images.filter(img => img.url !== imageUrl)
+        // Handle ProductImage[] or string[]
+        const currentImages = product.images || [];
+        // @ts-ignore - legacy support
+        const newImages = currentImages.filter(img => (typeof img === 'string' ? img : img.url) !== imageUrl)
 
         // 3. Update thumbnail if needed
         let newThumbnail = product.thumbnail_url
         if (product.thumbnail_url === imageUrl) {
-            newThumbnail = newImages.length > 0 ? newImages[0].url : ''
+            // @ts-ignore
+            newThumbnail = newImages.length > 0 ? (typeof newImages[0] === 'string' ? newImages[0] : newImages[0].url) : ''
         }
 
         // Re-index order
-        const orderedImages = newImages.map((img, index) => ({
-            ...img,
-            order: index
-        }))
+        const orderedImages = newImages.map((img: any, index: number) => {
+            if (typeof img === 'string') return { url: img, order: index };
+            return { ...img, order: index };
+        });
 
         // 4. Update Firestore
         const docRef = doc(db, PRODUCTS_COLLECTION, productId)
@@ -562,5 +845,21 @@ export async function deleteProductImage(productId: string, imageUrl: string): P
     } catch (error) {
         console.error('Error deleting product image:', error)
         throw error
+    }
+}
+
+/**
+ * Update product status (e.g. active -> reserved -> sold)
+ */
+export async function updateProductStatus(productId: string, status: 'active' | 'reserved' | 'sold', reservedByUserId?: string): Promise<void> {
+    try {
+        const docRef = doc(db, PRODUCTS_COLLECTION, productId)
+        await updateDoc(docRef, {
+            status: status,
+            reserved_by: reservedByUserId || null,
+            updated_at: serverTimestamp()
+        })
+    } catch (error) {
+        console.error('Error updating product status:', error)
     }
 }

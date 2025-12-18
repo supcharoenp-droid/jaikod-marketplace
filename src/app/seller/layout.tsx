@@ -13,9 +13,11 @@ import {
     Menu,
     X,
     LogOut,
-    Store
+    Store,
+    BarChart3
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLanguage } from '@/contexts/LanguageContext'
 import Image from 'next/image'
 
 export default function SellerLayout({
@@ -24,18 +26,37 @@ export default function SellerLayout({
     children: React.ReactNode
 }) {
     const pathname = usePathname()
-    const { user } = useAuth()
+    const { user, storeStatus } = useAuth()
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
 
+    // Verify Store Access
+    // TEMPORARILY DISABLED FOR TESTING - Uncomment to require store before accessing seller pages
+    /*
+    if (!storeStatus.hasStore && pathname !== '/seller/register' && !pathname.startsWith('/onboarding')) {
+        // Redirect to onboarding if accessing seller pages without a store
+        // We use typeof window check to avoid server-side issues (though use client deals with it usually)
+        if (typeof window !== 'undefined') {
+            // Use a timeout to avoid clashes during initial hydration
+            setTimeout(() => {
+                window.location.href = '/sell'
+            }, 100)
+        }
+        return null // Don't render sidebar or children
+    }
+    */
+
+    const { t } = useLanguage()
+
     const MENU_ITEMS = [
-        { name: 'ภาพรวมร้านค้า', icon: LayoutDashboard, href: '/seller' },
-        { name: 'สินค้าของฉัน', icon: Package, href: '/seller/products' },
-        { name: 'คำสั่งซื้อ', icon: ShoppingBag, href: '/seller/orders' },
-        { name: 'การตลาด', icon: TrendingUp, href: '/seller/marketing' },
-        { name: 'การเงิน', icon: Wallet, href: '/seller/finance' },
-        { name: 'ตั้งค่าร้านค้า', icon: Settings, href: '/seller/settings' },
+        { name: t('seller_dashboard.menu_dashboard'), icon: LayoutDashboard, href: '/seller' },
+        { name: t('seller_dashboard.menu_products'), icon: Package, href: '/seller/products' },
+        { name: t('seller_dashboard.menu_orders'), icon: ShoppingBag, href: '/seller/orders' },
+        { name: t('seller_dashboard.menu_marketing'), icon: TrendingUp, href: '/seller/marketing' },
+        { name: t('seller_dashboard.menu_finance'), icon: Wallet, href: '/seller/finance' },
+        { name: t('seller_dashboard.menu_reports'), icon: BarChart3, href: '/seller/reports' },
+        { name: t('seller_dashboard.menu_settings'), icon: Settings, href: '/seller/settings' },
     ]
 
     return (
@@ -60,7 +81,7 @@ export default function SellerLayout({
                     <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-800">
                         <Link href="/" className="flex items-center gap-2 font-display font-bold text-xl">
                             <Store className="w-6 h-6 text-neon-purple" />
-                            <span className="text-gray-900 dark:text-white">Seller Centre</span>
+                            <span className="text-gray-900 dark:text-white">{t('seller_dashboard.seller_centre')}</span>
                         </Link>
                         <button
                             className="ml-auto lg:hidden text-gray-500"
@@ -84,11 +105,11 @@ export default function SellerLayout({
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">
-                                    {user?.displayName || 'ร้านค้าของฉัน'}
+                                    {storeStatus.shopName || user?.displayName || 'My Shop'}
                                 </h3>
                                 <p className="text-xs text-green-500 flex items-center gap-1">
                                     <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                    ออนไลน์
+                                    {storeStatus.hasStore ? 'Online' : 'Setup Required'}
                                 </p>
                             </div>
                         </div>
@@ -124,7 +145,7 @@ export default function SellerLayout({
                             className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                         >
                             <LogOut className="w-5 h-5" />
-                            กลับสู่หน้าหลัก
+                            Back to Home
                         </Link>
                     </div>
                 </div>
@@ -140,7 +161,7 @@ export default function SellerLayout({
                     >
                         <Menu className="w-6 h-6" />
                     </button>
-                    <span className="font-bold text-lg">Seller Centre</span>
+                    <span className="font-bold text-lg">{t('seller_dashboard.seller_centre')}</span>
                     <div className="w-6" /> {/* Spacer */}
                 </header>
 

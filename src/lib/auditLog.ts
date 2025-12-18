@@ -58,6 +58,11 @@ export type AuditAction =
     | 'security.ip_blocked'
     | 'security.rate_limit'
 
+    // AI Actions
+    | 'ai.generate'
+    | 'ai.moderate'
+    | 'ai.price_estimate'
+
 export type AuditSeverity = 'info' | 'warning' | 'critical'
 
 export interface AuditLogEntry {

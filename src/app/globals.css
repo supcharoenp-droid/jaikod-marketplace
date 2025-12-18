@@ -7,6 +7,10 @@
 :root {
   --font-sarabun: 'Sarabun', 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-prompt: 'Prompt', 'Sarabun', sans-serif;
+
+  /* Modern Spacing System */
+  --spacing-container: 2rem;
+  --spacing-section: 4rem;
 }
 
 * {
@@ -21,10 +25,12 @@ html {
 
 body {
   font-family: var(--font-sarabun);
-  background-color: #FAFAFA;
+  background-color: #F8F9FA;
+  /* Slightly lighter/cleaner gray */
   color: #1F2937;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
 }
 
 /* Dark Mode */
@@ -35,7 +41,8 @@ body {
 
 /* Modern Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
+  /* Thinner */
 }
 
 ::-webkit-scrollbar-track {
@@ -57,10 +64,6 @@ body {
   border-color: #1A1A1A;
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #4B5563;
-}
-
 /* Utility Classes */
 @layer utilities {
   .text-shadow-sm {
@@ -75,14 +78,14 @@ body {
   }
 
   .glass-effect {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
   }
 
   .dark .glass-effect {
-    background: rgba(45, 45, 45, 0.7);
+    background: rgba(45, 45, 45, 0.8);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
@@ -102,36 +105,37 @@ body {
         #2D2D2D 80px);
   }
 
-  .card-hover {
-    transition: all 0.2s ease-out;
+  /* Hover Lift Effect */
+  .hover-lift {
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease-out;
   }
 
-  .card-hover:hover {
+  .hover-lift:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  }
-
-  .btn-scale {
-    transition: transform 0.2s ease-out;
-  }
-
-  .btn-scale:hover {
-    transform: scale(1.02);
-  }
-
-  .btn-scale:active {
-    transform: scale(0.98);
+    box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
   }
 }
 
 /* Component Styles */
 @layer components {
+
+  /* Layout Containers */
+  .container-modern {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Buttons */
   .btn-primary {
-    @apply bg-neon-purple text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-600 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-neon-purple text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-purple-600 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-neon-purple/20;
   }
 
   .btn-secondary {
-    @apply bg-white text-neon-purple border-2 border-neon-purple px-6 py-3 rounded-lg font-semibold hover:bg-purple-50 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-white text-neon-purple border-2 border-neon-purple px-6 py-2.5 rounded-xl font-semibold hover:bg-purple-50 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* AI Button Variant */
+  .btn-ai {
+    @apply bg-gradient-to-r from-neon-purple to-indigo-600 text-white px-6 py-2.5 rounded-xl font-semibold hover:opacity-90 transition-all duration-200 shadow-md shadow-indigo-500/20 active:scale-95 flex items-center gap-2;
   }
 
   .dark .btn-secondary {
@@ -139,51 +143,58 @@ body {
   }
 
   .btn-outline {
-    @apply bg-transparent text-text-primary border border-gray-300 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-all duration-200 active:scale-95;
+    @apply bg-transparent text-gray-700 border border-gray-200 px-6 py-2.5 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 active:scale-95;
   }
 
   .dark .btn-outline {
-    @apply text-text-light border-gray-600 hover:bg-surface-dark;
+    @apply text-white border-gray-600 hover:bg-surface-dark;
   }
 
+  /* Inputs */
   .input-field {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-purple focus:border-transparent transition-all duration-200 bg-white;
+    @apply w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-neon-purple/20 focus:border-neon-purple transition-all duration-200 bg-white shadow-sm;
   }
 
   .dark .input-field {
-    @apply bg-surface-dark border-gray-600 text-text-light;
+    @apply bg-surface-dark border-gray-700 text-text-light;
   }
 
+  /* Cards */
   .card {
-    @apply bg-white rounded-card shadow-card p-4 transition-all duration-200;
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6 transition-all duration-200;
   }
 
   .dark .card {
-    @apply bg-surface-dark;
+    @apply bg-surface-dark border-gray-800;
   }
 
   .product-card {
-    @apply card overflow-hidden cursor-pointer card-hover;
+    @apply card p-0 overflow-hidden cursor-pointer hover-lift border-0 shadow-sm hover:shadow-lg transition-all duration-300;
+  }
+
+  /* AI Suggestions */
+  .ai-suggestion-bar {
+    @apply bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100 rounded-xl p-4 flex items-center gap-3 text-sm text-purple-900;
+  }
+
+  .dark .ai-suggestion-bar {
+    @apply bg-surface-dark border-purple-900/30 text-purple-100;
   }
 
   .badge {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
   }
 
   .badge-verified {
-    @apply badge bg-electric-blue text-white;
+    @apply badge bg-blue-100 text-blue-700;
   }
 
   .badge-new {
-    @apply badge bg-success text-white;
+    @apply badge bg-green-100 text-green-700;
   }
 
   .badge-hot {
-    @apply badge bg-coral-orange text-white;
-  }
-
-  .skeleton {
-    @apply shimmer-bg rounded animate-pulse;
+    @apply badge bg-orange-100 text-orange-700;
   }
 }
 
@@ -217,161 +228,5 @@ body {
 
   100% {
     background-position: 1000px 0;
-  }
-}
-
-/* Mobile Optimizations */
-@media (max-width: 640px) {
-  body {
-    font-size: 14px;
-  }
-
-  .btn-primary,
-  .btn-secondary,
-  .btn-outline {
-    @apply px-4 py-2 text-sm;
-  }
-}
-
-/* Accessibility */
-.focus-visible:focus {
-  @apply outline-none ring-2 ring-neon-purple ring-offset-2;
-}
-
-/* CTA Animations */
-@keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes float-delayed {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-15px);
-  }
-}
-
-@keyframes bounce-slow {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-@keyframes pulse-glow {
-
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
-  }
-
-  50% {
-    box-shadow: 0 0 20px 10px rgba(139, 92, 246, 0.2);
-  }
-}
-
-@keyframes shake {
-
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  10%,
-  30%,
-  50%,
-  70%,
-  90% {
-    transform: translateX(-2px);
-  }
-
-  20%,
-  40%,
-  60%,
-  80% {
-    transform: translateX(2px);
-  }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-float-delayed {
-  animation: float-delayed 4s ease-in-out infinite 0.5s;
-}
-
-.animate-bounce-slow {
-  animation: bounce-slow 2s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-.animate-shake {
-  animation: shake 0.5s ease-in-out;
-}
-
-/* Slide In Animations */
-.animate-in {
-  animation-duration: 0.3s;
-  animation-timing-function: ease-out;
-  animation-fill-mode: forwards;
-}
-
-.slide-in-from-bottom-5 {
-  animation-name: slideInFromBottom;
-}
-
-.zoom-in-95 {
-  animation-name: zoomIn;
-}
-
-@keyframes slideInFromBottom {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes zoomIn {
-  from {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Print Styles */
-@media print {
-  .no-print {
-    display: none !important;
   }
 }

@@ -33,6 +33,7 @@ export interface FirebaseProduct {
     // Pricing
     price: number
     original_price: number | null
+    price_type?: 'fixed' | 'negotiable' | 'auction'
 
     // Condition
     condition: string
@@ -50,6 +51,8 @@ export interface FirebaseProduct {
     // Seller Info
     seller_id: string  // Firebase UID
     seller_name: string
+    seller_avatar?: string
+    is_verified_seller?: boolean
 
     // Status
     status: 'active' | 'sold' | 'inactive'

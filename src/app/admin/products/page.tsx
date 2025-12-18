@@ -1,168 +1,79 @@
-/**
- * Product Management Panel
- * Moderate, Approve, Reject, Suspend Products
- */
 'use client'
 
 import { useState, useEffect } from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
-import { useAdmin } from '@/contexts/AdminContext'
-import { canPerform } from '@/lib/rbac'
-import Image from 'next/image'
 import {
-    Search,
-    Filter,
-    Eye,
-    CheckCircle,
-    XCircle,
-    Ban,
-    Flag,
-    TrendingUp,
-    Package,
-    AlertTriangle
+    Package, Search, CheckCircle, XCircle, AlertTriangle,
+    MoreVertical, Eye, Lock, Flag
 } from 'lucide-react'
+import { useAdmin } from '@/contexts/AdminContext'
+import { useLanguage } from '@/contexts/LanguageContext'
+import { getAdminProducts, getProductStats, approveProduct, rejectProduct, freezeProduct, flagProduct, AdminProduct } from '@/lib/admin/product-service'
+import { format } from 'date-fns'
+import { th, enUS } from 'date-fns/locale'
+import Image from 'next/image'
 
-interface Product {
-    id: string
-    title: string
-    seller_name: string
-    category: string
-    price: number
-    status: 'active' | 'pending' | 'suspended' | 'rejected'
-    views_count: number
-    sold_count: number
-    reported_count: number
-    thumbnail_url: string
-    created_at: Date
-}
-
-export default function ProductsManagementPage() {
+export default function ProductManagementPage() {
     const { adminUser } = useAdmin()
-    const [products, setProducts] = useState<Product[]>([])
+    const { t, language } = useLanguage()
+    const [products, setProducts] = useState<AdminProduct[]>([])
+    const [stats, setStats] = useState({ total: 0, active: 0, pending: 0, suspended: 0 })
     const [loading, setLoading] = useState(true)
-    const [searchQuery, setSearchQuery] = useState('')
-    const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'pending' | 'suspended'>('all')
+
+    // Filters
+    const [filterStatus, setFilterStatus] = useState('all') // all, active, pending, suspended
+    const [searchTerm, setSearchTerm] = useState('')
 
     useEffect(() => {
-        fetchProducts()
-    }, [])
+        loadData()
+    }, [filterStatus])
 
-    const fetchProducts = async () => {
-        // Mock data
-        setTimeout(() => {
-            setProducts([
-                {
-                    id: '1',
-                    title: 'iPhone 15 Pro Max 256GB',
-                    seller_name: 'ร้านมือถือมือสอง',
-                    category: 'มือถือ',
-                    price: 42900,
-                    status: 'active',
-                    views_count: 1234,
-                    sold_count: 5,
-                    reported_count: 0,
-                    thumbnail_url: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=200',
-                    created_at: new Date('2024-12-01')
-                },
-                {
-                    id: '2',
-                    title: 'สินค้ารอตรวจสอบ',
-                    seller_name: 'ร้านใหม่',
-                    category: 'อิเล็กทรอนิกส์',
-                    price: 5900,
-                    status: 'pending',
-                    views_count: 45,
-                    sold_count: 0,
-                    reported_count: 0,
-                    thumbnail_url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200',
-                    created_at: new Date('2024-12-06')
-                },
-                {
-                    id: '3',
-                    title: 'สินค้าถูกรายงาน',
-                    seller_name: 'ร้านปัญหา',
-                    category: 'เสื้อผ้า',
-                    price: 299,
-                    status: 'active',
-                    views_count: 567,
-                    sold_count: 12,
-                    reported_count: 5,
-                    thumbnail_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200',
-                    created_at: new Date('2024-11-15')
-                },
-                {
-                    id: '4',
-                    title: 'สินค้าถูกระงับ',
-                    seller_name: 'ร้านถูกแบน',
-                    category: 'อื่นๆ',
-                    price: 1200,
-                    status: 'suspended',
-                    views_count: 234,
-                    sold_count: 3,
-                    reported_count: 8,
-                    thumbnail_url: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200',
-                    created_at: new Date('2024-10-20')
-                }
-            ])
-            setLoading(false)
-        }, 500)
+    const loadData = async () => {
+        setLoading(true)
+        const [prodData, statsData] = await Promise.all([
+            getAdminProducts({ status: filterStatus, search: searchTerm }),
+            getProductStats()
+        ])
+        setProducts(prodData)
+        setStats(statsData)
+        setLoading(false)
     }
 
-    const handleApprove = async (productId: string) => {
-        if (!canPerform(adminUser, 'products.moderate')) {
-            alert('คุณไม่มีสิทธิ์อนุมัติสินค้า')
-            return
-        }
-
-        if (confirm('ยืนยันการอนุมัติสินค้า?')) {
-            alert('อนุมัติสินค้าสำเร็จ')
-            fetchProducts()
-        }
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault()
+        loadData()
     }
 
-    const handleReject = async (productId: string) => {
-        if (!canPerform(adminUser, 'products.moderate')) {
-            alert('คุณไม่มีสิทธิ์ปฏิเสธสินค้า')
-            return
+    const handleAction = async (action: 'approve' | 'reject' | 'freeze' | 'flag', product: AdminProduct) => {
+        if (!adminUser) return
+
+        try {
+            if (action === 'approve') {
+                if (!confirm(t('admin.confirm_approve') || 'Approve this product?')) return
+                await approveProduct(adminUser, product.id)
+            }
+            if (action === 'reject') {
+                const r = prompt(t('admin.reason_reject') || 'Reason for rejection:')
+                if (!r) return
+                await rejectProduct(adminUser, product.id, r)
+            }
+            if (action === 'freeze') {
+                const r = prompt(t('admin.reason_freeze') || 'Reason for freezing:')
+                if (!r) return
+                await freezeProduct(adminUser, product.id, r)
+            }
+            if (action === 'flag') {
+                const r = prompt(t('admin.reason_flag') || 'Reason for flagging:')
+                if (!r) return
+                await flagProduct(adminUser, product.id, r)
+            }
+
+            alert(t('admin.settings_saved_success') || 'Success')
+            loadData() // reload
+        } catch (e) {
+            console.error(e)
+            alert(t('common.error') || 'Error')
         }
-
-        const reason = prompt('เหตุผลในการปฏิเสธ:')
-        if (reason) {
-            alert('ปฏิเสธสินค้าสำเร็จ')
-            fetchProducts()
-        }
-    }
-
-    const handleSuspend = async (productId: string) => {
-        if (!canPerform(adminUser, 'products.moderate')) {
-            alert('คุณไม่มีสิทธิ์ระงับสินค้า')
-            return
-        }
-
-        if (confirm('ยืนยันการระงับสินค้า?')) {
-            alert('ระงับสินค้าสำเร็จ')
-            fetchProducts()
-        }
-    }
-
-    const filteredProducts = products.filter(product => {
-        const matchesSearch =
-            product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            product.seller_name.toLowerCase().includes(searchQuery.toLowerCase())
-
-        const matchesStatus = filterStatus === 'all' || product.status === filterStatus
-
-        return matchesSearch && matchesStatus
-    })
-
-    if (loading) {
-        return (
-            <AdminLayout>
-                <div className="flex items-center justify-center h-96">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-                </div>
-            </AdminLayout>
-        )
     }
 
     return (
@@ -170,212 +81,144 @@ export default function ProductsManagementPage() {
             <div className="space-y-6">
                 {/* Header */}
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                        จัดการสินค้า
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <Package className="w-8 h-8 text-purple-600" />
+                        {t('admin.menu_products')}
                     </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-1">
-                        ทั้งหมด {filteredProducts.length} รายการ
+                    <p className="text-gray-500 mt-1">
+                        {t('admin.products_management_desc')}
                     </p>
                 </div>
 
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                                <Package className="w-5 h-5 text-green-600" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                    {products.filter(p => p.status === 'active').length}
-                                </p>
-                                <p className="text-xs text-gray-500">สินค้าใช้งาน</p>
-                            </div>
-                        </div>
+                {/* Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-white p-4 rounded-xl border shadow-sm">
+                        <div className="text-gray-500 text-sm">{t('admin.products_total')}</div>
+                        <div className="text-2xl font-bold">{stats.total.toLocaleString()}</div>
                     </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-                                <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                    {products.filter(p => p.status === 'pending').length}
-                                </p>
-                                <p className="text-xs text-gray-500">รอตรวจสอบ</p>
-                            </div>
-                        </div>
+                    <div className="bg-green-50 p-4 rounded-xl border border-green-100">
+                        <div className="text-green-600 text-sm">{t('admin.products_active')}</div>
+                        <div className="text-2xl font-bold text-green-700">{stats.active.toLocaleString()}</div>
                     </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
-                                <Flag className="w-5 h-5 text-red-600" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                    {products.filter(p => p.reported_count > 0).length}
-                                </p>
-                                <p className="text-xs text-gray-500">ถูกรายงาน</p>
-                            </div>
-                        </div>
+                    <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-100">
+                        <div className="text-yellow-600 text-sm">{t('admin.products_pending')}</div>
+                        <div className="text-2xl font-bold text-yellow-700">{stats.pending.toLocaleString()}</div>
                     </div>
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                                <Ban className="w-5 h-5 text-gray-600" />
-                            </div>
-                            <div>
-                                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                    {products.filter(p => p.status === 'suspended').length}
-                                </p>
-                                <p className="text-xs text-gray-500">ถูกระงับ</p>
-                            </div>
-                        </div>
+                    <div className="bg-red-50 p-4 rounded-xl border border-red-100">
+                        <div className="text-red-600 text-sm">{t('admin.products_suspended')}</div>
+                        <div className="text-2xl font-bold text-red-700">{stats.suspended.toLocaleString()}</div>
                     </div>
                 </div>
 
-                {/* Filters */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="md:col-span-2">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <input
-                                    type="text"
-                                    placeholder="ค้นหาชื่อสินค้าหรือผู้ขาย..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                />
-                            </div>
-                        </div>
-                        <select
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value as any)}
-                            className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        >
-                            <option value="all">สถานะทั้งหมด</option>
-                            <option value="active">ใช้งาน</option>
-                            <option value="pending">รอตรวจสอบ</option>
-                            <option value="suspended">ถูกระงับ</option>
-                        </select>
+                {/* Toolbar */}
+                <div className="flex flex-col md:flex-row gap-4 justify-between bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+                        {['all', 'active', 'pending', 'suspended'].map(s => (
+                            <button
+                                key={s}
+                                onClick={() => setFilterStatus(s)}
+                                className={`px-3 py-1.5 rounded-md text-sm font-bold capitalize ${filterStatus === s ? 'bg-white shadow text-purple-600' : 'text-gray-500'}`}
+                            >
+                                {s === 'all' && t('admin.filter_status_all')}
+                                {s === 'active' && t('admin.filter_status_active')}
+                                {s === 'pending' && t('admin.filter_status_pending')}
+                                {s === 'suspended' && t('admin.filter_status_suspended')}
+                            </button>
+                        ))}
                     </div>
+                    <form onSubmit={handleSearch} className="relative w-full md:w-80">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder={t('admin.search_products')}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-9 pr-4 py-2 rounded-lg border outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                    </form>
                 </div>
 
-                {/* Products Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredProducts.map((product) => (
-                        <div
-                            key={product.id}
-                            className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow"
-                        >
-                            {/* Image */}
-                            <div className="relative aspect-square bg-gray-100 dark:bg-gray-700">
-                                <Image
-                                    src={product.thumbnail_url}
-                                    alt={product.title}
-                                    fill
-                                    className="object-cover"
-                                />
-                                {/* Status Badge */}
-                                <div className="absolute top-2 right-2">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${product.status === 'active'
-                                            ? 'bg-green-100 text-green-700'
-                                            : product.status === 'pending'
-                                                ? 'bg-yellow-100 text-yellow-700'
-                                                : product.status === 'suspended'
-                                                    ? 'bg-red-100 text-red-700'
-                                                    : 'bg-gray-100 text-gray-700'
-                                        }`}>
-                                        {product.status === 'active' ? 'ใช้งาน' : product.status === 'pending' ? 'รอตรวจ' : 'ระงับ'}
-                                    </span>
-                                </div>
-                                {/* Reported Badge */}
-                                {product.reported_count > 0 && (
-                                    <div className="absolute top-2 left-2">
-                                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-500 text-white flex items-center gap-1">
-                                            <Flag className="w-3 h-3" />
-                                            {product.reported_count}
+                {/* List */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                    <table className="w-full text-sm text-left">
+                        <thead className="bg-gray-50 dark:bg-gray-900 text-gray-500 font-bold uppercase text-xs">
+                            <tr>
+                                <th className="px-6 py-4">{t('admin.table_product')}</th>
+                                <th className="px-6 py-4">{t('admin.table_price')}</th>
+                                <th className="px-6 py-4">{t('admin.table_seller')}</th>
+                                <th className="px-6 py-4">{t('admin.table_status')}</th>
+                                <th className="px-6 py-4">{t('admin.table_created_at')}</th>
+                                <th className="px-6 py-4 text-right">{t('common.actions')}</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                            {products.map(p => (
+                                <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-12 h-12 relative rounded-lg overflow-hidden bg-gray-100 border">
+                                                {p.images?.[0] ? (
+                                                    <Image src={p.images[0].url} alt={p.title} fill className="object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-gray-400"><Package className="w-6 h-6" /></div>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <div className="font-bold text-gray-900 dark:text-white line-clamp-1">{p.title}</div>
+                                                <div className="text-xs text-gray-500 flex items-center gap-1">
+                                                    {p.violationCount && p.violationCount > 0 ? (
+                                                        <span className="text-red-500 flex items-center"><Flag className="w-3 h-3 mr-1" /> {p.violationCount} Violations</span>
+                                                    ) : (
+                                                        <span>{t('admin.no_flags') || 'No flags'}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 font-mono font-bold text-purple-600">
+                                        ฿{p.price.toLocaleString()}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-gray-900 dark:text-white font-medium">{p.seller_name}</div>
+                                        <div className="text-xs text-gray-500">ID: {p.seller_id.substring(0, 6)}...</div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-bold capitalize ${p.status === 'active' ? 'bg-green-100 text-green-700' :
+                                            p.status === 'suspended' ? 'bg-red-100 text-red-700' :
+                                                'bg-yellow-100 text-yellow-700'
+                                            }`}>
+                                            {p.status}
                                         </span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Content */}
-                            <div className="p-4">
-                                <h3 className="font-medium text-gray-900 dark:text-white mb-1 line-clamp-2">
-                                    {product.title}
-                                </h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                                    {product.seller_name}
-                                </p>
-                                <p className="text-lg font-bold text-purple-600 mb-3">
-                                    ฿{product.price.toLocaleString()}
-                                </p>
-
-                                {/* Stats */}
-                                <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-4">
-                                    <div className="flex items-center gap-1">
-                                        <Eye className="w-3 h-3" />
-                                        {product.views_count}
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <TrendingUp className="w-3 h-3" />
-                                        ขาย {product.sold_count}
-                                    </div>
-                                </div>
-
-                                {/* Actions */}
-                                <div className="flex gap-2">
-                                    {product.status === 'pending' && (
-                                        <>
-                                            <button
-                                                onClick={() => handleApprove(product.id)}
-                                                className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium"
-                                            >
-                                                <CheckCircle className="w-4 h-4" />
-                                                อนุมัติ
-                                            </button>
-                                            <button
-                                                onClick={() => handleReject(product.id)}
-                                                className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
-                                            >
-                                                <XCircle className="w-4 h-4" />
-                                                ปฏิเสธ
-                                            </button>
-                                        </>
-                                    )}
-                                    {product.status === 'active' && (
-                                        <>
-                                            <button
-                                                onClick={() => alert(`View product ${product.id}`)}
-                                                className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium"
-                                            >
-                                                <Eye className="w-4 h-4" />
-                                                ดู
-                                            </button>
-                                            <button
-                                                onClick={() => handleSuspend(product.id)}
-                                                className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
-                                            >
-                                                <Ban className="w-4 h-4" />
-                                                ระงับ
-                                            </button>
-                                        </>
-                                    )}
-                                    {product.status === 'suspended' && (
-                                        <button
-                                            onClick={() => handleApprove(product.id)}
-                                            className="w-full flex items-center justify-center gap-1 px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium"
-                                        >
-                                            <CheckCircle className="w-4 h-4" />
-                                            ปลดระงับ
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-500 text-xs">
+                                        {p.created_at ? format(p.created_at, 'dd MMM yyyy', { locale: language === 'th' ? th : enUS }) : '-'}
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex justify-end gap-2">
+                                            {p.status === 'pending' && (
+                                                <>
+                                                    <button onClick={() => handleAction('approve', p)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg" title={t('common.confirm')}><CheckCircle className="w-4 h-4" /></button>
+                                                    <button onClick={() => handleAction('reject', p)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg" title={t('common.delete')}><XCircle className="w-4 h-4" /></button>
+                                                </>
+                                            )}
+                                            {p.status === 'active' && (
+                                                <>
+                                                    <button onClick={() => handleAction('freeze', p)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg" title="ระงับ (Freeze)"><Lock className="w-4 h-4" /></button>
+                                                    <button onClick={() => handleAction('flag', p)} className="p-2 text-orange-500 hover:bg-orange-50 rounded-lg" title="แจ้งเตือน (Flag)"><Flag className="w-4 h-4" /></button>
+                                                </>
+                                            )}
+                                            {p.status === 'suspended' && (
+                                                <button onClick={() => handleAction('approve', p)} className="p-2 text-green-600 hover:bg-green-50 rounded-lg" title="ปลดระงับ (Re-activate)"><CheckCircle className="w-4 h-4" /></button>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                            {products.length === 0 && !loading && (
+                                <tr><td colSpan={6} className="text-center py-12 text-gray-500">{t('admin.no_products_found')}</td></tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </AdminLayout>

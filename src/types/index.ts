@@ -1,6 +1,6 @@
 export interface User {
     id: string
-    role: 'buyer' | 'seller' | 'admin'
+    role: 'buyer' | 'seller' | 'hybrid' | 'admin'
     email: string
     displayName?: string // Firebase uses displayName
     full_name?: string   // Custom field
@@ -12,6 +12,8 @@ export interface User {
 
     // Verification
     is_verified: boolean
+    verification_tier: 'unverified' | 'basic' | 'pro' | 'official'
+    trust_score: number // JKS Score 0-100
     created_at: string | Date
     updated_at: string | Date
 }
@@ -27,54 +29,95 @@ export interface Address {
     is_default?: boolean
 }
 
-export interface SellerProfile {
-    id: string
-    user_id: string
-    shop_name: string
-    shop_slug: string
-    shop_description: string
-    avatar_url?: string
-    cover_url?: string
+// --- Storefront V3 Types ---
 
-    main_categories: string[] // IDs of categories
+export interface Store {
+    id: string
+    owner_id: string
+    slug: string // Unique, SEO-friendly
+    name: string
+    name_en?: string // English Name
+    type: 'general' | 'official'
+
+    // Branding
+    logo_url?: string
+    cover_url?: string
+    tagline?: string
+    description?: string
+    description_en?: string // English Description
+    theme_settings?: {
+        primary_color: string
+        template_id: 'standard' | 'minimal' | 'brand-focus'
+        banner_images: string[] // Carousel
+    }
+
+    // Verification & Trust
+    verified_status: 'unverified' | 'pending' | 'verified'
+    verified_docs?: VerifiedDoc[]
+    trust_score: number // 0-100
+    seller_level: 'new' | 'standard' | 'pro' | 'official'
+    badges: string[]
+
+    // Onboarding Progress (0-7)
+    onboarding_progress: number
+
+    // Ops Info
+    contact_email?: string
+    contact_phone?: string
+    location?: {
+        province: string
+        district: string
+        formatted_address: string
+        coordinates?: { lat: number, lng: number }
+    }
+    shipping_fee_default?: number
+    free_shipping_min?: number
+    shipping_info?: {
+        methods: string[]
+        avg_prep_time_hours: number
+        return_policy: string
+    }
 
     // Stats
-    rating_score: number
-    rating_count: number
-    trust_score: number
-    follower_count: number
+    followers_count: number
+    sales_count: number
+    rating_avg: number
     response_rate: number
-
-    shop_policies?: {
-        warranty: string
-        return: string
-        shipping: string
-    }
-
-    address?: {
-        province: string
-        amphoe: string
-        district: string
-        zipcode: string
-        detail: string
-    }
-
-    is_verified_seller: boolean
+    response_time_minutes: number
 
     created_at: string | Date
     updated_at: string | Date
 }
+
+export interface VerifiedDoc {
+    doc_url: string
+    type: string
+    uploaded_at: string | Date
+}
+
+export interface StoreStaff {
+    id: string
+    store_id: string
+    user_id: string
+    role: 'owner' | 'manager' | 'editor' | 'analyst'
+    status: 'active' | 'invited'
+}
+
+// Backward compatibility alias if needed
+export type SellerProfile = Store
 
 export interface Product {
     id: string
     seller_id: string
     seller_name?: string
     seller_avatar?: string // Optional helper
-    seller?: SellerProfile // Populated seller profile
+    seller?: Store // Populated seller profile
 
     // Basic Info
     title: string
+    title_en?: string
     description: string
+    description_en?: string
     category_id: string | number // Support both for now, prefer string
     category?: Category
     sub_category_id?: string
@@ -88,9 +131,42 @@ export interface Product {
     original_price?: number
     price_type: 'fixed' | 'negotiable' | 'auction'
 
-    // Stock
+    // Auction Specifics (World-Class Standard)
+    auction_config?: {
+        mode: 'english' | 'dutch' | 'reverse' // English=Classic, Dutch=Price Drop, Reverse=Service
+        start_price: number
+        reserve_price?: number // Minimum sell price (Hidden)
+        buy_now_price?: number // Optional: Buy immediately
+        bid_increment: number  // Minimum step
+
+        // Timing & Anti-Snipe
+        start_time: string | Date
+        end_time: string | Date
+        extend_rule?: {
+            is_enabled: boolean
+            trigger_window_seconds: number // e.g. last 30s
+            extend_seconds: number // e.g. add 60s
+        }
+
+        // Access & Fees
+        deposit_required?: boolean
+        deposit_amount?: number
+        participant_level?: 'verified' | 'pro' | 'all'
+    }
+
+    auction_state?: {
+        current_price: number
+        total_bids: number
+        last_bidder_id?: string
+        winner_id?: string
+
+        status: 'scheduled' | 'active' | 'paused' | 'ended' | 'cancelled' | 'payment_pending'
+        ended_at?: string | Date
+    }
+
+    // Stock & Status
     stock: number
-    status: 'active' | 'hidden' | 'out_of_stock' | 'banned' | 'sold'
+    status: 'active' | 'hidden' | 'out_of_stock' | 'banned' | 'sold' | 'reserved' | 'pending' | 'rejected' | 'suspended'
 
     // Media
     images: ProductImage[]
@@ -105,6 +181,7 @@ export interface Product {
     ai_image_score?: number
     ai_generated_description?: boolean
     ai_price_suggestion?: boolean
+    ai_fraud_score?: number // New: Product risk score
 
     // Shipping
     shipping_weight?: number
@@ -193,34 +270,89 @@ export interface OrderItem {
 
 export interface Promotion {
     id: string
-    seller_id: string
-    type: 'boost_post' | 'discount_code' | 'shop_coupon'
+    store_id: string
     name: string
-    code?: string
+    type: 'discount_code' | 'flash_sale' | 'bundle'
 
-    discount_type?: 'percent' | 'fixed'
-    discount_value?: number
+    // Logic
+    code?: string // for coupons
+    discount_type: 'percent' | 'fixed_amount'
+    discount_value: number
     min_spend?: number
+    bundle_products?: string[] // Product IDs
+    max_discount?: number // Max cap for percent
 
-    start_date: string | Date
-    end_date: string | Date
-    is_active: boolean
-    usage_limit?: number
+    start_at: string | Date
+    end_at: string | Date
+    usage_limit: number
     usage_count: number
+    status: 'scheduled' | 'active' | 'ended' | 'disabled'
+
+    created_at?: string | Date
+}
+
+// --- Chat System V2 Types ---
+
+export interface Conversation {
+    id: string
+    type: 'buying' | 'selling' | 'support'
+    participants: string[] // User IDs
+    product_id?: string // Context
+
+    // Status
+    last_message?: {
+        text: string
+        sender_id: string
+        sent_at: string | Date
+        is_read: boolean
+    }
+    unread_counts: Record<string, number>
+    pinned_by: string[]
+    archived_by: string[]
+
+    // AI Metadata
+    overall_risk_score: number
+    deal_stage: 'inquiry' | 'negotiation' | 'agreement' | 'completed'
+
+    created_at: string | Date
+    updated_at: string | Date
 }
 
 export interface ChatMessage {
     id: string
+    conversation_id: string
     sender_id: string
-    receiver_id: string
-    product_id?: string // Context
+    type: 'text' | 'image' | 'video' | 'location' | 'offer' | 'meeting_proposal' | 'system'
 
-    message_text: string
+    content: string // Text or fallback
     media_url?: string
-    message_type: 'text' | 'image' | 'product_card' | 'offer'
 
-    is_read: boolean
+    // Structured Data
+    payload?: {
+        offer_price?: number
+        meeting_location?: { name: string, lat: number, lng: number }
+        meeting_time?: string | Date
+    }
+
+    // AI & Safety
+    metadata?: {
+        intent?: string
+        risk_score?: number
+        detected_entities?: string[]
+        ai_suggestions?: ChatSuggestion[] // Pre-calculated suggestions
+    }
+
+    // Status
+    read_by: string[]
     created_at: string | Date
+}
+
+export interface ChatSuggestion {
+    id: string
+    type: 'reply' | 'action'
+    text: string
+    action_payload?: any
+    confidence: number
 }
 
 export interface WalletTransaction {
@@ -236,14 +368,71 @@ export interface WalletTransaction {
     created_at: string | Date
 }
 
+// --- Review Engine V2 Types ---
+
 export interface Review {
     id: string
-    order_id: string
     product_id: string
-    reviewer_id: string
-    rating: number // 1-5
+    store_id: string
+    user_id: string
+    order_id: string | null // Nullable for open reviews
+
+    // Rating Dimensions
+    rating_overall: number // 1-5
+    rating_details?: {
+        item_condition: number
+        description_accuracy: number
+        shipping_speed: number
+        seller_communication: number
+    }
+
+    // Content
     comment: string
-    images?: string[]
+    tags: string[]
+    media: {
+        url: string
+        type: 'image' | 'video'
+        thumbnail_url?: string
+    }[]
+
+    // Metadata
+    is_verified_purchase: boolean
+    is_anonymous: boolean
+    display_name: string
+
+    // Engagement
+    helpful_count: number
+    report_count: number
+
+    // Reply
+    seller_reply?: {
+        text: string
+        replied_at: string | Date
+    }
+
+    status: 'pending' | 'published' | 'hidden' | 'rejected'
+
+    created_at: string | Date
+    updated_at: string | Date
+}
+
+export interface ReviewFlag {
+    id: string
+    review_id: string
+    reporter_id: string
+    reason: 'spam' | 'fake' | 'abusive' | 'irrelevant' | 'competitor_attack'
+    description?: string
+    status: 'pending' | 'resolved' | 'dismissed'
+    created_at: string | Date
+}
+
+export interface ReviewActionLog {
+    id: string
+    review_id: string
+    moderator_id: string
+    action: 'approve' | 'reject' | 'hide'
+    reason_code: string
+    note?: string
     created_at: string | Date
 }
 
