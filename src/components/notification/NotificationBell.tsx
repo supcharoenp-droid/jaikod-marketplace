@@ -150,11 +150,11 @@ export default function NotificationBell() {
                                         </div>
 
                                         {/* Content */}
-                                        <div className="flex-1 min-w-0">
-                                            <p className={`text-sm ${!notification.isRead ? 'text-white font-medium' : 'text-gray-300'}`}>
+                                        <div className="flex-1 min-w-0 overflow-hidden">
+                                            <p className={`text-sm truncate ${!notification.isRead ? 'text-white font-medium' : 'text-gray-300'}`}>
                                                 {notification.title}
                                             </p>
-                                            <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">
+                                            <p className="text-xs text-gray-500 line-clamp-2 mt-0.5 break-words">
                                                 {notification.body || notification.message}
                                             </p>
                                             <p className="text-xs text-gray-600 mt-1">

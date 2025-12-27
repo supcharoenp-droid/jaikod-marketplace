@@ -188,10 +188,10 @@ export default function CookieConsent() {
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="flex-1">
                                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                            {t('consent_analytics_title')}
+                                            {t('common.consent_analytics_title')}
                                         </h3>
                                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                                            {t('consent_analytics_desc')}
+                                            {t('common.consent_analytics_desc')}
                                         </p>
                                     </div>
                                     <div className="flex-shrink-0">
@@ -213,10 +213,10 @@ export default function CookieConsent() {
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="flex-1">
                                         <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                                            {t('consent_marketing_title')}
+                                            {t('common.consent_marketing_title')}
                                         </h3>
                                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                                            {t('consent_marketing_desc')}
+                                            {t('common.consent_marketing_desc')}
                                         </p>
                                     </div>
                                     <div className="flex-shrink-0">
