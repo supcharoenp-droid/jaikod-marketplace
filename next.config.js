@@ -4,10 +4,6 @@ const nextConfig = {
     typescript: {
         ignoreBuildErrors: true,
     },
-    // Disable ESLint during build (temporary)
-    eslint: {
-        ignoreDuringBuilds: true,
-    },
     images: {
         unoptimized: true,
     },

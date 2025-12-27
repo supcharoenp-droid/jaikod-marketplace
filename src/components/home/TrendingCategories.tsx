@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Flame, Rocket, Activity, Tag, ArrowUpRight } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 import {
     getHotTrends,
     getFastGrowing,
@@ -11,7 +12,29 @@ import {
     CategoryTrendMetric
 } from '@/services/trendAnalytics'
 
+const translations = {
+    th: {
+        marketplaceTrends: 'Marketplace Trends',
+        live: 'Live',
+        hotTrends: 'เทรนด์มาแรง (Hot)',
+        fastGrowing: 'กำลังโตเร็ว (Rising)',
+        highInterest: 'คนสนใจเยอะ (Engagement)',
+        discountHeavy: 'ลดหนักน่าซื้อ (Deals)',
+    },
+    en: {
+        marketplaceTrends: 'Marketplace Trends',
+        live: 'Live',
+        hotTrends: 'Hot Trends',
+        fastGrowing: 'Fast Growing',
+        highInterest: 'High Interest',
+        discountHeavy: 'Best Deals',
+    }
+}
+
 export default function TrendingCategories() {
+    const { language } = useLanguage()
+    const t = translations[language as 'th' | 'en'] || translations.th
+
     const [hotTrends, setHotTrends] = useState<CategoryTrendMetric[]>([])
     const [fastGrowing, setFastGrowing] = useState<CategoryTrendMetric[]>([])
     const [highInterest, setHighInterest] = useState<CategoryTrendMetric[]>([])
@@ -46,42 +69,46 @@ export default function TrendingCategories() {
         <div className="container mx-auto px-4 py-8">
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
                 <Activity className="w-6 h-6 text-neon-purple" />
-                Marketplace Trends
-                <span className="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full animate-pulse">Live</span>
+                {t.marketplaceTrends}
+                <span className="text-xs px-2 py-0.5 bg-green-100 text-green-600 rounded-full animate-pulse">{t.live}</span>
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
                 {/* 1. Hot Trends */}
                 <TrendCard
-                    title="เทรนด์มาแรง (Hot)"
+                    title={t.hotTrends}
                     icon={<Flame className="w-5 h-5 text-orange-500 fill-orange-500" />}
                     items={hotTrends}
                     color="orange"
+                    language={language}
                 />
 
                 {/* 2. Fast Growing */}
                 <TrendCard
-                    title="กำลังโตเร็ว (Rising)"
+                    title={t.fastGrowing}
                     icon={<Rocket className="w-5 h-5 text-blue-500 fill-blue-500" />}
                     items={fastGrowing}
                     color="blue"
+                    language={language}
                 />
 
                 {/* 3. High Interest */}
                 <TrendCard
-                    title="คนสนใจเยอะ (Engagement)"
+                    title={t.highInterest}
                     icon={<Activity className="w-5 h-5 text-pink-500" />}
                     items={highInterest}
                     color="pink"
+                    language={language}
                 />
 
                 {/* 4. Heavy Discounts */}
                 <TrendCard
-                    title="ลดหนักน่าซื้อ (Deals)"
+                    title={t.discountHeavy}
                     icon={<Tag className="w-5 h-5 text-green-500 fill-green-500" />}
                     items={discountHeavy}
                     color="green"
+                    language={language}
                 />
 
             </div>
@@ -89,7 +116,7 @@ export default function TrendingCategories() {
     )
 }
 
-function TrendCard({ title, icon, items, color }: any) {
+function TrendCard({ title, icon, items, color, language }: { title: string; icon: React.ReactNode; items: any[]; color: string; language: string }) {
     const bgColors: any = {
         orange: 'bg-orange-50 dark:bg-orange-900/10 border-orange-100 dark:border-orange-900/20',
         blue: 'bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/20',
@@ -122,7 +149,7 @@ function TrendCard({ title, icon, items, color }: any) {
                                 {idx + 1}
                             </span>
                             <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                                {item.name}
+                                {language === 'en' ? (item.name_en || item.name) : (item.name_th || item.name)}
                             </span>
                         </div>
                         {item.growthRate > 0 && (

@@ -535,6 +535,32 @@ export function getAllImplementedCategories(): string[] {
     return Object.keys(CATEGORY_SCHEMAS)
 }
 
+// Helper: Map category ID to slug
+const CATEGORY_ID_TO_SLUG: Record<string, string> = {
+    '1': 'automotive',
+    '2': 'real-estate',
+    '3': 'mobile-tablet',
+    '4': 'computers',
+    '5': 'appliances',
+    '6': 'fashion',
+    '7': 'gaming',
+    '8': 'cameras',
+    '9': 'amulets',
+    '10': 'pets',
+    '11': 'services',
+    '12': 'sports',
+    '13': 'home-garden',
+    '14': 'beauty',
+    '15': 'kids',
+    '16': 'books',
+}
+
+export function mapCategoryIdToSlug(categoryId: string | number): string {
+    const id = String(categoryId)
+    return CATEGORY_ID_TO_SLUG[id] || 'other'
+}
+
+
 // ============================================================================
 // Validation Functions
 // ============================================================================

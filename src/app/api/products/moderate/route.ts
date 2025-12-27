@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { ContentModerationService } from '@/lib/content-moderation'
+import { moderateContent } from '@/lib/content-moderation'
 
 /**
  * POST /api/products/moderate
@@ -18,10 +18,30 @@ export async function POST(request: NextRequest) {
         }
 
         // Run AI moderation
-        const moderationResult = await ContentModerationService.moderateProduct(productData)
+        const result = await moderateContent(productData.title, productData.description)
+
+        // Convert to moderation result format
+        const now = new Date()
+        const moderationResult = {
+            product_id: productData.id || 'unknown',
+            status: result.isApproved ? 'approved' : 'rejected',
+            overall_score: result.confidence * 100,
+            checks: result.violations.map((v, idx) => ({
+                check_id: `check-${idx}`,
+                type: 'ai' as const,
+                status: 'fail' as const,
+                category: v.type || 'content',
+                message: v.description || 'Violation detected',
+                confidence: result.confidence,
+                checked_at: now
+            })),
+            auto_approved: result.isApproved,
+            created_at: now,
+            updated_at: now,
+        }
 
         // TODO: Save moderation result to Firestore
-        // await saveModeration Result(moderationResult)
+        // await saveModerationResult(moderationResult)
 
         // TODO: If approved, publish product
         // if (moderationResult.status === 'approved') {

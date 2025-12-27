@@ -3,8 +3,16 @@
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { FileText } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function TermsPage() {
+    const { language } = useLanguage()
+    const lang = language as 'th' | 'en'
+
+    const t = {
+        title: lang === 'th' ? 'ข้อกำหนดการใช้งาน' : 'Terms of Service',
+        lastUpdated: lang === 'th' ? 'อัปเดตล่าสุด: 6 ธันวาคม 2567' : 'Last updated: December 6, 2024',
+    }
     return (
         <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-bg-dark">
             <Header />
@@ -13,8 +21,11 @@ export default function TermsPage() {
                 <section className="py-12 bg-gradient-to-br from-gray-700 to-gray-900 text-white text-center">
                     <div className="container mx-auto px-4">
                         <FileText className="w-12 h-12 mx-auto mb-4" />
-                        <h1 className="text-3xl md:text-4xl font-bold mb-2">ข้อกำหนดการใช้งาน</h1>
-                        <p className="text-gray-300">อัปเดตล่าสุด: 6 ธันวาคม 2567</p>
+                        <h1 className="text-3xl md:text-4xl font-bold mb-2">{t.title}</h1>
+                        <p className="text-gray-300">{t.lastUpdated}</p>
+                        {lang === 'en' && (
+                            <p className="text-amber-300 text-sm mt-2">* This document is provided in Thai as the authoritative legal version.</p>
+                        )}
                     </div>
                 </section>
 
@@ -33,7 +44,7 @@ export default function TermsPage() {
                                 <li><strong>&quot;ผู้ใช้&quot;</strong> หมายถึง บุคคลที่สมัครใช้บริการ</li>
                                 <li><strong>&quot;ผู้ขาย&quot;</strong> หมายถึง ผู้ใช้ที่ลงขายสินค้า</li>
                                 <li><strong>&quot;ผู้ซื้อ&quot;</strong> หมายถึง ผู้ใช้ที่ซื้อสินค้า</li>
-                                <li><strong>&quot;JaiCoin&quot;</strong> หมายถึง สกุลเงินดิจิทัลในระบบ JaiKod</li>
+                                <li><strong>&quot;JaiStar&quot;</strong> หมายถึง แต้ม (Point) สำหรับใช้บริการภายในระบบ JaiKod เท่านั้น JaiStar ไม่ใช่เงินสด ไม่ใช่สินทรัพย์ และไม่สามารถโอนหรือแลกคืนเป็นเงินได้</li>
                             </ul>
 
                             <h2>3. การสมัครสมาชิก</h2>

@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import AddressSelector from '@/components/ui/AddressSelector'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { createSellerProfile, checkShopNameAvailability } from '@/lib/seller'
 import { createProduct } from '@/lib/products'
 import StoreNameStep from '@/components/seller/onboarding/StoreNameStep'
@@ -19,9 +20,72 @@ import FirstProductStep from '@/components/seller/onboarding/FirstProductStep'
 import PricingStep from '@/components/seller/onboarding/PricingStep'
 import LaunchShopStep from '@/components/seller/onboarding/LaunchShopStep'
 
+// Translations
+const translations = {
+    th: {
+        welcomeTo: 'ยินดีต้อนรับสู่',
+        storeCreated: 'ร้านค้าของคุณถูกสร้างเรียบร้อยแล้ว',
+        verified: '(ยืนยันตัวตนแล้ว)',
+        firstProductReady: 'พร้อมลงขายสินค้าชิ้นแรกของคุณ:',
+        goToDashboard: 'ไปที่แดชบอร์ดผู้ขาย',
+        backToHome: 'กลับไปหน้าหลัก',
+        shopInfo: 'ข้อมูลร้านค้า',
+        shopDescription: 'คำอธิบายร้านค้า',
+        verification: 'ยืนยันตัวตน',
+        firstProduct: 'สินค้าชิ้นแรก',
+        priceAnalysis: 'วิเคราะห์ราคา',
+        shopAddress: 'ที่อยู่ร้านค้า',
+        reviewBeforeLaunch: 'ตรวจสอบข้อมูลก่อนเปิดร้าน',
+        shopInfoSubtitle: 'ตั้งชื่อร้านให้โดนใจ เพื่อดึงดูดลูกค้า',
+        descSubtitle: 'บอกเล่าเรื่องราวเกี่ยวกับร้านของคุณ',
+        verifySubtitle: 'เพิ่มความน่าเชื่อถือให้กับร้านของคุณ',
+        productSubtitle: 'เริ่มต้นขายได้ทันทีด้วย AI',
+        priceSubtitle: 'ตั้งราคาให้เหมาะสม ด้วยข้อมูลตลาดจริง',
+        addressSubtitle: 'ระบุที่อยู่สำหรับรับ/ส่งสินค้า',
+        shopLocation: 'ที่ตั้งร้านค้า',
+        additionalDetails: 'รายละเอียดเพิ่มเติม (บ้านเลขที่, ซอย, ถนน)',
+        addressPlaceholder: 'เช่น 123/4 หมู่ 5 ถ.วิภาวดีรังสิต',
+        back: 'ย้อนกลับ',
+        reviewData: 'ตรวจสอบข้อมูล',
+        addressError: 'กรุณาระบุที่อยู่ให้ครบถ้วน',
+        submitError: 'เกิดข้อผิดพลาด กรุณาลองใหม่',
+    },
+    en: {
+        welcomeTo: 'Welcome to',
+        storeCreated: 'Your store has been created successfully',
+        verified: '(Verified)',
+        firstProductReady: 'Ready to list your first product:',
+        goToDashboard: 'Go to Seller Dashboard',
+        backToHome: 'Back to Home',
+        shopInfo: 'Store Information',
+        shopDescription: 'Store Description',
+        verification: 'Verification',
+        firstProduct: 'First Product',
+        priceAnalysis: 'Price Analysis',
+        shopAddress: 'Store Address',
+        reviewBeforeLaunch: 'Review Before Launch',
+        shopInfoSubtitle: 'Choose a catchy name to attract customers',
+        descSubtitle: 'Tell customers about your store',
+        verifySubtitle: 'Build trust with your customers',
+        productSubtitle: 'Start selling instantly with AI',
+        priceSubtitle: 'Set the right price with real market data',
+        addressSubtitle: 'Specify address for pickup/delivery',
+        shopLocation: 'Store Location',
+        additionalDetails: 'Additional Details (House #, Soi, Road)',
+        addressPlaceholder: 'e.g. 123/4 Moo 5 Vibhavadi Road',
+        back: 'Back',
+        reviewData: 'Review',
+        addressError: 'Please fill in complete address',
+        submitError: 'An error occurred. Please try again',
+    }
+}
+
 export default function SellerRegisterPage() {
+    const { language } = useLanguage()
+    const t = translations[language]
     const { user, storeStatus, refreshProfile } = useAuth()
     const router = useRouter()
+
 
     // State
     const [step, setStep] = useState(1) // 1: Info, 2: Logo, 3: Desc, 4: Verify, 5: Product, 6: Pricing, 7: Address, 8: Launch, 9: Success
@@ -67,7 +131,7 @@ export default function SellerRegisterPage() {
         if (step === 7) {
             // Validate Address
             if (!formData.address.province || !formData.address.amphoe) {
-                setErrors({ address: 'กรุณาระบุที่อยู่ให้ครบถ้วน' })
+                setErrors({ address: t.addressError })
                 return
             }
 
@@ -125,7 +189,7 @@ export default function SellerRegisterPage() {
             setStep(9)
         } catch (error) {
             console.error('Registration failed:', error)
-            setErrors({ submit: 'เกิดข้อผิดพลาด กรุณาลองใหม่' })
+            setErrors({ submit: t.submitError })
         } finally {
             setIsLoading(false)
         }
@@ -149,11 +213,11 @@ export default function SellerRegisterPage() {
                             </div>
                         </div>
                         <h1 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
-                            ยินดีต้อนรับสู่ {formData.shop_name}!
+                            {t.welcomeTo} {formData.shop_name}!
                         </h1>
                         <p className="text-gray-500 dark:text-gray-400 mb-8">
-                            ร้านค้าของคุณถูกสร้างเรียบร้อยแล้ว {formData.is_verified && <span className="text-green-500 font-bold">(ยืนยันตัวตนแล้ว)</span>}
-                            {formData.first_product && <div>พร้อมลงขายสินค้าชิ้นแรกของคุณ: <span className="text-neon-purple font-semibold">{formData.first_product.name}</span></div>}
+                            {t.storeCreated} {formData.is_verified && <span className="text-green-500 font-bold">{t.verified}</span>}
+                            {formData.first_product && <div>{t.firstProductReady} <span className="text-neon-purple font-semibold">{formData.first_product.name}</span></div>}
                         </p>
                         <div className="space-y-3">
                             <Button
@@ -161,14 +225,14 @@ export default function SellerRegisterPage() {
                                 className="w-full justify-center h-12 text-lg shadow-lg shadow-neon-purple/20"
                                 onClick={() => router.push('/seller')}
                             >
-                                ไปที่แดชบอร์ดผู้ขาย
+                                {t.goToDashboard}
                             </Button>
                             <Button
                                 variant="ghost"
                                 className="w-full justify-center"
                                 onClick={() => router.push('/')}
                             >
-                                กลับไปหน้าหลัก
+                                {t.backToHome}
                             </Button>
                         </div>
                     </div>
@@ -211,22 +275,22 @@ export default function SellerRegisterPage() {
                         {step !== 2 && ( // Logo step has own header
                             <div className="text-center mb-8">
                                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                                    {step === 1 ? 'ข้อมูลร้านค้า' :
-                                        step === 3 ? 'คำอธิบายร้านค้า' :
-                                            step === 4 ? 'ยืนยันตัวตน' :
-                                                step === 5 ? 'สินค้าชิ้นแรก' :
-                                                    step === 6 ? 'วิเคราะห์ราคา' :
-                                                        step === 8 ? 'ตรวจสอบข้อมูลก่อนเปิดร้าน' :
-                                                            'ที่อยู่ร้านค้า'}
+                                    {step === 1 ? t.shopInfo :
+                                        step === 3 ? t.shopDescription :
+                                            step === 4 ? t.verification :
+                                                step === 5 ? t.firstProduct :
+                                                    step === 6 ? t.priceAnalysis :
+                                                        step === 8 ? t.reviewBeforeLaunch :
+                                                            t.shopAddress}
                                 </h1>
                                 <p className="text-gray-500 text-sm">
-                                    {step === 1 ? 'ตั้งชื่อร้านให้โดนใจ เพื่อดึงดูดลูกค้า' :
-                                        step === 3 ? 'บอกเล่าเรื่องราวเกี่ยวกับร้านของคุณ' :
-                                            step === 4 ? 'เพิ่มความน่าเชื่อถือให้กับร้านของคุณ' :
-                                                step === 5 ? 'เริ่มต้นขายได้ทันทีด้วย AI' :
-                                                    step === 6 ? 'ตั้งราคาให้เหมาะสม ด้วยข้อมูลตลาดจริง' :
-                                                        step === 8 ? 'ตรวจสอบข้อมูลก่อนเปิดร้าน' :
-                                                            'ระบุที่อยู่สำหรับรับ/ส่งสินค้า'}
+                                    {step === 1 ? t.shopInfoSubtitle :
+                                        step === 3 ? t.descSubtitle :
+                                            step === 4 ? t.verifySubtitle :
+                                                step === 5 ? t.productSubtitle :
+                                                    step === 6 ? t.priceSubtitle :
+                                                        step === 8 ? t.reviewBeforeLaunch :
+                                                            t.addressSubtitle}
                                 </p>
                             </div>
                         )}
@@ -323,7 +387,7 @@ export default function SellerRegisterPage() {
                         {step === 7 && (
                             <div className="space-y-6 animate-fade-in-up">
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium mb-1">ที่ตั้งร้านค้า <span className="text-red-500">*</span></label>
+                                    <label className="block text-sm font-medium mb-1">{t.shopLocation} <span className="text-red-500">*</span></label>
                                     <AddressSelector
                                         initialValues={{
                                             province: formData.address.province,
@@ -342,7 +406,7 @@ export default function SellerRegisterPage() {
                                     {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium">รายละเอียดเพิ่มเติม (บ้านเลขที่, ซอย, ถนน)</label>
+                                    <label className="block text-sm font-medium">{t.additionalDetails}</label>
                                     <div className="relative">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <MapPin className="h-5 w-5 text-gray-400" />
@@ -353,7 +417,7 @@ export default function SellerRegisterPage() {
                                             value={formData.address.detail}
                                             onChange={(e) => setFormData(prev => ({ ...prev, address: { ...prev.address, detail: e.target.value } }))}
                                             className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-gray-50 dark:bg-gray-800/50 focus:outline-none focus:border-neon-purple transition-all"
-                                            placeholder="เช่น 123/4 หมู่ 5 ถ.วิภาวดีรังสิต"
+                                            placeholder={t.addressPlaceholder}
                                         />
                                     </div>
                                 </div>
@@ -372,7 +436,7 @@ export default function SellerRegisterPage() {
                                         }}
                                         disabled={isLoading}
                                     >
-                                        ย้อนกลับ
+                                        {t.back}
                                     </Button>
                                     <Button
                                         variant="primary"
@@ -381,7 +445,7 @@ export default function SellerRegisterPage() {
                                         isLoading={isLoading}
                                         disabled={isLoading}
                                     >
-                                        ตรวจสอบข้อมูล
+                                        {t.reviewData}
                                     </Button>
                                 </div>
                             </div>

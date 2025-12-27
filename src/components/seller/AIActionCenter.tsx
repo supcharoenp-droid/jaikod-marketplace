@@ -1,19 +1,25 @@
 'use client'
 
 import React from 'react'
-import { Sparkles, ArrowRight, Package, RefreshCw, DollarSign } from 'lucide-react'
+import { Sparkles, ArrowRight, Package, RefreshCw, DollarSign, TrendingUp } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function AIActionCenter() {
-    const { t } = useLanguage()
+    const { t, language } = useLanguage()
 
-    // Mock Tasks
+    // Mock Tasks with bilingual support
     const tasks = [
         {
             id: 1,
             type: 'optimize',
-            title: 'Optimize "Vintage Camera"',
-            desc: 'Add 3 missing tags to search +20%',
+            title: {
+                th: 'ปรับปรุง "กล้องวินเทจ"',
+                en: 'Optimize "Vintage Camera"'
+            },
+            desc: {
+                th: 'เพิ่ม 3 แท็กที่ขาดหาย เพื่อเพิ่มการค้นหา +20%',
+                en: 'Add 3 missing tags to improve search +20%'
+            },
             impact: 'high',
             icon: Sparkles,
             color: 'text-purple-500',
@@ -22,8 +28,14 @@ export default function AIActionCenter() {
         {
             id: 2,
             type: 'inventory',
-            title: 'Restock "Sony Lens"',
-            desc: 'Stock low (2 remaining). Reorder now.',
+            title: {
+                th: 'เติมสต็อก "เลนส์ Sony"',
+                en: 'Restock "Sony Lens"'
+            },
+            desc: {
+                th: 'สต็อกเหลือน้อย (เหลือ 2 ชิ้น) สั่งเติมตอนนี้',
+                en: 'Stock low (2 remaining). Reorder now.'
+            },
             impact: 'medium',
             icon: Package,
             color: 'text-blue-500',
@@ -32,8 +44,14 @@ export default function AIActionCenter() {
         {
             id: 3,
             type: 'pricing',
-            title: 'Price Alert: Canon AE-1',
-            desc: 'Market price rose 10%. Adjust to ฿4,500.',
+            title: {
+                th: 'แจ้งเตือนราคา: Canon AE-1',
+                en: 'Price Alert: Canon AE-1'
+            },
+            desc: {
+                th: 'ราคาตลาดเพิ่มขึ้น 10% แนะนำปรับเป็น ฿4,500',
+                en: 'Market price rose 10%. Adjust to ฿4,500.'
+            },
             impact: 'high',
             icon: DollarSign,
             color: 'text-emerald-500',
@@ -41,11 +59,16 @@ export default function AIActionCenter() {
         }
     ]
 
+    // Get text based on language
+    const getText = (textObj: { th: string; en: string }) => {
+        return language === 'th' ? textObj.th : textObj.en
+    }
+
     return (
         <div className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-gray-800 rounded-xl p-6 shadow-sm h-full">
             <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-6">
                 <Sparkles className="w-5 h-5 text-neon-purple" />
-                {t('seller_dashboard.ai_action_center_title')}
+                {t('ศูนย์ปฏิบัติการ AI', 'AI Action Center')}
             </h3>
 
             <div className="space-y-4">
@@ -59,16 +82,18 @@ export default function AIActionCenter() {
                                 <task.icon className="w-5 h-5" />
                             </div>
                             <div className="flex-1">
-                                <div className="flex justify-between items-start">
-                                    <h4 className="font-bold text-gray-800 dark:text-gray-200 text-sm">{task.title}</h4>
+                                <div className="flex justify-between items-start gap-2">
+                                    <h4 className="font-bold text-gray-800 dark:text-gray-200 text-sm">
+                                        {getText(task.title)}
+                                    </h4>
                                     {task.impact === 'high' && (
-                                        <span className="text-[10px] uppercase font-black tracking-wider text-white bg-gradient-to-r from-pink-500 to-rose-500 px-2 py-0.5 rounded-full shadow-sm shadow-rose-200 dark:shadow-none">
-                                            High Impact
+                                        <span className="text-[10px] uppercase font-black tracking-wider text-white bg-gradient-to-r from-pink-500 to-rose-500 px-2 py-0.5 rounded-full shadow-sm shadow-rose-200 dark:shadow-none whitespace-nowrap">
+                                            {t('ผลกระทบสูง', 'High Impact')}
                                         </span>
                                     )}
                                 </div>
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
-                                    {task.desc}
+                                    {getText(task.desc)}
                                 </p>
                             </div>
                             <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity -mr-2">
@@ -80,7 +105,7 @@ export default function AIActionCenter() {
             </div>
 
             <button className="w-full mt-6 py-2 text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors">
-                View All Suggestions
+                {t('ดูคำแนะนำทั้งหมด', 'View All Suggestions')}
             </button>
         </div>
     )

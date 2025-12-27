@@ -30,6 +30,7 @@ import AICelebration from '@/components/ui/AICelebration'
 import AIBubble from '@/components/ui/AIBubble'
 import { ImpactStats } from '@/components/ui/ImpactBadge'
 import { getOpenAIVisionService } from '@/lib/openai-vision-service'
+import SmartDescriptionPanel from '@/components/listing/SmartDescriptionPanel'
 
 type Step = 'upload' | 'category' | 'details' | 'review'
 
@@ -64,7 +65,10 @@ export default function SmartListingPageV2() {
 
     // AI State
     const [pricePrediction, setPricePrediction] = useState<PricePrediction | null>(null)
+    const [aiSpecs, setAiSpecs] = useState<Record<string, string>>({})
     const [aiTips, setAiTips] = useState<string[]>([])
+    // ✅ NEW: Store AI Vision detected price for PriceAnalysisPanel
+    const [aiVisionPrice, setAiVisionPrice] = useState<{ min: number; max: number; suggested: number } | undefined>(undefined)
 
     // AI UX Enhancement State
     const [showAIBubble, setShowAIBubble] = useState(false)
@@ -257,14 +261,33 @@ export default function SmartListingPageV2() {
                         }
                     }
 
-                    // Auto-fill price
-                    if (price === 0 && visionResult.estimatedPrice) {
-                        setPrice(visionResult.estimatedPrice.suggested)
+                    // Auto-fill price & store for PriceAnalysisPanel
+                    if (visionResult.estimatedPrice) {
+                        // ✅ Always store AI Vision price for accurate pricing
+                        setAiVisionPrice(visionResult.estimatedPrice)
+
+                        // Auto-fill price if empty
+                        if (price === 0) {
+                            setPrice(visionResult.estimatedPrice.suggested)
+                        }
                     }
 
                     // Auto-fill condition
                     if (visionResult.estimatedCondition) {
                         setCondition(visionResult.estimatedCondition)
+                    }
+
+                    // Capture AI specs for SmartDescriptionPanel
+                    if (visionResult.structuredSpecs) {
+                        setAiSpecs(visionResult.structuredSpecs)
+                    }
+
+                    // Add detected brands to specs
+                    if (visionResult.detectedBrands?.length > 0) {
+                        setAiSpecs(prev => ({
+                            ...prev,
+                            brand: visionResult.detectedBrands[0]
+                        }))
                     }
 
                     console.log('✅ AI Vision Analysis สำเร็จ!')
@@ -376,25 +399,77 @@ export default function SmartListingPageV2() {
 
 
     // Auto Price Prediction when category/condition changes
+    // Priority: 1. AI Vision price → 2. Rule-based → 3. AI refinement
     useEffect(() => {
         if (categoryId > 0 && imageAnalysis.length > 0) {
             const avgScore = imageAnalysis.reduce((sum, r) => sum + r.score, 0) / imageAnalysis.length
 
-            const prediction = predictPrice(
+            // ✅ Priority 1: Use AI Vision price if available (most accurate)
+            if (aiVisionPrice && aiVisionPrice.suggested > 0) {
+                const visionPrediction: PricePrediction = {
+                    suggestedPrice: aiVisionPrice.suggested,
+                    minPrice: aiVisionPrice.min,
+                    maxPrice: aiVisionPrice.max,
+                    confidence: 90,
+                    source: 'ai-vision' as const,
+                    reasoning: '🤖 ราคาจาก AI Vision วิเคราะห์จากรูปภาพจริง'
+                }
+                setPricePrediction(visionPrediction)
+
+                // Don't override if user already set a price
+                if (price === 0) {
+                    setPrice(aiVisionPrice.suggested)
+                }
+
+                console.log('🤖 Using AI Vision Price:', aiVisionPrice.suggested)
+                return  // Skip rule-based
+            }
+
+            // Priority 2: Rule-based prediction (instant)
+            const instantPrediction = predictPrice(
                 categoryId,
                 condition,
                 avgScore,
-                images.length > 1
+                images.length > 1,
+                subcategoryId
             )
 
-            setPricePrediction(prediction)
+            setPricePrediction(instantPrediction)
 
             // Auto-fill price if empty
             if (price === 0) {
-                setPrice(prediction.suggestedPrice)
+                setPrice(instantPrediction.suggestedPrice)
+            }
+
+            // Priority 3: Refinement with AI (background)
+            if (title && title.length > 5) {
+                import('@/lib/ai-price-predictor').then(async ({ getAIPricePrediction }) => {
+                    try {
+                        const aiPrediction = await getAIPricePrediction(
+                            title,
+                            categoryId,
+                            condition,
+                            subcategoryId,
+                            aiSpecs
+                        )
+
+                        if (aiPrediction.source === 'ai-enhanced') {
+                            setPricePrediction(aiPrediction)
+
+                            // Update price if AI gives different suggestion and user hasn't changed it
+                            if (price === instantPrediction.suggestedPrice) {
+                                setPrice(aiPrediction.suggestedPrice)
+                            }
+
+                            console.log('🤖 AI Price Updated:', aiPrediction.suggestedPrice)
+                        }
+                    } catch (error) {
+                        console.warn('AI price prediction failed, using rule-based:', error)
+                    }
+                })
             }
         }
-    }, [categoryId, condition, imageAnalysis])
+    }, [categoryId, condition, imageAnalysis, subcategoryId, title, aiVisionPrice])
 
     // Update price tips when price changes
     useEffect(() => {
@@ -906,24 +981,31 @@ export default function SmartListingPageV2() {
                                             </div>
                                         </div>
 
-                                        {/* Description */}
-                                        <div>
-                                            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1 flex items-center justify-between">
-                                                <span>{content.description}</span>
-                                                <button
-                                                    onClick={() => setDescription(`สินค้าสภาพดี พร้อมใช้งาน\n\nรายละเอียด:\n- สภาพ: ${content.conditions[condition as keyof typeof content.conditions]}\n- จัดส่ง: ${canShip ? 'ส่งได้' : 'รับเองเท่านั้น'}\n- สถานที่: ${province}\n\nสนใจติดต่อสอบถามได้เลยครับ/ค่ะ`)}
-                                                    className="text-xs text-purple-600 hover:text-purple-700 flex items-center gap-1"
-                                                >
-                                                    <Sparkles className="w-3 h-3" />
-                                                    {content.aiWriteDesc}
-                                                </button>
-                                            </label>
-                                            <textarea
-                                                value={description}
-                                                onChange={(e) => setDescription(e.target.value)}
-                                                placeholder={content.descPlaceholder}
-                                                rows={4}
-                                                className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none text-sm"
+                                        {/* Smart Description Panel */}
+                                        <div className="bg-gray-900/30 rounded-xl p-4 border border-gray-700/50">
+                                            <SmartDescriptionPanel
+                                                title={title}
+                                                categoryId={categoryId}
+                                                subcategoryId={subcategoryId}
+                                                condition={condition}
+                                                aiSpecs={aiSpecs}
+                                                onDescriptionChange={(desc) => setDescription(desc)}
+                                                onSpecsChange={(specs) => {
+                                                    // 🎯 Auto-update title based on specs (ALL categories)
+                                                    import('@/lib/product-ai').then(({ enhanceTitleByCategory }) => {
+                                                        const { title: newTitle, changed } = enhanceTitleByCategory(
+                                                            categoryId,
+                                                            title,
+                                                            specs
+                                                        )
+                                                        if (changed && newTitle !== title) {
+                                                            setTitle(newTitle)
+                                                        }
+                                                    })
+                                                    // Sync specs to parent
+                                                    setAiSpecs(prev => ({ ...prev, ...specs }))
+                                                }}
+                                                language={language === 'th' ? 'th' : 'en'}
                                             />
                                         </div>
 

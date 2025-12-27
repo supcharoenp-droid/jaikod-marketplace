@@ -38,7 +38,7 @@ export interface RoleDefinition {
     description: string
     color: string
     icon: string
-    monthlyFee: number // in JaiCoin
+    monthlyFee: number // in JaiStar
     benefits: string[]
     limits: {
         maxListings: number | null   // null = unlimited

@@ -137,6 +137,18 @@ export default function ProductCard({ product, showDistance = true, isAiRecommen
 
                     {/* Top Left Badges */}
                     <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-30 items-start">
+                        {/* AI DEAL SCORE MINI BADGE */}
+                        {(product as any).ai_image_score > 70 && (
+                            <div
+                                className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg ring-2 ring-white/30"
+                                title={`AI Score: ${(product as any).ai_image_score}/100`}
+                            >
+                                <span className="text-white text-[10px] font-bold leading-none">
+                                    {Math.round((product as any).ai_image_score)}
+                                </span>
+                            </div>
+                        )}
+
                         {/* AUCTION BADGE */}
                         {product.price_type === 'auction' && (
                             <span className="px-2 py-0.5 bg-purple-600 text-white text-[10px] font-bold rounded shadow-sm flex items-center gap-1 animate-pulse">
@@ -207,14 +219,29 @@ export default function ProductCard({ product, showDistance = true, isAiRecommen
                         </button>
                     </div>
 
-                    {/* Corner Bottom Left Indicator (Gallery) */}
+                    {/* Corner Bottom Right Indicator (Gallery) */}
                     {imageCount > 1 && (
-                        <div className="absolute bottom-3 left-3 flex gap-1 z-30 items-center">
+                        <div className="absolute bottom-3 right-3 flex gap-1 z-30 items-center">
                             {/* Dots */}
                             {[...Array(Math.min(3, imageCount))].map((_, i) => (
                                 <div key={i} className={`w-1.5 h-1.5 rounded-full shadow-sm ${i === 0 ? 'bg-white scale-125' : 'bg-white/60'}`} />
                             ))}
                             {imageCount > 3 && <div className="w-1.5 h-1.5 rounded-full bg-white/40" />}
+                        </div>
+                    )}
+
+                    {/* Enhanced Distance Badge - Bottom Left */}
+                    {distance !== null && distance >= 3 && (
+                        <div className="absolute bottom-3 left-3 z-30">
+                            <span className={`px-2 py-1 rounded-lg text-[10px] font-bold shadow-lg backdrop-blur-sm flex items-center gap-1 ${distance < 10
+                                ? 'bg-green-500/90 text-white'
+                                : distance < 30
+                                    ? 'bg-yellow-500/90 text-white'
+                                    : 'bg-gray-800/90 text-white'
+                                }`}>
+                                <MapPin className="w-3 h-3" />
+                                {formatDistance(distance)}
+                            </span>
                         </div>
                     )}
                 </div>
@@ -267,19 +294,12 @@ export default function ProductCard({ product, showDistance = true, isAiRecommen
                     {/* Divider */}
                     <div className="h-px bg-gray-100 dark:bg-gray-800 my-1" />
 
-                    {/* C) Location Line */}
-                    <div className="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400">
-                        <div className="flex items-center gap-1 overflow-hidden">
-                            <MapPin className="w-3 h-3 flex-shrink-0 text-gray-400" />
-                            <span className="truncate max-w-[120px]">
-                                {locationText}
-                            </span>
-                        </div>
-                        {distance !== null && (
-                            <span className={`font-medium whitespace-nowrap ${distance < 5 ? 'text-green-600 dark:text-green-400' : ''}`}>
-                                • {formatDistance(distance)}
-                            </span>
-                        )}
+                    {/* C) Location Line (Amphoe, Province only - Distance shown on image) */}
+                    <div className="flex items-center gap-1 text-[10px] text-gray-500 dark:text-gray-400 overflow-hidden">
+                        <MapPin className="w-3 h-3 flex-shrink-0 text-gray-400" />
+                        <span className="truncate">
+                            {locationText}
+                        </span>
                     </div>
 
                     {/* D) Seller & Ratings */}

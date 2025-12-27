@@ -9,7 +9,7 @@ export interface UserAccessLog {
     userId: string;           // User Identifier
 
     // Core Event Data
-    action: 'LOGIN' | 'LOGOUT' | 'LOGIN_FAILED' | 'PASSWORD_CHANGE' | 'DEVICE_VERIFY' | 'DATA_EXPORT' | 'ACCOUNT_DELETE';
+    action: 'LOGIN' | 'LOGOUT' | 'LOGIN_FAILED' | 'PASSWORD_CHANGE' | 'DEVICE_VERIFY' | 'DATA_EXPORT' | 'ACCOUNT_DELETE' | 'LOGIN_GOOGLE' | 'LOGIN_GOOGLE_FAILED' | 'LOGIN_FACEBOOK' | 'LOGIN_FACEBOOK_FAILED' | 'LOGIN_LINE' | 'LOGIN_LINE_FAILED';
     status: 'SUCCESS' | 'FAILURE';
     reason?: string;          // e.g., "Wrong password", "Account suspended" (Internal reason code)
 

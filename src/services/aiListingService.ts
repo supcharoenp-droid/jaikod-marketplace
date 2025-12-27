@@ -168,6 +168,11 @@ export interface QuickSellInput {
     manualPrice?: number
     currency?: string
     language?: 'th' | 'en'
+    // ✅ NEW: Condition and formData for accurate pricing
+    condition?: string
+    categoryId?: number
+    subcategoryId?: number
+    formData?: Record<string, string | string[]>  // battery, screen, defects, warranty, usage_age
 }
 
 export interface QuickSellOutput {
@@ -286,23 +291,41 @@ export async function quickSellAiAssistant(input: QuickSellInput): Promise<Quick
         ? `🔥 ขออนุญาตส่งต่อครับ ${input.manualTitle || detectedType}\n\n📝 ข้อมูลสินค้า:\n- สินค้า: ${detectedType} มือสอง\n- สภาพภายนอก: 95% ${highlightText}\n- การใช้งาน: 100% เต็มระบบ ไม่ติดปัญหาใดๆ\n- ประวัติ: ซื้อมาใช้เอง มือเดียว\n\n🔎 ตำหนิ: รอยขนแมวบางๆ ตามการใช้งานทั่วไป (ดูจากรูป)\n\n💰 เหตุผลที่ขาย: เปลี่ยนรุ่นใหม่\n\n✅ นัดรับได้ที่: BKK / แนวรถไฟฟ้า\n✅ จัดส่ง: Kerry / Flash (+50 บาท)\n\nสนใจสอบถาม/ต่อรองราคาได้ครับ พ่อค้าใจดี 😊`
         : `🔥 WTS ${input.manualTitle || detectedType}\n\n📝 Specs:\n- Item: Used ${detectedType}\n- Cosmetic: 95% ${highlightText}\n- Function: 100% Working perfectly\n- History: Personal use, 1st owner\n\n🔎 Defects: Minor hairline scratches (see photos)\n\n💰 Reason: Upgrading\n\n✅ Pickup: BTS/MRT lines\n✅ Shipping: Available (+Cost)\n\nDM for details! 😊`
 
-    // 4. Price Analysis
-    let basePrice = 0
-    // Mock base prices
-    if (detectedType === 'Smartphone') basePrice = 18000
-    else if (detectedType === 'Luxury Watch') basePrice = 6500
-    else if (detectedType === 'Car') basePrice = 350000
-    else if (detectedType === 'Camera') basePrice = 22000
-    else if (detectedType === 'Thai Amulet') basePrice = 3000
-    else basePrice = 1000
+    // 4. Price Analysis - ✅ NOW USES SMART PRICE ESTIMATOR!
+    // Import dynamically to avoid circular deps
+    const { calculateSmartPriceEstimate } = await import('@/lib/smart-price-estimator')
 
-    // Randomize slightly
-    basePrice = basePrice * (0.9 + Math.random() * 0.2)
-    basePrice = Math.floor(basePrice / 100) * 100 // Round
+    // Use provided condition or default to 'good'
+    const userCondition = input.condition || 'good'
+    const catId = input.categoryId || parseInt(categoryId) || 99
+    const subId = input.subcategoryId
 
-    const quickSell = Math.floor(basePrice * 0.85)
-    const marketPrice = Math.floor(basePrice)
-    const maxProfit = Math.floor(basePrice * 1.15)
+    // Calculate price using our comprehensive pricing engine
+    const priceEstimation = calculateSmartPriceEstimate({
+        categoryId: catId,
+        subcategoryId: subId,
+        condition: userCondition,
+        specs: {}, // Could extract from manualTitle in future
+        formData: input.formData || {},  // ✅ Uses battery, screen, defects, warranty, etc.
+        imageQualityScore: 80,
+        hasMultipleImages: input.images.length > 1,
+        language: lang
+    })
+
+    const quickSell = priceEstimation.quickSellPrice
+    const marketPrice = priceEstimation.avgPrice
+    const maxProfit = priceEstimation.maxProfitPrice
+
+    // Debug log
+    console.log('[quickSellAiAssistant] Price Calculation:', {
+        categoryId: catId,
+        condition: userCondition,
+        formData: input.formData,
+        quickSell,
+        marketPrice,
+        maxProfit,
+        factors: priceEstimation.factors.map(f => f.name_th)
+    })
 
     // 5. Build Response
     return {

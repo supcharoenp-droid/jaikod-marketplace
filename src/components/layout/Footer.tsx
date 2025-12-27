@@ -2,127 +2,186 @@
 
 import Link from 'next/link'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin, Sparkles } from 'lucide-react'
 
 export default function Footer() {
-    const { t } = useLanguage()
+    const { t, language } = useLanguage()
+
+    const currentYear = language === 'th' ? '2568' : '2025'
 
     return (
-        <footer className="bg-white dark:bg-surface-dark border-t border-gray-200 dark:border-gray-800 mt-20">
-            <div className="container mx-auto px-4 py-12">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    {/* About */}
-                    <div>
-                        <h3 className="text-lg font-display font-semibold mb-4 text-gradient">
-                            JaiKod
-                        </h3>
-                        <p className="text-sm text-text-secondary dark:text-gray-400 mb-4">
+        <footer className="relative bg-gradient-to-b from-gray-900 via-gray-900 to-black text-white mt-20 overflow-hidden">
+            {/* Decorative Background Elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-purple-500/5 to-blue-500/5 rounded-full blur-3xl" />
+            </div>
+
+            <div className="relative z-10 container mx-auto px-4 py-16">
+                {/* Main Footer Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
+                    {/* Brand Column */}
+                    <div className="lg:col-span-2">
+                        <Link href="/" className="inline-flex items-center gap-2 mb-5 group">
+                            <div className="relative">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-lg shadow-purple-500/25 group-hover:shadow-purple-500/40 transition-shadow">
+                                    <Sparkles className="w-5 h-5 text-white" />
+                                </div>
+                                <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity" />
+                            </div>
+                            <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+                                JaiKod
+                            </span>
+                        </Link>
+                        <p className="text-gray-400 text-sm leading-relaxed mb-6 max-w-sm">
                             {t('footer.about_desc')}
                         </p>
-                        <div className="flex space-x-4">
-                            <a href="#" className="text-gray-400 hover:text-neon-purple transition-colors">
-                                <span className="text-2xl">📘</span>
+
+                        {/* Social Links */}
+                        <div className="flex items-center gap-3">
+                            <a href="#" className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors group">
+                                <Facebook className="w-5 h-5 text-gray-400 group-hover:text-blue-400 transition-colors" />
                             </a>
-                            <a href="#" className="text-gray-400 hover:text-neon-purple transition-colors">
-                                <span className="text-2xl">📷</span>
+                            <a href="#" className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors group">
+                                <Instagram className="w-5 h-5 text-gray-400 group-hover:text-pink-400 transition-colors" />
                             </a>
-                            <a href="#" className="text-gray-400 hover:text-neon-purple transition-colors">
-                                <span className="text-2xl">🐦</span>
+                            <a href="#" className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors group">
+                                <Twitter className="w-5 h-5 text-gray-400 group-hover:text-sky-400 transition-colors" />
+                            </a>
+                            <a href="#" className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors group">
+                                <Youtube className="w-5 h-5 text-gray-400 group-hover:text-red-400 transition-colors" />
                             </a>
                         </div>
                     </div>
 
-                    {/* Quick Links */}
+                    {/* About Column */}
                     <div>
-                        <h4 className="font-semibold mb-4">{t('footer.about_us')}</h4>
-                        <ul className="space-y-2 text-sm">
+                        <h4 className="font-semibold text-white mb-5 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                            {t('footer.about_us')}
+                        </h4>
+                        <ul className="space-y-3 text-sm">
                             <li>
-                                <Link href="/about" className="text-text-secondary dark:text-gray-400 hover:text-neon-purple transition-colors">
-                                    {t('footer.about_link')}
+                                <Link href="/about" className="text-gray-400 hover:text-white transition-colors inline-flex items-center gap-1 group">
+                                    <span className="group-hover:translate-x-1 transition-transform">{t('footer.about_link')}</span>
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/how-it-works" className="text-text-secondary dark:text-gray-400 hover:text-neon-purple transition-colors">
-                                    {t('footer.how_it_works')}
+                                <Link href="/how-it-works" className="text-gray-400 hover:text-white transition-colors inline-flex items-center gap-1 group">
+                                    <span className="group-hover:translate-x-1 transition-transform">{t('footer.how_it_works')}</span>
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/safety" className="text-text-secondary dark:text-gray-400 hover:text-neon-purple transition-colors">
-                                    {t('footer.safety')}
+                                <Link href="/safety" className="text-gray-400 hover:text-white transition-colors inline-flex items-center gap-1 group">
+                                    <span className="group-hover:translate-x-1 transition-transform">{t('footer.safety')}</span>
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/pricing" className="text-text-secondary dark:text-gray-400 hover:text-neon-purple transition-colors">
-                                    {t('footer.fees')}
+                                <Link href="/pricing" className="text-gray-400 hover:text-white transition-colors inline-flex items-center gap-1 group">
+                                    <span className="group-hover:translate-x-1 transition-transform">{t('footer.fees')}</span>
                                 </Link>
                             </li>
                         </ul>
                     </div>
 
-                    {/* Support */}
+                    {/* Help Column */}
                     <div>
-                        <h4 className="font-semibold mb-4">{t('footer.help')}</h4>
-                        <ul className="space-y-2 text-sm">
+                        <h4 className="font-semibold text-white mb-5 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                            {t('footer.help')}
+                        </h4>
+                        <ul className="space-y-3 text-sm">
                             <li>
-                                <Link href="/faq" className="text-text-secondary dark:text-gray-400 hover:text-neon-purple transition-colors">
-                                    {t('footer.faq')}
+                                <Link href="/faq" className="text-gray-400 hover:text-white transition-colors inline-flex items-center gap-1 group">
+                                    <span className="group-hover:translate-x-1 transition-transform">{t('footer.faq')}</span>
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/contact" className="text-text-secondary dark:text-gray-400 hover:text-neon-purple transition-colors">
-                                    {t('footer.contact')}
+                                <Link href="/contact" className="text-gray-400 hover:text-white transition-colors inline-flex items-center gap-1 group">
+                                    <span className="group-hover:translate-x-1 transition-transform">{t('footer.contact')}</span>
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/terms" className="text-text-secondary dark:text-gray-400 hover:text-neon-purple transition-colors">
-                                    {t('footer.terms')}
+                                <Link href="/terms" className="text-gray-400 hover:text-white transition-colors inline-flex items-center gap-1 group">
+                                    <span className="group-hover:translate-x-1 transition-transform">{t('footer.terms')}</span>
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/privacy" className="text-text-secondary dark:text-gray-400 hover:text-neon-purple transition-colors">
-                                    {t('footer.privacy')}
+                                <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors inline-flex items-center gap-1 group">
+                                    <span className="group-hover:translate-x-1 transition-transform">{t('footer.privacy')}</span>
                                 </Link>
                             </li>
                         </ul>
                     </div>
 
-                    {/* AI Features */}
+                    {/* AI Features Column */}
                     <div>
-                        <h4 className="font-semibold mb-4">{t('footer.ai_features')}</h4>
-                        <ul className="space-y-2 text-sm">
+                        <h4 className="font-semibold text-white mb-5 flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-pink-500" />
+                            {t('footer.ai_features')}
+                        </h4>
+                        <ul className="space-y-3 text-sm">
                             <li>
-                                <Link href="/ai/snap-and-sell" className="text-text-secondary dark:text-gray-400 hover:text-neon-purple transition-colors">
-                                    {t('footer.ai_snap')}
+                                <Link href="/ai/snap-and-sell" className="text-gray-400 hover:text-white transition-colors inline-flex items-center gap-2 group">
+                                    <span className="text-lg">📸</span>
+                                    <span className="group-hover:translate-x-1 transition-transform">{t('footer.ai_snap')}</span>
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/ai/price-suggestion" className="text-text-secondary dark:text-gray-400 hover:text-neon-purple transition-colors">
-                                    {t('footer.ai_price')}
+                                <Link href="/ai/price-suggestion" className="text-gray-400 hover:text-white transition-colors inline-flex items-center gap-2 group">
+                                    <span className="text-lg">💰</span>
+                                    <span className="group-hover:translate-x-1 transition-transform">{t('footer.ai_price')}</span>
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/ai/trust-score" className="text-text-secondary dark:text-gray-400 hover:text-neon-purple transition-colors">
-                                    {t('footer.ai_trust')}
+                                <Link href="/ai/trust-score" className="text-gray-400 hover:text-white transition-colors inline-flex items-center gap-2 group">
+                                    <span className="text-lg">🛡️</span>
+                                    <span className="group-hover:translate-x-1 transition-transform">{t('footer.ai_trust')}</span>
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/ai/search" className="text-text-secondary dark:text-gray-400 hover:text-neon-purple transition-colors">
-                                    {t('footer.ai_search')}
+                                <Link href="/ai/search" className="text-gray-400 hover:text-white transition-colors inline-flex items-center gap-2 group">
+                                    <span className="text-lg">🔍</span>
+                                    <span className="group-hover:translate-x-1 transition-transform">{t('footer.ai_search')}</span>
                                 </Link>
                             </li>
                         </ul>
                     </div>
                 </div>
 
+                {/* Contact Bar */}
+                <div className="mt-12 py-6 border-t border-white/10">
+                    <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400">
+                        <a href="mailto:hello@jaikod.com" className="flex items-center gap-2 hover:text-white transition-colors">
+                            <Mail className="w-4 h-4" />
+                            hello@jaikod.com
+                        </a>
+                        <a href="tel:+6620001234" className="flex items-center gap-2 hover:text-white transition-colors">
+                            <Phone className="w-4 h-4" />
+                            02-000-1234
+                        </a>
+                        <span className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4" />
+                            Bangkok, Thailand
+                        </span>
+                    </div>
+                </div>
+
                 {/* Bottom Bar */}
-                <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-                    <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                        <p className="text-sm text-text-secondary dark:text-gray-400">
-                            {t('footer.copyright')}
+                <div className="mt-6 pt-6 border-t border-white/10">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <p className="text-sm text-gray-500">
+                            © {currentYear} JaiKod. {language === 'th' ? 'สงวนลิขสิทธิ์' : 'All rights reserved.'}
                         </p>
-                        <div className="flex items-center space-x-4 text-sm text-text-secondary dark:text-gray-400">
-                            <span>{t('footer.made_with')}</span>
-                            <span>•</span>
-                            <span>{t('footer.powered_by')}</span>
+                        <div className="flex items-center gap-3 text-sm text-gray-500">
+                            <span className="flex items-center gap-1">
+                                {t('footer.made_with')}
+                            </span>
+                            <span className="text-gray-700">•</span>
+                            <span className="flex items-center gap-1">
+                                {t('footer.powered_by')} <span className="text-lg">🤖</span>
+                            </span>
                         </div>
                     </div>
                 </div>

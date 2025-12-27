@@ -5,12 +5,22 @@ import Link from 'next/link'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { Search, ChevronDown, ChevronRight, HelpCircle } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function FAQPage() {
+    const { language } = useLanguage()
     const [openCategory, setOpenCategory] = useState<string | null>('general')
     const [searchQuery, setSearchQuery] = useState('')
 
-    const faqCategories = [
+    const t = {
+        title: language === 'th' ? 'คำถามที่พบบ่อย' : 'Frequently Asked Questions',
+        searchPlaceholder: language === 'th' ? 'ค้นหาคำถาม...' : 'Search questions...',
+        stillHaveQuestions: language === 'th' ? 'ยังมีคำถาม?' : 'Still have questions?',
+        contactTeam: language === 'th' ? 'ติดต่อทีม Support ของเราได้เลย' : 'Contact our Support team',
+        contactUs: language === 'th' ? 'ติดต่อเรา' : 'Contact Us',
+    }
+
+    const faqCategories = language === 'th' ? [
         {
             id: 'general',
             title: '🏠 ทั่วไป',
@@ -43,8 +53,8 @@ export default function FAQPage() {
             id: 'payment',
             title: '💳 การชำระเงิน',
             questions: [
-                { q: 'ชำระเงินได้วิธีไหนบ้าง?', a: 'รองรับ JaiCoin (แนะนำ), บัตรเครดิต/เดบิต, PromptPay, และการโอนเงินผ่านธนาคาร' },
-                { q: 'JaiCoin คืออะไร?', a: 'JaiCoin คือเงินในระบบ JaiKod ใช้ซื้อสินค้าและรับเงินจากการขาย มีระบบ Escrow ป้องกันการโกง' },
+                { q: 'ชำระเงินได้วิธีไหนบ้าง?', a: 'รองรับ JaiStar (แนะนำ), บัตรเครดิต/เดบิต, PromptPay, และการโอนเงินผ่านธนาคาร' },
+                { q: 'JaiStar คืออะไร?', a: 'JaiStar คือแต้ม (Point) สำหรับใช้โปรโมทสินค้า, ไฮไลท์การ์ด, และปลดล็อกฟีเจอร์พิเศษ JaiStar ไม่สามารถแลกคืนเป็นเงินได้' },
                 { q: 'ถอนเงินอย่างไร?', a: 'ไปที่ JaiWallet > ถอนเงิน > ใส่จำนวนและบัญชีธนาคาร เงินจะเข้าภายใน 1-3 วันทำการ' },
                 { q: 'ค่าธรรมเนียมเท่าไหร่?', a: 'ลงขายฟรี! ค่าธรรมเนียมหักเมื่อขายได้: Basic 5%, Plus 4%, Verified 3%, Premium 2%' },
             ]
@@ -59,21 +69,69 @@ export default function FAQPage() {
             ]
         },
         {
-            id: 'verify',
-            title: '✅ การยืนยันตัวตน',
-            questions: [
-                { q: 'ยืนยันตัวตนอย่างไร?', a: 'ไปที่ โปรไฟล์ > ยืนยันตัวตน > ถ่ายรูปบัตรประชาชน และถ่าย Selfie ระบบจะตรวจสอบภายใน 24 ชม.' },
-                { q: 'ทำไมต้องยืนยันตัวตน?', a: 'เพื่อความปลอดภัย สร้างความน่าเชื่อถือ และได้รับ Badge ✓ ที่ช่วยให้ขายได้เร็วขึ้น' },
-                { q: 'ข้อมูลบัตรประชาชนปลอดภัยไหม?', a: 'ปลอดภัย! ข้อมูลถูกเข้ารหัสและใช้เฉพาะยืนยันตัวตนเท่านั้น ไม่เปิดเผยต่อบุคคลอื่น' },
-            ]
-        },
-        {
             id: 'safety',
             title: '🛡️ ความปลอดภัย',
             questions: [
                 { q: 'เจอมิจฉาชีพทำอย่างไร?', a: 'กดปุ่ม "รายงาน" ที่โปรไฟล์หรือสินค้า หรือแชทกับ @JaiKodSupport ทีมงานจะตรวจสอบทันที' },
                 { q: 'Escrow คืออะไร?', a: 'ระบบพักเงิน - เมื่อคุณจ่าย เงินจะถูกพักไว้ที่ JaiKod และจะโอนให้ผู้ขายเมื่อคุณยืนยันรับสินค้าแล้ว' },
                 { q: 'ถูกแฮ็กบัญชีทำอย่างไร?', a: 'ติดต่อ support@jaikod.com ทันที พร้อมแนบหลักฐานยืนยันตัวตน เราจะช่วยกู้คืนบัญชี' },
+            ]
+        },
+    ] : [
+        {
+            id: 'general',
+            title: '🏠 General',
+            questions: [
+                { q: 'What is JaiKod?', a: 'JaiKod is an AI-powered secondhand marketplace that makes buying and selling easy, safe, and fast.' },
+                { q: 'Is it free to sign up?', a: 'Yes! Registration and listing are free. Fees are only charged when you make a sale.' },
+                { q: 'How is JaiKod different from others?', a: 'JaiKod uses AI throughout - from listing, price suggestions, fraud detection, and has an Escrow system for protection.' },
+            ]
+        },
+        {
+            id: 'sell',
+            title: '📦 Selling',
+            questions: [
+                { q: 'How do I list an item?', a: '1. Click "Sell" 2. Take a photo 3. AI fills details and suggests price 4. Review and publish - takes less than 1 minute!' },
+                { q: 'How many items can I list?', a: 'Unlimited! All membership levels can list unlimited items.' },
+                { q: 'What can I sell?', a: 'General secondhand items. Prohibited: illegal items, weapons, drugs, counterfeit goods, immoral services.' },
+                { q: 'How does AI pricing work?', a: 'AI analyzes similar items in the market, condition, and current demand to suggest optimal pricing.' },
+            ]
+        },
+        {
+            id: 'buy',
+            title: '🛒 Buying',
+            questions: [
+                { q: 'How do I know if a seller is trustworthy?', a: 'Check: 1. Verification Badge ✓ 2. Reviews from other buyers 3. Selling history 4. Membership duration' },
+                { q: 'Can I negotiate prices?', a: 'Yes! Chat directly with sellers to negotiate. The system records agreed prices.' },
+                { q: 'Can I pick up items in person?', a: 'Yes, if the seller allows. Chat to arrange a meetup. Recommend meeting in safe public places.' },
+            ]
+        },
+        {
+            id: 'payment',
+            title: '💳 Payment',
+            questions: [
+                { q: 'What payment methods are accepted?', a: 'JaiStar (recommended), Credit/Debit cards, PromptPay, and bank transfer.' },
+                { q: 'What is JaiStar?', a: 'JaiStar are points for promotions, highlights, and unlocking special features. JaiStar cannot be redeemed for cash.' },
+                { q: 'How do I withdraw money?', a: 'Go to JaiWallet > Withdraw > Enter amount and bank account. Funds arrive within 1-3 business days.' },
+                { q: 'What are the fees?', a: 'Listing is free! Fees when sold: Basic 5%, Plus 4%, Verified 3%, Premium 2%' },
+            ]
+        },
+        {
+            id: 'refund',
+            title: '🔄 Refunds/Cancellations',
+            questions: [
+                { q: 'What if the item doesn\'t match?', a: 'Report within 7 days of receiving. Our team will review and refund if item doesn\'t match description.' },
+                { q: 'What if I don\'t receive my item?', a: 'If not received 14 days after payment, contact us for a full refund.' },
+                { q: 'Can I cancel an order?', a: 'You can cancel before the seller ships. After shipping, wait to receive and then request return.' },
+            ]
+        },
+        {
+            id: 'safety',
+            title: '🛡️ Safety',
+            questions: [
+                { q: 'What if I encounter a scammer?', a: 'Click "Report" on the profile or listing, or chat with @JaiKodSupport. Our team will investigate immediately.' },
+                { q: 'What is Escrow?', a: 'Payment holding system - when you pay, money is held by JaiKod until you confirm receipt.' },
+                { q: 'What if my account is hacked?', a: 'Contact support@jaikod.com immediately with identity verification. We\'ll help recover your account.' },
             ]
         },
     ]
@@ -94,14 +152,14 @@ export default function FAQPage() {
                 <section className="py-12 bg-gradient-to-br from-purple-500 to-pink-500 text-white">
                     <div className="container mx-auto px-4 text-center">
                         <HelpCircle className="w-16 h-16 mx-auto mb-4" />
-                        <h1 className="text-4xl font-display font-bold mb-4">คำถามที่พบบ่อย</h1>
+                        <h1 className="text-4xl font-display font-bold mb-4">{t.title}</h1>
                         <div className="max-w-xl mx-auto relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                             <input
                                 type="text"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="ค้นหาคำถาม..."
+                                placeholder={t.searchPlaceholder}
                                 className="w-full pl-12 pr-4 py-3 rounded-xl text-gray-900 focus:ring-4 focus:ring-white/30 outline-none"
                             />
                         </div>
@@ -141,9 +199,9 @@ export default function FAQPage() {
                 {/* Contact */}
                 <section className="py-12 bg-white dark:bg-surface-dark">
                     <div className="container mx-auto px-4 text-center">
-                        <h2 className="text-2xl font-bold mb-4">ยังมีคำถาม?</h2>
-                        <p className="text-text-secondary mb-6">ติดต่อทีม Support ของเราได้เลย</p>
-                        <Link href="/contact"><button className="bg-neon-purple text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-600">ติดต่อเรา</button></Link>
+                        <h2 className="text-2xl font-bold mb-4">{t.stillHaveQuestions}</h2>
+                        <p className="text-text-secondary mb-6">{t.contactTeam}</p>
+                        <Link href="/contact"><button className="bg-neon-purple text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-600">{t.contactUs}</button></Link>
                     </div>
                 </section>
             </main>

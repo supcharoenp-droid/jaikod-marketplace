@@ -62,3 +62,59 @@ export async function beautifyDescription(text: string): Promise<string> {
     if (!text) return ''
     return text.trim() + (text.endsWith('.') ? ' ✨' : '. ✨')
 }
+
+/**
+ * Input type for product description generation
+ */
+export interface GenerateDescriptionInput {
+    title: string
+    description?: string
+    category?: string
+    condition?: string
+    price?: number
+    keywords?: string[]
+}
+
+/**
+ * Generate product description (used by demo-post page)
+ */
+export async function generateProductDescription(input: GenerateDescriptionInput): Promise<string> {
+    await new Promise(resolve => setTimeout(resolve, 800))
+
+    const parts: string[] = []
+
+    // Title section
+    if (input.title) {
+        parts.push(`📦 **${input.title}**`)
+    }
+
+    // Condition section
+    if (input.condition) {
+        parts.push(`✨ สภาพ: ${input.condition}`)
+    }
+
+    // Category section
+    if (input.category) {
+        parts.push(`📁 หมวดหมู่: ${input.category}`)
+    }
+
+    // Price section
+    if (input.price) {
+        parts.push(`💰 ราคา: ฿${input.price.toLocaleString()}`)
+    }
+
+    // Original description
+    if (input.description) {
+        parts.push('')
+        parts.push(`📝 รายละเอียด:`)
+        parts.push(input.description)
+    }
+
+    // Keywords
+    if (input.keywords && input.keywords.length > 0) {
+        parts.push('')
+        parts.push(`🏷️ แท็ก: ${input.keywords.join(', ')}`)
+    }
+
+    return parts.join('\n') || input.title || ''
+}

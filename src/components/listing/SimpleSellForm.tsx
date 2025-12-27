@@ -52,7 +52,7 @@ export default function SimpleSellForm() {
             next: 'ถัดไป',
             back: 'ย้อนกลับ',
             productTitle: 'ชื่อสินค้า',
-            titlePlaceholder: 'เช่น iPhone 13 Pro สีน้ำเงิน 256GB',
+            titlePlaceholder: 'เช่น TV Samsung 55 นิ้ว, เสื้อยืด Uniqlo, iPhone 15',
             price: 'ราคา (บาท)',
             pricePlaceholder: '0',
             description: 'รายละเอียดสินค้า',
@@ -90,7 +90,7 @@ export default function SimpleSellForm() {
             next: 'Next',
             back: 'Back',
             productTitle: 'Product Title',
-            titlePlaceholder: 'e.g. iPhone 13 Pro Blue 256GB',
+            titlePlaceholder: 'e.g. Samsung TV 55", Uniqlo Shirt, iPhone 15',
             price: 'Price (THB)',
             pricePlaceholder: '0',
             description: 'Description',
@@ -438,8 +438,8 @@ export default function SimpleSellForm() {
                                                 key={value}
                                                 onClick={() => setCondition(value)}
                                                 className={`p-3 rounded-xl border-2 font-medium transition-all ${condition === value
-                                                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300'
-                                                        : 'border-gray-300 dark:border-gray-600 hover:border-purple-300'
+                                                    ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300'
+                                                    : 'border-gray-300 dark:border-gray-600 hover:border-purple-300'
                                                     }`}
                                             >
                                                 {label}

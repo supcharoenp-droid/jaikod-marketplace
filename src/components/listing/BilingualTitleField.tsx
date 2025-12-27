@@ -8,11 +8,13 @@
  * - AI-powered content generation
  * - Independent editing per language
  * - Consistency validation
+ * - 🆕 Smart Title Enhancement with scoring
  */
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Languages, Sparkles, AlertTriangle, CheckCircle } from 'lucide-react'
+import SmartTitleEnhancer from './SmartTitleEnhancer'
 
 interface BilingualTitleFieldProps {
     values: {
@@ -24,6 +26,9 @@ interface BilingualTitleFieldProps {
     consistencyScore?: number
     isGenerating?: boolean
     activeLanguage?: 'TH' | 'EN'  // ✅ Added: controlled from parent
+    categoryId?: number           // 🆕 For context-aware suggestions
+    subcategoryId?: number        // 🆕 For context-aware suggestions
+    specs?: Record<string, string> // 🆕 For smart title building
 }
 
 export default function BilingualTitleField({
@@ -32,7 +37,10 @@ export default function BilingualTitleField({
     onGenerateMissing,
     consistencyScore = 100,
     isGenerating = false,
-    activeLanguage: controlledLanguage  // ✅ Controlled from parent
+    activeLanguage: controlledLanguage,  // ✅ Controlled from parent
+    categoryId,
+    subcategoryId,
+    specs
 }: BilingualTitleFieldProps) {
     const [localLanguage, setLocalLanguage] = useState<'TH' | 'EN'>('TH')
     const activeLanguage = controlledLanguage || localLanguage  // Use controlled if provided
@@ -49,6 +57,12 @@ export default function BilingualTitleField({
                     ชื่อสินค้า
                 </label>
                 <span className="text-red-400">*</span>
+                {/* Character limit warning */}
+                {currentValue.length >= 90 && (
+                    <span className={`text-xs ${currentValue.length >= 100 ? 'text-red-400' : 'text-yellow-400'}`}>
+                        ⚠️ {100 - currentValue.length} ตัวอักษร
+                    </span>
+                )}
             </div>
 
             {/* Input Field */}
@@ -56,15 +70,29 @@ export default function BilingualTitleField({
                 type="text"
                 value={currentValue}
                 onChange={(e) => onChange(activeLanguage, e.target.value)}
+                maxLength={100}
                 placeholder={
                     activeLanguage === 'TH'
                         ? 'ยี่ห้อ + รุ่น + สเปค + สภาพ'
                         : 'Brand + Model + Specs + Condition'
                 }
-                className="w-full px-4 py-3 rounded-lg bg-gray-800 border-2 border-gray-700
+                className={`w-full px-4 py-3 rounded-lg bg-gray-800 border-2 
                          focus:border-purple-500 text-white placeholder-gray-500
-                         transition-all outline-none"
+                         transition-all outline-none
+                         ${currentValue.length >= 100 ? 'border-red-500' : 'border-gray-700'}`}
             />
+
+            {/* 🆕 Smart Title Enhancer */}
+            {currentValue && (
+                <SmartTitleEnhancer
+                    title={currentValue}
+                    onChange={(newTitle) => onChange(activeLanguage, newTitle)}
+                    categoryId={categoryId}
+                    subcategoryId={subcategoryId}
+                    specs={specs}
+                    language={activeLanguage.toLowerCase() as 'th' | 'en'}
+                />
+            )}
 
             {/* Missing Language Warning */}
             {!hasOtherLanguage && currentValue && (
@@ -123,16 +151,6 @@ export default function BilingualTitleField({
                     <span>ทั้ง 2 ภาษาสอดคล้องกัน</span>
                 </motion.div>
             )}
-
-            {/* Character Count */}
-            <div className="flex items-center justify-between text-xs text-gray-400">
-                <span>{currentValue.length}/100 ตัวอักษร</span>
-                {hasOtherLanguage && (
-                    <span className="text-gray-500">
-                        {activeLanguage === 'TH' ? '🇬🇧' : '🇹🇭'} {otherValue.length} ตัวอักษร
-                    </span>
-                )}
-            </div>
         </div>
     )
 }

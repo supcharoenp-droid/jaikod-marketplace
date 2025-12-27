@@ -122,6 +122,11 @@ async function deleteProductImages(productId: string, imageUrls: string[]): Prom
 
 /**
  * Create a new product
+ * 
+ * 🛡️ Content Moderation:
+ * - ตรวจสอบชื่อและคำอธิบายก่อน submit
+ * - ถ้าพบเนื้อหาต้องห้าม จะ throw error
+ * - ใช้ gpt-4o-mini สำหรับ edge cases
  */
 export async function createProduct(
     input: CreateProductInput,
@@ -132,8 +137,47 @@ export async function createProduct(
     try {
         console.log('Starting product creation...')
 
+        // 🛡️ Step 0: Content Moderation Check
+        console.log('🛡️ Running Content Moderation...')
+        const { moderateContent } = await import('./content-moderation')
+        const moderationResult = await moderateContent(input.title, input.description)
+
+        if (!moderationResult.isApproved) {
+            console.error('❌ Content Moderation Failed:', moderationResult.violations)
+
+            // Format error message
+            const violationMessages = moderationResult.violations
+                .map((v: { type: string; description: string }) => `${v.type}: ${v.description}`)
+                .join(', ')
+
+            throw new Error(
+                `ไม่สามารถลงประกาศได้: ${violationMessages}. กรุณาแก้ไขเนื้อหาและลองใหม่อีกครั้ง`
+            )
+        }
+        console.log('✅ Content Moderation Passed')
+
         // 1. Create product document first with basic info
         const now = new Date()
+
+        // 🤖 Calculate AI Image Score (if File objects available)
+        let aiImageScore = 0
+        let aiTags: string[] = []
+
+        try {
+            if (input.images.length > 0 && input.images[0] instanceof File) {
+                console.log('🤖 Calculating AI Image Score...')
+                const { analyzeProductImages } = await import('@/services/aiImageAnalysis')
+                const imageAnalysis = await analyzeProductImages(input.images as File[])
+                aiImageScore = imageAnalysis.overallScore || 0
+                console.log(`✅ AI Image Score: ${aiImageScore}/100`)
+            } else {
+                // Default score for URL images
+                aiImageScore = 75
+            }
+        } catch (aiErr) {
+            console.warn('⚠️ AI Image analysis skipped:', aiErr)
+            aiImageScore = 70 // Fallback score
+        }
 
         const productData = {
             title: input.title,
@@ -168,6 +212,10 @@ export async function createProduct(
             views_count: 0,
             favorites_count: 0,
             sold_count: 0,
+
+            // 🤖 AI Fields
+            ai_image_score: aiImageScore,
+            ai_tags: aiTags,
 
             images: [],
             thumbnail_url: '',

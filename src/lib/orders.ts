@@ -13,7 +13,9 @@ import {
     Timestamp
 } from 'firebase/firestore'
 import { db } from './firebase'
-import { Order, CartItem, Address } from '@/types'
+import { Order, Address } from '@/types'
+import { CartItem } from '@/services/cartService'
+
 
 const ORDERS_COLLECTION = 'orders'
 
@@ -149,6 +151,53 @@ export async function deleteOrder(orderId: string): Promise<void> {
         await deleteDoc(orderRef)
     } catch (error) {
         console.error('Error deleting order:', error)
+        throw error
+    }
+}
+
+// Demo function to create mock orders for testing
+export async function createMockOrder(
+    sellerId: string,
+    buyerId: string,
+    products: { id: string; title: string; price: number; images?: { url: string }[] }[]
+): Promise<string> {
+    try {
+        const orderData = {
+            order_number: `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            buyer_id: buyerId,
+            seller_id: sellerId,
+            items: products.map((p, idx) => ({
+                id: `item_${idx}`,
+                product_id: p.id,
+                product_title: p.title,
+                product_image: p.images?.[0]?.url || '',
+                quantity: 1,
+                price_per_unit: p.price,
+                total_price: p.price
+            })),
+            total_price: products.reduce((sum, p) => sum + p.price, 0),
+            shipping_fee: 50,
+            discount_amount: 0,
+            net_total: products.reduce((sum, p) => sum + p.price, 0) + 50,
+            status: 'paid',
+            payment_method: 'promptpay',
+            shipping_address: {
+                name: 'Demo Customer',
+                phone: '0812345678',
+                address_line1: '123/45 Demo Street',
+                subdistrict: 'Demo Tambon',
+                district: 'Demo Amphoe',
+                province: 'Bangkok',
+                postal_code: '10200'
+            },
+            created_at: serverTimestamp(),
+            updated_at: serverTimestamp()
+        }
+
+        const ref = await addDoc(collection(db, ORDERS_COLLECTION), orderData)
+        return ref.id
+    } catch (error) {
+        console.error('Error creating mock order:', error)
         throw error
     }
 }

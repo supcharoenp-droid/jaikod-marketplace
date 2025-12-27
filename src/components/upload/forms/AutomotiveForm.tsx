@@ -327,9 +327,9 @@ export default function AutomotiveForm({
                         </InputGroup>
                         <InputGroup label="น้ำท่วม">
                             <select value={form.flood_history} onChange={e => setForm({ ...form, flood_history: e.target.value })} className="w-full p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                                <option value="none">ไม่เคยจมน้ำ</option>
-                                <option value="minor">เคยลุยน้ำท่วมบ้าง</option>
-                                <option value="major">รถจมน้ำ</option>
+                                <option value="none">✅ ไม่เคยจมน้ำ</option>
+                                <option value="partial">💧 เคยจมน้ำนิดหน่อย (ไม่ถึงพื้นห้องโดยสาร)</option>
+                                <option value="full">🌊 เคยจมน้ำทั้งคัน</option>
                             </select>
                         </InputGroup>
                     </div>

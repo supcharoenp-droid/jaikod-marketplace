@@ -1,0 +1,37 @@
+# JaiKod Robots.txt
+# AI-Powered Marketplace
+
+User-agent: *
+Allow: /
+
+# Allow all main pages
+Allow: /product/
+Allow: /category/
+Allow: /shop/
+Allow: /search
+
+# Disallow admin and private pages
+Disallow: /admin/
+Disallow: /seller/
+Disallow: /profile/
+Disallow: /api/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /login
+Disallow: /register
+Disallow: /dev-login
+Disallow: /test*/
+Disallow: /debug/
+Disallow: /demo*/
+Disallow: /analytics/
+
+# Disallow duplicate/utility pages
+Disallow: /*?*sort=
+Disallow: /*?*page=
+Disallow: /*?*filter=
+
+# Crawl-delay for politeness
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://jaikod.com/sitemap.xml

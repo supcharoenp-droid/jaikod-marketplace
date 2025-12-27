@@ -1,457 +1,188 @@
 /**
  * CLASSIFICATION TEST CASES
  * 
- * Comprehensive test suite for product classification
- * Tests edge cases, ambiguous products, and known issues
+ * รายการสินค้าที่ใช้ทดสอบระบบจัดหมวดหมู่
+ * รันด้วยคำสั่ง: npx ts-node src/lib/classification-test-cases.ts
  */
 
 export interface TestCase {
-    id: string
-    product: {
-        title: string
-        description: string
-        price?: number
-    }
-    expected: {
-        categoryId: number
-        categoryName: string
-        subcategoryId?: number
-        subcategoryName?: string
-        minConfidence: number
-    }
-    tags: string[] // เช่น 'edge-case', 'brand-ambiguity', 'critical'
-    notes?: string
+    title: string
+    expectedCategory: number
+    expectedSubcategory?: number
+    description?: string
 }
 
-// ========================================
-// TEST CASES
-// ========================================
 export const CLASSIFICATION_TEST_CASES: TestCase[] = [
-    // ========================================
-    // CRITICAL CASES - Canon Brand Ambiguity
-    // ========================================
-    {
-        id: 'canon-card-printer-001',
-        product: {
-            title: 'เครื่องพิมพ์การ์ดพีวีซีขาว Canon รุ่น MF4450',
-            description: 'เครื่องพิมพ์บัตรพนักงาน บัตรนักเรียน สภาพดี พร้อมริบบิ้น',
-            price: 15000
-        },
-        expected: {
-            categoryId: 4,
-            categoryName: 'Computers & IT',
-            subcategoryId: 405,
-            subcategoryName: 'Printers & Office',
-            minConfidence: 0.85
-        },
-        tags: ['critical', 'brand-ambiguity', 'canon'],
-        notes: 'Canon brand should detect printer context, not camera'
-    },
+    // ===== COMPUTERS (4) =====
+    { title: 'คีย์บอร์ด Logitech K380', expectedCategory: 4, expectedSubcategory: 408 },
+    { title: 'คีย์บอร์ด Yoda รุ่นมาตรฐาน', expectedCategory: 4, expectedSubcategory: 408 },
+    { title: 'เมาส์ไร้สาย Logitech MX Master 3', expectedCategory: 4, expectedSubcategory: 409 },
+    { title: 'Gaming Keyboard Razer Huntsman', expectedCategory: 4, expectedSubcategory: 408 },
+    { title: 'โน้ตบุ๊ค ASUS VivoBook 15 Ryzen 5', expectedCategory: 4, expectedSubcategory: 401 },
+    { title: 'เครื่องพิมพ์มัลติฟังก์ชัน Canon MF4450', expectedCategory: 4, expectedSubcategory: 405 },
+    { title: 'Canon Card Printer เครื่องพิมพ์บัตร', expectedCategory: 4, expectedSubcategory: 405 },
+    { title: 'จอมอนิเตอร์ Dell 24 นิ้ว FHD', expectedCategory: 4, expectedSubcategory: 403 },
 
-    {
-        id: 'canon-camera-001',
-        product: {
-            title: 'Canon EOS R5 Body กล้องมิเรอร์เลส',
-            description: 'กล้อง Full Frame 45MP 8K Video ประกันศูนย์ไทย',
-            price: 135000
-        },
-        expected: {
-            categoryId: 8,
-            categoryName: 'Camera',
-            subcategoryId: 801,
-            subcategoryName: 'Digital Cameras',
-            minConfidence: 0.90
-        },
-        tags: ['critical', 'brand-ambiguity', 'canon'],
-        notes: 'Canon with camera keywords should go to Camera category'
-    },
+    // ===== MOBILES (3) =====
+    { title: 'iPhone 15 Pro Max 256GB', expectedCategory: 3, expectedSubcategory: 301 },
+    { title: 'Samsung Galaxy S24 Ultra', expectedCategory: 3, expectedSubcategory: 301 },
+    { title: 'หูฟัง Sony WH-1000XM5', expectedCategory: 3, expectedSubcategory: 303 },
+    { title: 'AirPods Pro 2 ของแท้', expectedCategory: 3, expectedSubcategory: 303 },
+    { title: 'สายชาร์จ iPhone Type-C', expectedCategory: 3, expectedSubcategory: 304 },
 
-    {
-        id: 'canon-laser-printer-001',
-        product: {
-            title: 'Canon imageCLASS MF445dw Laser Printer',
-            description: 'ปริ้นเตอร์เลเซอร์ พิมพ์ สแกน ถ่ายเอกสาร Fax',
-            price: 12900
-        },
-        expected: {
-            categoryId: 4,
-            categoryName: 'Computers & IT',
-            subcategoryId: 405,
-            subcategoryName: 'Printers & Office',
-            minConfidence: 0.88
-        },
-        tags: ['critical', 'brand-ambiguity', 'canon', 'multi-function'],
-        notes: 'Canon multifunction printer should not be confused with camera'
-    },
+    // ===== APPLIANCES (5) =====
+    { title: 'Samsung Smart TV 55 นิ้ว 4K', expectedCategory: 5, description: 'Samsung TV should go to Appliances, not Mobile' },
+    { title: 'LG ตู้เย็น 2 ประตู Inverter', expectedCategory: 5 },
+    { title: 'พัดลม Hatari 16 นิ้ว', expectedCategory: 5 },
+    { title: 'เครื่องฟอกอากาศ Xiaomi Air Purifier', expectedCategory: 5 },
+    { title: 'แอร์ Daikin Inverter 12000 BTU', expectedCategory: 5 },
 
-    // ========================================
-    // CRITICAL CASES - Air Pump Misclassification
-    // ========================================
-    {
-        id: 'air-pump-automotive-001',
-        product: {
-            title: 'ปั๊มลมกางกา Air Pump รุ่นใหม่',
-            description: 'ปั๊มลมเติมยางรถยนต์ ไฟฟ้า 12V พกพา จอดิจิตอล',
-            price: 1500
-        },
-        expected: {
-            categoryId: 1,
-            categoryName: 'Automotive',
-            subcategoryId: 109,
-            subcategoryName: 'Car Maintenance',
-            minConfidence: 0.85
-        },
-        tags: ['critical', 'air-pump', 'automotive'],
-        notes: 'Air pump with car context should go to Automotive, not Computer'
-    },
+    // ===== AUTOMOTIVE (1) =====
+    { title: 'ปั๊มลมพกพา Air Pump รุ่นใหม่', expectedCategory: 1, description: 'Air Pump should go to Automotive, not Computer' },
+    { title: 'Xiaomi Air Pump ปั๊มลมเติมยาง', expectedCategory: 1 },
+    { title: 'กล้องติดรถยนต์ VIOFO A129', expectedCategory: 1 },
+    { title: 'ยาง Michelin 205/55R16', expectedCategory: 1 },
 
-    {
-        id: 'air-pump-home-001',
-        product: {
-            title: 'ปั๊มลมไฟฟ้า Air Compressor 50L',
-            description: 'ปั๊มลมสำหรับงานช่าง งาน DIY ทำสีรถ ล้างแอร์',
-            price: 8900
-        },
-        expected: {
-            categoryId: 13,
-            categoryName: 'Home & Garden',
-            subcategoryId: 1304,
-            subcategoryName: 'Tools',
-            minConfidence: 0.80
-        },
-        tags: ['critical', 'air-pump', 'home-tools'],
-        notes: 'Large air compressor for DIY should go to Home Tools'
-    },
+    // ===== CAMERAS (8) =====
+    { title: 'กล้อง Canon EOS R5 Mirrorless', expectedCategory: 8 },
+    { title: 'Sony Alpha A7 IV Body', expectedCategory: 8, description: 'Sony Camera should go to Camera, not Mobile' },
+    { title: 'เลนส์ Nikon Z 24-70mm f/4', expectedCategory: 8 },
+    { title: 'GoPro Hero 12 Black', expectedCategory: 8 },
 
-    // ========================================
-    // EPSON BRAND CASES
-    // ========================================
-    {
-        id: 'epson-ecotank-001',
-        product: {
-            title: 'Epson L3250 EcoTank ปริ้นเตอร์',
-            description: 'เครื่องพิมพ์ Wifi Print Scan Copy หมึกแท้งค์',
-            price: 4990
-        },
-        expected: {
-            categoryId: 4,
-            categoryName: 'Computers & IT',
-            subcategoryId: 405,
-            subcategoryName: 'Printers & Office',
-            minConfidence: 0.90
-        },
-        tags: ['brand-ambiguity', 'epson', 'ecotank'],
-        notes: 'Epson EcoTank is clearly a printer'
-    },
+    // ===== GAMING (7) =====
+    { title: 'PlayStation 5 Console', expectedCategory: 7 },
+    { title: 'Nintendo Switch OLED', expectedCategory: 7 },
+    { title: 'Xbox Series X', expectedCategory: 7 },
 
-    {
-        id: 'epson-projector-001',
-        product: {
-            title: 'Epson EB-X06 โปรเจคเตอร์',
-            description: 'โปรเจคเตอร์ 3600 Lumens SVGA ห้องประชุม',
-            price: 13900
-        },
-        expected: {
-            categoryId: 4,
-            categoryName: 'Computers & IT',
-            subcategoryId: 404,
-            subcategoryName: 'Peripherals',
-            minConfidence: 0.85
-        },
-        tags: ['brand-ambiguity', 'epson', 'projector'],
-        notes: 'Epson projector should go to Computer Peripherals'
-    },
+    // ===== FASHION (6) =====
+    { title: 'รองเท้า Nike Air Max 90', expectedCategory: 6 },
+    { title: 'กระเป๋า Louis Vuitton Neverfull', expectedCategory: 6 },
+    { title: 'นาฬิกา Rolex Submariner', expectedCategory: 6 },
 
-    // ========================================
-    // XIAOMI BRAND CASES
-    // ========================================
-    {
-        id: 'xiaomi-phone-001',
-        product: {
-            title: 'Xiaomi Redmi Note 13 Pro 5G',
-            description: 'มือถือ 8GB+256GB กล้อง 200MP ประกันศูนย์',
-            price: 10990
-        },
-        expected: {
-            categoryId: 3,
-            categoryName: 'Mobiles & Tablets',
-            subcategoryId: 301,
-            subcategoryName: 'Mobile Phones',
-            minConfidence: 0.95
-        },
-        tags: ['brand-ambiguity', 'xiaomi', 'phone'],
-        notes: 'Xiaomi phone should clearly go to Mobile category'
-    },
+    // ===== HOME & GARDEN (13) =====
+    { title: 'โซฟา L-Shape หนังแท้', expectedCategory: 13 },
+    { title: 'พรมเช็ดเท้า ขนาดใหญ่', expectedCategory: 13 },
+    { title: 'สว่านไร้สาย Bosch 12V', expectedCategory: 13 },
 
-    {
-        id: 'xiaomi-vacuum-001',
-        product: {
-            title: 'Xiaomi Mi Robot Vacuum S10+ เครื่องดูดฝุ่นหุ่นยนต์',
-            description: 'Robot Vacuum เช็ดถูพื้น ดูดฝุ่น ฐานเติมน้ำอัตโนมัติ',
-            price: 24900
-        },
-        expected: {
-            categoryId: 5,
-            categoryName: 'Home Appliances',
-            subcategoryId: 507,
-            subcategoryName: 'Vacuum Cleaners',
-            minConfidence: 0.88
-        },
-        tags: ['brand-ambiguity', 'xiaomi', 'appliance'],
-        notes: 'Xiaomi vacuum should go to Appliances, not Mobile'
-    },
+    // ===== BABY & KIDS (15) =====
+    { title: 'ตุ๊กตาไดโนเสาร์ น่ารัก', expectedCategory: 15, description: 'Dinosaur doll should go to Kids, not Computer' },
+    { title: 'LEGO Star Wars Millennium Falcon', expectedCategory: 15 },
+    { title: 'รถเข็นเด็ก Chicco', expectedCategory: 15 },
 
-    {
-        id: 'xiaomi-powerbank-001',
-        product: {
-            title: 'Xiaomi Power Bank 20000mAh',
-            description: 'แบตสำรอง Fast Charge 33W Type-C ของแท้',
-            price: 990
-        },
-        expected: {
-            categoryId: 3,
-            categoryName: 'Mobiles & Tablets',
-            subcategoryId: 307,
-            subcategoryName: 'Power Banks',
-            minConfidence: 0.90
-        },
-        tags: ['brand-ambiguity', 'xiaomi', 'accessory'],
-        notes: 'Power bank is mobile accessory'
-    },
-
-    // ========================================
-    // EDGE CASES - Ambiguous Products
-    // ========================================
-    {
-        id: 'gaming-headset-pc-001',
-        product: {
-            title: 'Razer BlackShark V2 Gaming Headset',
-            description: 'หูฟังเกมมิ่ง PC 7.1 Surround THX ไมค์ถูกแยกได้',
-            price: 3590
-        },
-        expected: {
-            categoryId: 7,
-            categoryName: 'Gaming & Gadgets',
-            subcategoryId: 704,
-            subcategoryName: 'Gaming Headsets',
-            minConfidence: 0.85
-        },
-        tags: ['edge-case', 'gaming', 'ambiguous'],
-        notes: 'Gaming headset with PC context should go to Gaming, not Computer'
-    },
-
-    {
-        id: 'office-headset-001',
-        product: {
-            title: 'Logitech H390 USB Headset',
-            description: 'หูฟังคอมพิวเตอร์ ไมค์ USB สำหรับ Zoom Meeting ทำงาน',
-            price: 890
-        },
-        expected: {
-            categoryId: 4,
-            categoryName: 'Computers & IT',
-            subcategoryId: 404,
-            subcategoryName: 'Peripherals',
-            minConfidence: 0.80
-        },
-        tags: ['edge-case', 'office', 'ambiguous'],
-        notes: 'Office headset should go to Computer Peripherals'
-    },
-
-    // ========================================
-    // PRICE-BASED HINTS
-    // ========================================
-    {
-        id: 'high-price-camera-001',
-        product: {
-            title: 'Sony Alpha 1 Full Frame Mirrorless',
-            description: 'กล้อง 50MP 8K 30fps Eye AF Real-time Tracking',
-            price: 189900
-        },
-        expected: {
-            categoryId: 8,
-            categoryName: 'Camera',
-            subcategoryId: 801,
-            subcategoryName: 'Digital Cameras',
-            minConfidence: 0.95
-        },
-        tags: ['price-hint', 'high-end', 'camera'],
-        notes: 'High price + camera specs = definitely Camera category'
-    },
-
-    {
-        id: 'budget-printer-001',
-        product: {
-            title: 'HP DeskJet 2332 All-in-One Printer',
-            description: 'ปริ้นเตอร์ราคาประหยัด พิมพ์ สแกน ถ่ายเอกสาร',
-            price: 1990
-        },
-        expected: {
-            categoryId: 4,
-            categoryName: 'Computers & IT',
-            subcategoryId: 405,
-            subcategoryName: 'Printers & Office',
-            minConfidence: 0.90
-        },
-        tags: ['price-hint', 'budget', 'printer'],
-        notes: 'Low price printer should still be correct'
-    },
-
-    // ========================================
-    // THAI KEYWORDS ONLY
-    // ========================================
-    {
-        id: 'thai-only-camera-001',
-        product: {
-            title: 'กล้องถ่ายรูปดิจิตอล ฟูจิฟิล์ม X-T5',
-            description: 'กล้องมิเรอร์เลส 40 ล้านพิกเซล ถ่ายวิดีโอ 6K',
-            price: 69900
-        },
-        expected: {
-            categoryId: 8,
-            categoryName: 'Camera',
-            subcategoryId: 801,
-            subcategoryName: 'Digital Cameras',
-            minConfidence: 0.88
-        },
-        tags: ['thai-only', 'camera'],
-        notes: 'Thai-only description should work correctly'
-    },
-
-    {
-        id: 'thai-only-printer-001',
-        product: {
-            title: 'เครื่องพิมพ์เลเซอร์ บราเดอร์ HL-L2375DW',
-            description: 'ปริ้นเตอร์เลเซอร์ขาวดำ ไวไฟ พิมพ์สองหน้าอัตโนมัติ',
-            price: 6490
-        },
-        expected: {
-            categoryId: 4,
-            categoryName: 'Computers & IT',
-            subcategoryId: 405,
-            subcategoryName: 'Printers & Office',
-            minConfidence: 0.90
-        },
-        tags: ['thai-only', 'printer'],
-        notes: 'Thai keywords should match correctly'
-    },
-
-    // ========================================
-    // TYPOS & COMMON MISTAKES
-    // ========================================
-    {
-        id: 'typo-printer-001',
-        product: {
-            title: 'ปริ้นเตอ Canon Pixma G2020',
-            description: 'เครื่องปริ้น หมึกแท้งค์ พิม สแกน โคปี้',
-            price: 4990
-        },
-        expected: {
-            categoryId: 4,
-            categoryName: 'Computers & IT',
-            subcategoryId: 405,
-            subcategoryName: 'Printers & Office',
-            minConfidence: 0.75
-        },
-        tags: ['typo', 'printer'],
-        notes: 'Should handle typos: ปริ้นเตอ, พิม instead of พิมพ์'
-    },
-
-    {
-        id: 'typo-camera-001',
-        product: {
-            title: 'กล้อง Canon EOS 90D บอดี้',
-            description: 'กล้องดิจีตอล 32MP ไวไฟ ประกันศูน',
-            price: 45900
-        },
-        expected: {
-            categoryId: 8,
-            categoryName: 'Camera',
-            minConfidence: 0.80
-        },
-        tags: ['typo', 'camera'],
-        notes: 'Should handle: ดิจีตอล (ดิจิตอล), ประกันศูน (ศูนย์)'
-    },
-
-    // ========================================
-    // MULTI-CATEGORY PRODUCTS
-    // ========================================
-    {
-        id: 'laptop-bag-001',
-        product: {
-            title: 'กระเป๋าโน้ตบุ๊ค 15.6 นิ้ว Samsonite',
-            description: 'กระเป๋าใส่ Laptop กันน้ำ กันกระแทก ช่องใส่เยอะ',
-            price: 1990
-        },
-        expected: {
-            categoryId: 6,
-            categoryName: 'Fashion',
-            subcategoryId: 603,
-            subcategoryName: 'Brandname Bags',
-            minConfidence: 0.70
-        },
-        tags: ['multi-category', 'fashion-vs-computer'],
-        notes: 'Laptop bag is Fashion (bag), not Computer accessory'
-    },
-
-    {
-        id: 'car-camera-dashcam-001',
-        product: {
-            title: 'กล้องติดรถยนต์ 70mai Dash Cam 4K',
-            description: 'กล้องหน้ารถ Wifi GPS จอทัชสกรีน',
-            price: 3990
-        },
-        expected: {
-            categoryId: 1,
-            categoryName: 'Automotive',
-            subcategoryId: 109,
-            subcategoryName: 'Car Maintenance',
-            minConfidence: 0.85
-        },
-        tags: ['multi-category', 'camera-vs-automotive'],
-        notes: 'Dash cam is Automotive accessory, not Camera equipment'
-    }
+    // ===== BEAUTY (14) =====
+    { title: 'ลิปสติก MAC Ruby Woo', expectedCategory: 14 },
+    { title: 'เซรั่ม Estee Lauder Advanced Night Repair', expectedCategory: 14 },
 ]
 
-// ========================================
-// TEST STATISTICS
-// ========================================
+/**
+ * Run test cases and report results
+ */
+export function runTestCases(
+    classifyFn: (title: string) => Promise<{ categoryId: number; subcategoryId?: number }>
+): Promise<{
+    passed: number
+    failed: number
+    failures: Array<{ title: string; expected: number; actual: number }>
+}> {
+    return new Promise(async (resolve) => {
+        const failures: Array<{ title: string; expected: number; actual: number }> = []
+        let passed = 0
+        let failed = 0
+
+        for (const testCase of CLASSIFICATION_TEST_CASES) {
+            try {
+                const result = await classifyFn(testCase.title)
+                if (result.categoryId === testCase.expectedCategory) {
+                    passed++
+                    console.log(`✅ PASS: "${testCase.title}" → Category ${result.categoryId}`)
+                } else {
+                    failed++
+                    failures.push({
+                        title: testCase.title,
+                        expected: testCase.expectedCategory,
+                        actual: result.categoryId
+                    })
+                    console.log(`❌ FAIL: "${testCase.title}" → Expected ${testCase.expectedCategory}, Got ${result.categoryId}`)
+                }
+            } catch (error) {
+                failed++
+                console.log(`❌ ERROR: "${testCase.title}" → ${error}`)
+            }
+        }
+
+        console.log(`\n📊 Results: ${passed}/${passed + failed} passed (${((passed / (passed + failed)) * 100).toFixed(1)}%)`)
+
+        if (failures.length > 0) {
+            console.log('\n❌ Failures:')
+            failures.forEach(f => {
+                console.log(`  - "${f.title}": Expected ${f.expected}, Got ${f.actual}`)
+            })
+        }
+
+        resolve({ passed, failed, failures })
+    })
+}
+
+/**
+ * Get statistics about test cases
+ */
 export function getTestStatistics() {
-    const total = CLASSIFICATION_TEST_CASES.length
-    const byTag = new Map<string, number>()
-    const byCategory = new Map<number, number>()
+    const byCategory: Record<number, number> = {}
+    let criticalCases = 0
+    let edgeCases = 0
 
-    CLASSIFICATION_TEST_CASES.forEach(testCase => {
-        // Count by tags
-        testCase.tags.forEach(tag => {
-            byTag.set(tag, (byTag.get(tag) || 0) + 1)
-        })
-
+    CLASSIFICATION_TEST_CASES.forEach(tc => {
         // Count by category
-        const catId = testCase.expected.categoryId
-        byCategory.set(catId, (byCategory.get(catId) || 0) + 1)
+        byCategory[tc.expectedCategory] = (byCategory[tc.expectedCategory] || 0) + 1
+
+        // Count critical cases (those with specific descriptions)
+        if (tc.description) {
+            criticalCases++
+        }
+
+        // Count edge cases (subcategory specified = more precise test)
+        if (tc.expectedSubcategory) {
+            edgeCases++
+        }
     })
 
     return {
-        total,
-        byTag: Object.fromEntries(byTag),
-        byCategory: Object.fromEntries(byCategory),
-        criticalCases: CLASSIFICATION_TEST_CASES.filter(t => t.tags.includes('critical')).length,
-        edgeCases: CLASSIFICATION_TEST_CASES.filter(t => t.tags.includes('edge-case')).length
+        total: CLASSIFICATION_TEST_CASES.length,
+        criticalCases,
+        edgeCases,
+        byCategory
     }
 }
 
-// ========================================
-// HELPER FUNCTIONS
-// ========================================
-export function getTestCasesByTag(tag: string): TestCase[] {
-    return CLASSIFICATION_TEST_CASES.filter(t => t.tags.includes(tag))
-}
-
-export function getTestCaseById(id: string): TestCase | undefined {
-    return CLASSIFICATION_TEST_CASES.find(t => t.id === id)
-}
-
+/**
+ * Get critical test cases (tests that are most important to pass)
+ */
 export function getCriticalTestCases(): TestCase[] {
-    return getTestCasesByTag('critical')
+    return CLASSIFICATION_TEST_CASES.filter(tc => tc.description !== undefined)
 }
+
+/**
+ * Legacy type alias for backwards compatibility
+ */
+export type GenerateDescriptionInput = {
+    title: string
+    description?: string
+    category?: string
+    condition?: string
+}
+
+/**
+ * Legacy function for backwards compatibility
+ * Maps to description-generator functions
+ */
+export async function generateProductDescription(input: GenerateDescriptionInput): Promise<string> {
+    // Simple template-based generation
+    const parts = []
+    if (input.title) parts.push(`📦 ${input.title}`)
+    if (input.condition) parts.push(`สภาพ: ${input.condition}`)
+    if (input.category) parts.push(`หมวดหมู่: ${input.category}`)
+    if (input.description) parts.push(input.description)
+
+    return parts.join('\n\n') || input.title || ''
+}
+

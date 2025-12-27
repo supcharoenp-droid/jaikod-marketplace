@@ -118,3 +118,43 @@ export function getInitials(name: string): string {
         .toUpperCase()
         .slice(0, 2)
 }
+
+/**
+ * Format distance to now with language support
+ */
+export function formatDistanceToNow(date: Date | string, language: 'th' | 'en' = 'th'): string {
+    const d = typeof date === 'string' ? new Date(date) : date
+    const now = new Date()
+    const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000)
+
+    const units = {
+        th: {
+            just_now: 'เมื่อสักครู่',
+            minutes: 'นาทีที่แล้ว',
+            hours: 'ชั่วโมงที่แล้ว',
+            days: 'วันที่แล้ว',
+            weeks: 'สัปดาห์ที่แล้ว',
+            months: 'เดือนที่แล้ว',
+            years: 'ปีที่แล้ว'
+        },
+        en: {
+            just_now: 'just now',
+            minutes: 'min ago',
+            hours: 'hr ago',
+            days: 'd ago',
+            weeks: 'w ago',
+            months: 'mo ago',
+            years: 'yr ago'
+        }
+    }
+
+    const t = units[language]
+
+    if (diffInSeconds < 60) return t.just_now
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} ${t.minutes}`
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} ${t.hours}`
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} ${t.days}`
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 604800)} ${t.weeks}`
+    if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)} ${t.months}`
+    return `${Math.floor(diffInSeconds / 31536000)} ${t.years}`
+}

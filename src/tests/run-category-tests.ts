@@ -3,14 +3,27 @@
  * รันทดสอบ AI auto-fill ทั้ง 28 test cases
  */
 
-import { CATEGORIES } from '../components/listing/DropdownCategorySelector'
+import { CATEGORIES, Category, Subcategory } from '../constants/categories'
+
+// Map CATEGORIES to format expected by test
+interface CategoryItem {
+    id: string
+    name: string
+    subs: string[]
+}
+
+const MAPPED_CATEGORIES: CategoryItem[] = CATEGORIES.map((cat: Category) => ({
+    id: String(cat.id),
+    name: cat.name_th,
+    subs: (cat.subcategories || []).map((sub: Subcategory) => sub.name_th)
+}))
 
 // Helper: Map AI category name to ID (จาก component)
 function findCategoryByName(categoryName: string): string | null {
     const normalized = categoryName.toLowerCase().trim()
 
     // Direct matches
-    const directMatch = CATEGORIES.find(c =>
+    const directMatch = MAPPED_CATEGORIES.find((c: CategoryItem) =>
         c.name.toLowerCase() === normalized ||
         c.name.toLowerCase().includes(normalized) ||
         normalized.includes(c.name.toLowerCase())
@@ -113,10 +126,11 @@ export function runCategoryTests() {
 
     TEST_CASES.forEach((test, index) => {
         const result = findCategoryByName(test.main)
-        const category = CATEGORIES.find(c => c.id === result)
+        const category = MAPPED_CATEGORIES.find(c => c.id === result)
         const hasSubcategory = category?.subs.includes(test.sub)
 
         const isPass = result === test.expectedId && hasSubcategory
+
 
         if (isPass) {
             passed++

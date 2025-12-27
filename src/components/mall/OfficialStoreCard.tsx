@@ -11,7 +11,7 @@ interface OfficialStoreCardProps {
 
 export default function OfficialStoreCard({ store }: OfficialStoreCardProps) {
     return (
-        <Link href={`/seller/${store.id}`} className="block group">
+        <Link href={`/shop/${store.id}`} className="block group">
             <div className="relative h-48 rounded-t-2xl overflow-hidden bg-gray-200">
                 {store.cover_image && (
                     <img

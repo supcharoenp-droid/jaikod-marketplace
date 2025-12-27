@@ -13,7 +13,7 @@ export default function HelpPage() {
     const categories = [
         { icon: User, title: 'บัญชีผู้ใช้', desc: 'สมัคร, เข้าสู่ระบบ, แก้ไขโปรไฟล์', link: '/help/account', color: 'bg-blue-500' },
         { icon: Package, title: 'การซื้อ-ขาย', desc: 'ลงขาย, ซื้อสินค้า, จัดส่ง', link: '/help/trading', color: 'bg-emerald-500' },
-        { icon: CreditCard, title: 'การชำระเงิน', desc: 'JaiCoin, ถอนเงิน, ค่าธรรมเนียม', link: '/help/payment', color: 'bg-amber-500' },
+        { icon: CreditCard, title: 'การชำระเงิน', desc: 'JaiStar, ถอนเงิน, ค่าธรรมเนียม', link: '/help/payment', color: 'bg-amber-500' },
         { icon: Shield, title: 'ความปลอดภัย', desc: 'รายงาน, มิจฉาชีพ, คืนเงิน', link: '/help/safety', color: 'bg-red-500' },
         { icon: MessageCircle, title: 'การแชท', desc: 'ส่งข้อความ, บล็อก, รายงาน', link: '/help/chat', color: 'bg-purple-500' },
         { icon: HelpCircle, title: 'อื่นๆ', desc: 'ปัญหาทั่วไป, ข้อเสนอแนะ', link: '/help/other', color: 'bg-gray-500' },

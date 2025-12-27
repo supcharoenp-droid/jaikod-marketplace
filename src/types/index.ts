@@ -34,6 +34,7 @@ export interface Address {
 export interface Store {
     id: string
     owner_id: string
+    user_id?: string // Legacy alias for owner_id
     slug: string // Unique, SEO-friendly
     name: string
     name_en?: string // English Name
@@ -41,7 +42,9 @@ export interface Store {
 
     // Branding
     logo_url?: string
+    shop_logo?: string // Legacy alias
     cover_url?: string
+    avatar_url?: string // Legacy alias for logo_url
     tagline?: string
     description?: string
     description_en?: string // English Description
@@ -53,6 +56,8 @@ export interface Store {
 
     // Verification & Trust
     verified_status: 'unverified' | 'pending' | 'verified'
+    verification_status?: 'unverified' | 'pending' | 'verified' // Legacy alias
+    is_verified_seller?: boolean // Legacy
     verified_docs?: VerifiedDoc[]
     trust_score: number // 0-100
     seller_level: 'new' | 'standard' | 'pro' | 'official'
@@ -80,14 +85,27 @@ export interface Store {
 
     // Stats
     followers_count: number
+    follower_count?: number // Legacy alias
     sales_count: number
+    successful_sales_count?: number // Legacy alias
     rating_avg: number
+    rating_score?: number // Legacy alias
+    rating_count?: number // Legacy: number of ratings
     response_rate: number
     response_time_minutes: number
+    listing_quality_score?: number // Legacy
+
+    // Legacy: Shop info
+    shop_name?: string // Legacy alias for name
+    shop_slug?: string // Legacy alias for slug
+    shop_description?: string // Legacy alias for description
+    shop_type?: 'general_store' | 'official_store' // Legacy
+    main_categories?: string[] // Legacy
 
     created_at: string | Date
     updated_at: string | Date
 }
+
 
 export interface VerifiedDoc {
     doc_url: string
@@ -270,23 +288,27 @@ export interface OrderItem {
 
 export interface Promotion {
     id: string
-    store_id: string
+    store_id?: string
+    seller_id?: string // Legacy support
     name: string
-    type: 'discount_code' | 'flash_sale' | 'bundle'
+    type: 'discount_code' | 'flash_sale' | 'bundle' | 'shop_coupon'
 
     // Logic
     code?: string // for coupons
-    discount_type: 'percent' | 'fixed_amount'
+    discount_type: 'percent' | 'fixed_amount' | 'fixed'
     discount_value: number
     min_spend?: number
     bundle_products?: string[] // Product IDs
     max_discount?: number // Max cap for percent
 
-    start_at: string | Date
-    end_at: string | Date
-    usage_limit: number
-    usage_count: number
-    status: 'scheduled' | 'active' | 'ended' | 'disabled'
+    start_at?: string | Date
+    end_at?: string | Date
+    start_date?: string | Date // Legacy support
+    end_date?: string | Date // Legacy support
+    usage_limit?: number
+    usage_count?: number
+    status?: 'scheduled' | 'active' | 'ended' | 'disabled'
+    is_active?: boolean // Legacy support
 
     created_at?: string | Date
 }

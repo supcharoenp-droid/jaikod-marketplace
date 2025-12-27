@@ -23,14 +23,35 @@ import { CATEGORIES, type Category } from '@/constants/categories'
 export const BRAND_CATEGORY_MAP: Record<string, number[]> = {
     // Computer Brands → Category 4
     'acer': [4], 'asus': [4], 'dell': [4], 'hp': [4], 'lenovo': [4],
-    'msi': [4], 'apple': [3, 4], 'microsoft': [4], 'razer': [4, 7],
+    'msi': [4], 'microsoft': [4],
+
+    // 🔥 Multi-Category Brands - Context Specific Entries
+    'apple': [3, 4],           // iPhone → 3, MacBook → 4
+    'razer': [4, 7],           // Laptop → 4, Gaming gear → 7
+    'sony': [3, 8],            // Xperia → 3, Camera → 8
+    'samsung': [3, 5],         // Phone → 3, TV/Appliances → 5
+    'lg': [3, 5],              // Phone → 3, TV/Appliances → 5
+    'xiaomi': [3, 5],          // Phone → 3, Appliances → 5
+    'philips': [4, 5],         // Monitor → 4, Appliances → 5
+
+    // 🔥 Context-Specific Brand Entries (Higher Priority)
+    'samsung tv': [5], 'samsung galaxy': [3], 'samsung s24': [3],
+    'samsung ตู้เย็น': [5], 'samsung แอร์': [5],
+    'lg tv': [5], 'lg ตู้เย็น': [5], 'lg แอร์': [5],
+    'xiaomi phone': [3], 'xiaomi air': [5], 'xiaomi fan': [5],
+    'sony camera': [8], 'sony alpha': [8], 'sony a7': [8],
+    'sony headphone': [3], 'sony wh-1000': [3], 'sony wf-1000': [3],
+    'sony xperia': [3], 'sony playstation': [7], 'sony ps5': [7],
+    'philips monitor': [4], 'philips tv': [5], 'philips เครื่องฟอก': [5],
 
     // Mobile Brands → Category 3
-    'iphone': [3], 'samsung': [3], 'xiaomi': [3], 'oppo': [3], 'vivo': [3],
+    'iphone': [3], 'oppo': [3], 'vivo': [3],
     'huawei': [3], 'realme': [3], 'oneplus': [3], 'pixel': [3],
 
     // Camera Brands → Category 8
-    'canon': [4, 8], 'nikon': [8], 'sony': [3, 8], 'fujifilm': [8],
+    // 🔥 Canon → Computer FIRST (for printers)
+    'canon': [4], 'canon eos': [8], 'canon camera': [8], 'canon กล้อง': [8],
+    'nikon': [8], 'fujifilm': [8],
     'leica': [8], 'gopro': [8], 'dji': [7, 8],
 
     // Gaming Brands → Category 7
@@ -50,12 +71,24 @@ export const BRAND_CATEGORY_MAP: Record<string, number[]> = {
     'lego': [15], 'fisher price': [15], 'chicco': [15],
     'barbie': [15], 'hot wheels': [15], 'hasbro': [15], 'mattel': [15],
 
-    // Appliance Brands → Category 5 (NEW!)
+    // Appliance Brands → Category 5
     'sharp': [5], 'panasonic': [5], 'mitsubishi': [5], 'hitachi': [5],
-    'toshiba': [5], 'daikin': [5], 'lg': [5], 'haier': [5],
-    'electrolux': [5], 'dyson': [5], 'philips': [5], 'tefal': [5],
+    'toshiba': [5], 'daikin': [5], 'haier': [5],
+    'electrolux': [5], 'dyson': [5], 'tefal': [5],
     'hatari': [5], 'ฮาตาริ': [5], 'masterkool': [5], 'carrier': [5],
-    'coway': [5], 'xiaomi air': [5], 'mi air': [5], 'blueair': [5]
+    'coway': [5], 'mi air': [5], 'blueair': [5],
+
+    // 🔥 NEW: Computer Peripherals Brands → Category 4
+    'logitech': [4], 'rapoo': [4], 'a4tech': [4], 'genius': [4],
+    'steelseries': [4], 'hyperx': [4], 'corsair': [4], 'cooler master': [4],
+    'ducky': [4], 'keychron': [4], 'akko': [4], 'leopold': [4],
+    'redragon': [4], 'fantech': [4], 'onikuma': [4],
+    'yoda': [4], 'ttech': [4], 'nubwo': [4], 'signo': [4],
+    'micropack': [4], 'oker': [4], 'primaxx': [4],
+
+    // Gaming Peripherals → Category 4 or 7
+    'razer keyboard': [4], 'razer mouse': [4],
+    'logitech g': [4], 'steelseries apex': [4]
 }
 
 /**
@@ -115,7 +148,13 @@ export const TECHNICAL_TERMS: Record<number, string[]> = {
         'full hd', 'fhd', '4k', 'qhd', 'wqhd', '144hz', '165hz', '240hz',
         'ips', 'va', 'tn', 'oled', 'amoled',
         // Connectivity
-        'wifi 6', 'bluetooth 5', 'thunderbolt', 'usb-c', 'hdmi', 'displayport'
+        'wifi 6', 'bluetooth 5', 'thunderbolt', 'usb-c', 'hdmi', 'displayport',
+        // 🔥 NEW: Keyboard & Mouse Terms
+        'คีย์บอร์ด', 'keyboard', 'mechanical keyboard', 'membrane',
+        'คีย์บอร์ดเกมมิ่ง', 'gaming keyboard', 'คีย์บอร์ดไร้สาย', 'wireless keyboard',
+        'เมาส์', 'mouse', 'gaming mouse', 'wireless mouse', 'เมาส์ไร้สาย',
+        'dpi', '1000dpi', '16000dpi', 'blue switch', 'red switch', 'brown switch',
+        'hotswap', 'rgb', 'backlit', 'ไฟ rgb', 'คีย์บอร์ดมีไฟ'
     ],
 
     // Category 3: Mobiles
@@ -180,6 +219,42 @@ export const TECHNICAL_TERMS: Record<number, string[]> = {
         'full frame', 'aps-c', 'micro four thirds',
         'autofocus', 'af', 'image stabilization', 'is',
         'aperture', 'f1.8', 'f2.8', 'zoom', '24-70mm'
+    ],
+
+    // 🔥 NEW: Category 1: Automotive
+    1: [
+        // Vehicle terms
+        'cc', 'ซีซี', 'เครื่องยนต์', 'engine', 'hp', 'แรงม้า',
+        'turbo', 'เทอร์โบ', 'cvt', 'automatic', 'manual',
+        // Tire/Wheel terms
+        'ยาง', 'tire', 'ล้อแม็ก', 'rim', 'ขอบ 15', 'ขอบ 17',
+        // Accessories
+        'ปั๊มลม', 'air pump', 'เติมลม', 'กล้องติดรถ', 'dash cam',
+        'gps', 'เครื่องเสียงรถ', 'car audio', 'ที่ชาร์จในรถ'
+    ],
+
+    // 🔥 NEW: Category 7: Gaming
+    7: [
+        // Console terms
+        'ps5', 'ps4', 'playstation', 'xbox', 'nintendo', 'switch',
+        // Controller
+        'dualsense', 'controller', 'จอย', 'gamepad',
+        // Gaming gear
+        'gaming', 'rgb', 'mechanical', 'กล่องเกม', 'เกมแผ่น',
+        // VR/Accessories
+        'vr headset', 'meta quest', 'oculus'
+    ],
+
+    // 🔥 NEW: Category 13: Home & Garden
+    13: [
+        // Furniture
+        'เฟอร์นิเจอร์', 'โซฟา', 'เตียง', 'ตู้', 'โต๊ะ', 'เก้าอี้',
+        // Decor
+        'พรม', 'ผ้าม่าน', 'โคมไฟ', 'หมอน', 'ของแต่งบ้าน',
+        // Garden
+        'ต้นไม้', 'กระถาง', 'ดิน', 'ปุ๋ย', 'สวน',
+        // Tools
+        'สว่าน', 'เครื่องมือช่าง', 'ไขควง', 'ประแจ', 'เลื่อย'
     ]
 }
 
@@ -194,9 +269,15 @@ export const EXCLUSION_RULES: Record<number, {
     4: {
         exclude_if_has: [
             'cotton', 'polyester', 'leather', 'size m', 'size l', 'size xl',
-            'รองเท้า', 'เสื้อ', 'กางเกง', 'authentic original'
+            'รองเท้า', 'เสื้อ', 'กางเกง', 'authentic original',
+            // 🔥 Air Pump exclusion
+            'ปั๊มลม', 'air pump', 'ปั๊มลมพกพา', 'tire inflator', 'เติมลมยาง',
+            'air compressor', 'เครื่องเติมลม', 'สูบลม',
+            // 🔥 Appliance exclusion
+            'ตู้เย็น', 'refrigerator', 'แอร์', 'air conditioner', 'เครื่องซักผ้า',
+            'พัดลม', 'ฟอกอากาศ', 'air purifier', 'ทีวี', 'television'
         ],
-        exclude_if_missing: [] // No strict requirements
+        exclude_if_missing: []
     },
 
     // Category 6: Fashion
@@ -209,11 +290,58 @@ export const EXCLUSION_RULES: Record<number, {
         exclude_if_missing: []
     },
 
-    // Category 3: Mobiles
+    // 🔥 Category 8: Cameras - Exclude Printers!
+    8: {
+        exclude_if_has: [
+            // Printer terms
+            'เครื่องพิมพ์', 'printer', 'ปริ้นเตอร์', 'ปริ้น', 'พิมพ์',
+            'มัลติฟังก์ชัน', 'multifunction', 'all-in-one',
+            'หมึก', 'toner', 'inkjet', 'laser',
+            'pixma', 'maxify', 'imageclass', 'ecotank',
+            'scan', 'copy', 'fax', 'สแกน', 'ถ่ายเอกสาร',
+            'office', 'สำนักงาน',
+            'mf4', 'mf3', 'mf2', 'ir-adv', 'ir-c', 'lbp',
+            // 🔥 Audio exclusion (Sony headphones ≠ Sony camera)
+            'หูฟัง', 'headphone', 'earbuds', 'earphone', 'wh-1000', 'wf-1000'
+        ],
+        exclude_if_missing: []
+    },
+
+    // 🔥 Category 3: Mobiles - Exclude Appliances/TVs/Cameras
     3: {
         exclude_if_has: [
             'laptop', 'notebook', 'โน้ตบุ๊ค', 'desktop', 'monitor',
-            'เครื่องพิมพ์', 'printer'
+            'เครื่องพิมพ์', 'printer',
+            // 🔥 Samsung/LG TV exclusion
+            'ทีวี', 'tv', 'television', 'smart tv', 'android tv',
+            'ตู้เย็น', 'refrigerator', 'แอร์', 'air conditioner',
+            'เครื่องซักผ้า', 'washing machine',
+            // 🔥 Camera exclusion
+            'กล้อง', 'camera', 'dslr', 'mirrorless', 'เลนส์', 'lens'
+        ],
+        exclude_if_missing: []
+    },
+
+    // 🔥 NEW: Category 5: Appliances - Exclude Mobile/Computer
+    5: {
+        exclude_if_has: [
+            // Mobile terms
+            'smartphone', 'สมาร์ทโฟน', 'มือถือ', '5g', 'dual sim',
+            'galaxy s', 'galaxy a', 'iphone', 'redmi', 'poco',
+            // Computer terms
+            'laptop', 'notebook', 'โน้ตบุ๊ค', 'keyboard', 'คีย์บอร์ด',
+            'mouse', 'เมาส์', 'ram', 'ssd', 'cpu'
+        ],
+        exclude_if_missing: []
+    },
+
+    // 🔥 NEW: Category 7: Gaming - Exclude Computers/Cameras
+    7: {
+        exclude_if_has: [
+            // Exclude office computers
+            'office', 'สำนักงาน', 'business', 'เครื่องพิมพ์', 'printer',
+            // Exclude cameras (unless GoPro/Action cam)
+            'dslr', 'mirrorless', 'เลนส์', 'full frame'
         ],
         exclude_if_missing: []
     }
@@ -230,9 +358,14 @@ export const INCLUSION_BOOSTERS: Record<number, {
         strong_indicators: [
             'โน้ตบุ๊ค', 'laptop', 'notebook', 'คอมพิวเตอร์',
             'ram', 'ssd', 'cpu', 'gpu', 'ryzen', 'intel',
-            'acer', 'asus', 'dell', 'hp', 'lenovo'
+            'acer', 'asus', 'dell', 'hp', 'lenovo',
+            // 🔥 NEW: Keyboard & Mouse
+            'คีย์บอร์ด', 'keyboard', 'เมาส์', 'mouse',
+            'logitech', 'rapoo', 'hyperx', 'steelseries', 'razer',
+            'mechanical', 'gaming keyboard', 'gaming mouse', 'wireless keyboard',
+            'keychron', 'ducky', 'corsair', 'yoda', 'nubwo', 'signo'
         ],
-        boost_score: 20
+        boost_score: 25  // 🔥 INCREASED from 20 to 25
     },
     6: {
         strong_indicators: [
@@ -260,16 +393,21 @@ export const INCLUSION_BOOSTERS: Record<number, {
         boost_score: 20
     },
 
-    // Category 1: Automotive (NEW!)
+    // Category 1: Automotive (ENHANCED with Air Pump!)
     1: {
         strong_indicators: [
             'รถยนต์', 'รถมือสอง', 'รถใหม่', 'car', 'automobile',
             'รถกระบะ', 'pickup', 'รถเก๋ง', 'sedan', 'รถ suv',
             'มอเตอร์ไซค์', 'มอไซค์', 'motorcycle', 'bike',
             'toyota', 'honda', 'isuzu', 'mazda', 'nissan',
-            'cc', 'ซีซี', 'เครื่องยนต์', 'engine'
+            'cc', 'ซีซี', 'เครื่องยนต์', 'engine',
+            // 🔥 CRITICAL FIX: Air Pump keywords!
+            'ปั๊มลม', 'air pump', 'ปั๊มลมพกพา', 'portable air pump',
+            'เติมลม', 'tire inflator', 'air compressor', 'เครื่องเติมลม',
+            'ปั๊มลมรถยนต์', 'ที่เติมลมยาง', 'สูบลม', 'ปั๊มเติมลม',
+            'mini air pump', 'xiaomi air pump', 'baseus air pump'
         ],
-        boost_score: 25
+        boost_score: 35  // 🔥 INCREASED to beat Computer!
     },
 
     // Category 2: Real Estate (NEW!)
@@ -294,13 +432,15 @@ export const INCLUSION_BOOSTERS: Record<number, {
         boost_score: 25
     },
 
-    // Category 8: Cameras (NEW!)
+    // Category 8: Cameras (FIXED - removed Canon from indicators!)
     8: {
         strong_indicators: [
             'กล้อง', 'camera', 'กล้องถ่ายรูป', 'กล้องวิดีโอ',
-            'canon', 'nikon', 'sony camera', 'fujifilm',
+            // 🔥 CRITICAL FIX: Removed 'canon' - it conflicts with printers!
+            'nikon', 'sony camera', 'fujifilm',
             'เลนส์', 'lens', 'กล้อง dslr', 'mirrorless',
-            'gopro', 'action camera'
+            'gopro', 'action camera', 'ถ่ายรูป', 'ถ่ายภาพ',
+            'eos', 'powershot', 'alpha', 'a7', 'z6', 'z7'
         ],
         boost_score: 25
     },

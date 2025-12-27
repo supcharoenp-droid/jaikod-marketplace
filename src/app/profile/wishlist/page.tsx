@@ -34,6 +34,8 @@ export default function WishlistPage() {
     const { t, language } = useLanguage()
     const { user, stats } = useProfile()
 
+    // TODO: Fetch real wishlist from Firestore
+    // For now using mock data that matches ProfileOverviewV3 stats (2 items)
     const [wishlist, setWishlist] = useState<WishlistItem[]>([
         {
             productId: '1',
@@ -53,6 +55,7 @@ export default function WishlistPage() {
             note: 'For work',
             priceDropProbability: 30
         }
+        // Note: Keep only 2 items to match stats shown in ProfileOverviewV3
     ])
 
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
@@ -96,8 +99,8 @@ export default function WishlistPage() {
                         <button
                             onClick={() => setViewMode('grid')}
                             className={`p-2 rounded-lg transition-colors ${viewMode === 'grid'
-                                    ? 'bg-purple-500 text-white'
-                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                                ? 'bg-purple-500 text-white'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                                 }`}
                         >
                             <Grid className="w-5 h-5" />
@@ -105,8 +108,8 @@ export default function WishlistPage() {
                         <button
                             onClick={() => setViewMode('list')}
                             className={`p-2 rounded-lg transition-colors ${viewMode === 'list'
-                                    ? 'bg-purple-500 text-white'
-                                    : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                                ? 'bg-purple-500 text-white'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                                 }`}
                         >
                             <List className="w-5 h-5" />

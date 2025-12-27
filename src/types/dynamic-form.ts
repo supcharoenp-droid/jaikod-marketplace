@@ -330,31 +330,4 @@ export interface FormSubmitEvent {
     timestamp: number
 }
 
-// ============================================================================
-// Exports
-// ============================================================================
-
-export type {
-    // Core types
-    FieldType,
-    FieldImportance,
-    DataSource,
-
-    // Schemas
-    FieldSchema,
-    CategorySchema,
-
-    // AI
-    AISuggestions,
-    FieldSuggestion,
-
-    // State
-    DetailFormData,
-    DetailFormState,
-    ValidationState,
-
-    // Props
-    DynamicDetailFormProps,
-    FieldRendererProps,
-    AIAssistantPanelProps
-}
+// Note: All types are already exported inline above

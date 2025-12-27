@@ -148,6 +148,55 @@ function detectCategoryFromTitle(title: string): { mainId: string | null, subNam
         'มอไซค์': { id: '1', sub: 'มอเตอร์ไซค์', priority: 10 },
         'รถจักรยานยนต์': { id: '1', sub: 'มอเตอร์ไซค์', priority: 10 },
         'บิ๊กไบค์': { id: '1', sub: 'มอเตอร์ไซค์', priority: 9 },
+
+        // ✅ มอเตอร์ไซค์ - รุ่นยอดนิยม (Priority 11 = HIGHEST to beat brand names)
+        // Honda
+        'click': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'click125': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'click 125': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'click150': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'wave': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'wave110': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'pcx': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'pcx160': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'adv': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'adv150': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'scoopy': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'forza': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'cbr': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'cb500x': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'rebel': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'msx': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'zoomer': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'super cub': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        // Yamaha
+        'nmax': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'aerox': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'xmax': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'filano': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'finn': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'mt-03': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'mt-15': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'r15': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'wr155': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        // Kawasaki
+        'ninja': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'z400': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'z650': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'versys': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'klx': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        // GPX
+        'gpx demon': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'gpx gentleman': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        // Vespa
+        'vespa': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'primavera': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'sprint': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        // Other brands
+        'duke': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'gsx': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+        'burgman': { id: '1', sub: 'มอเตอร์ไซค์', priority: 11 },
+
         'ยาง': { id: '1', sub: 'ล้อ & ยาง', priority: 9 },
         'ล้อแม็ก': { id: '1', sub: 'ล้อ & ยาง', priority: 9 },
         'ปั๊มลม': { id: '1', sub: 'อุปกรณ์บำรุงรักษารถ', priority: 10 },
@@ -438,43 +487,58 @@ export default function DropdownCategorySelector({ selectedMain, selectedSub, on
     // State now uses subcategory ID (e.g., '401', '408') instead of name
     const [mainId, setMainId] = useState<string>(selectedMain || '4')
     const [subId, setSubId] = useState<string>(selectedSub || '')  // ✅ Changed from subName to subId
+    const [userHasInteracted, setUserHasInteracted] = useState(false)  // ✅ Track manual interaction
 
     const currentCategory = CATEGORIES.find(c => c.id === Number(mainId)) || CATEGORIES[3]  // Default to Computers
 
     // Auto-fill from AI when component mounts or AI suggestion changes
+    // BUT only if user hasn't manually interacted yet
     useEffect(() => {
-        // Priority 1: Use AI suggested subcategory ID if provided
-        if (aiSuggestion?.subId) {
-            const validSubcategory = currentCategory.subcategories?.find(
-                s => String(s.id) === aiSuggestion.subId
-            )
+        // Skip if user has manually changed the category
+        if (userHasInteracted) return
 
-            if (validSubcategory) {
-                setSubId(aiSuggestion.subId)
-                onSelect(mainId, currentCategory.name_th, aiSuggestion.subId, validSubcategory.name_th)
-                return
-            }
-        }
+        // ✅ FIX: Use selectedMain directly to get the correct category
+        const targetMainId = selectedMain || mainId
+        const targetCategory = CATEGORIES.find(c => c.id === Number(targetMainId))
 
-        // Priority 2: Use selected values if provided
+        // First, update mainId if selectedMain is different
         if (selectedMain && selectedMain !== mainId) {
             setMainId(selectedMain)
         }
 
-        if (selectedSub && selectedSub !== subId) {
+        // Priority 1: Use AI suggested subcategory ID if provided
+        if (aiSuggestion?.subId && targetCategory) {
+            const validSubcategory = targetCategory.subcategories?.find(
+                s => String(s.id) === aiSuggestion.subId
+            )
+
+            if (validSubcategory) {
+                console.log('✅ [DropdownCategorySelector] Setting subcategory from AI:', aiSuggestion.subId, validSubcategory.name_th)
+                setSubId(aiSuggestion.subId)
+                onSelect(targetMainId, targetCategory.name_th, aiSuggestion.subId, validSubcategory.name_th)
+                return
+            } else {
+                console.log('⚠️ [DropdownCategorySelector] AI subId not found in category:', aiSuggestion.subId, 'in category', targetCategory.id)
+            }
+        }
+
+        // Priority 2: Use selected values if provided
+        if (selectedSub && selectedSub !== subId && targetCategory) {
             // Validate that subcategory exists in current category
-            const validSubcategory = currentCategory.subcategories?.find(
+            const validSubcategory = targetCategory.subcategories?.find(
                 s => String(s.id) === selectedSub
             )
 
             if (validSubcategory) {
+                console.log('✅ [DropdownCategorySelector] Setting subcategory from selectedSub:', selectedSub, validSubcategory.name_th)
                 setSubId(selectedSub)
             } else {
                 // Invalid subcategory for this category - clear it
+                console.log('⚠️ [DropdownCategorySelector] selectedSub not found in category:', selectedSub)
                 setSubId('')
             }
         }
-    }, [aiSuggestion?.subId, selectedMain, selectedSub])
+    }, [aiSuggestion?.subId, selectedMain, selectedSub, userHasInteracted])
 
     // Update subcategory when main category changes
     useEffect(() => {
@@ -494,6 +558,7 @@ export default function DropdownCategorySelector({ selectedMain, selectedSub, on
         const newMainId = e.target.value
         setMainId(newMainId)
         setSubId('')  // Clear subcategory when changing main category
+        setUserHasInteracted(true)  // ✅ Mark that user has manually interacted
 
         const cat = CATEGORIES.find(c => c.id === Number(newMainId))
         if (cat) {
@@ -504,6 +569,7 @@ export default function DropdownCategorySelector({ selectedMain, selectedSub, on
     const handleSubChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newSubId = e.target.value
         setSubId(newSubId)
+        setUserHasInteracted(true)  // ✅ Mark that user has manually interacted
 
         const subcategory = currentCategory.subcategories?.find(
             s => String(s.id) === newSubId

@@ -1,17 +1,28 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import AdminLayout from '@/components/admin/AdminLayout'
 import { useLanguage } from '@/contexts/LanguageContext'
 import {
     BarChart3, TrendingUp, Users, ShoppingBag, Store,
     DollarSign, ArrowUpRight, ArrowDownRight
 } from 'lucide-react'
-import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    PieChart, Pie, Cell, Legend
-} from 'recharts'
 import { getAnalyticsDashboard, AnalyticsSummary } from '@/lib/admin/analytics-service'
+
+// Dynamic import recharts to disable SSR (fixes chart width/height warning)
+const BarChart = dynamic(() => import('recharts').then(mod => mod.BarChart), { ssr: false })
+const Bar = dynamic(() => import('recharts').then(mod => mod.Bar), { ssr: false })
+const XAxis = dynamic(() => import('recharts').then(mod => mod.XAxis), { ssr: false })
+const YAxis = dynamic(() => import('recharts').then(mod => mod.YAxis), { ssr: false })
+const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.CartesianGrid), { ssr: false })
+const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false })
+const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false })
+const PieChart = dynamic(() => import('recharts').then(mod => mod.PieChart), { ssr: false })
+const Pie = dynamic(() => import('recharts').then(mod => mod.Pie), { ssr: false })
+const Cell = dynamic(() => import('recharts').then(mod => mod.Cell), { ssr: false })
+const Legend = dynamic(() => import('recharts').then(mod => mod.Legend), { ssr: false })
+
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8']
 
@@ -86,7 +97,7 @@ export default function AnalyticsPage() {
                             {/* Revenue Chart (Bar) */}
                             <div className="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('admin.ana_chart_rev')}</h3>
-                                <div className="h-64 sm:h-80 w-full">
+                                <div className="h-64 sm:h-80 w-full" style={{ minWidth: 300, minHeight: 200 }}>
                                     <ResponsiveContainer width="100%" height="100%">
                                         <BarChart data={data.revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                             <CartesianGrid strokeDasharray="3 3" opacity={0.3} vertical={false} />
@@ -104,7 +115,7 @@ export default function AnalyticsPage() {
                             {/* Category Chart (Pie) */}
                             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col">
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t('admin.ana_chart_cat')}</h3>
-                                <div className="flex-1 min-h-[250px] relative">
+                                <div className="flex-1 min-h-[250px] relative" style={{ minWidth: 250, minHeight: 250 }}>
                                     <ResponsiveContainer width="100%" height="100%">
                                         <PieChart>
                                             <Pie

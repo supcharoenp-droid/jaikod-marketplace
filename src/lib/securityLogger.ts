@@ -57,7 +57,8 @@ export const logSecurityEvent = async (
             userId,
             action,
             status,
-            reason,
+            // Only include reason if it's defined (Firestore doesn't accept undefined)
+            ...(reason !== undefined && { reason }),
             ip_address: ip,
             user_agent: ua,
             device_info: {

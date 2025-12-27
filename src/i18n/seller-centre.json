@@ -241,6 +241,156 @@
             "roi": "ROI"
         }
     },
+    "shopAds": {
+        "th": {
+            "title": "โฆษณาร้านค้า",
+            "subtitle": "เพิ่มการมองเห็นและยอดขายด้วยโฆษณาที่ตรงเป้าหมาย",
+            "backToTools": "กลับไปเครื่องมือ",
+            "createCampaign": "สร้างแคมเปญใหม่",
+            "stats": {
+                "impressions": "การแสดงผล",
+                "clicks": "คลิก",
+                "ctr": "อัตราคลิก",
+                "spend": "ค่าใช้จ่าย",
+                "revenue": "รายได้",
+                "roi": "ผลตอบแทน"
+            },
+            "activeCampaigns": "แคมเปญที่ใช้งานอยู่",
+            "allCampaigns": "แคมเปญทั้งหมด",
+            "filters": {
+                "last7days": "7 วันที่แล้ว",
+                "last30days": "30 วันที่แล้ว",
+                "last90days": "90 วันที่แล้ว",
+                "custom": "กำหนดเอง",
+                "status": "สถานะ",
+                "type": "ประเภท",
+                "search": "ค้นหาแคมเปญ..."
+            },
+            "table": {
+                "campaignName": "ชื่อแคมเปญ",
+                "status": "สถานะ",
+                "type": "ประเภท",
+                "budget": "งบประมาณ",
+                "dailyBudget": "งบรายวัน",
+                "totalBudget": "งบทั้งหมด",
+                "spent": "ใช้ไปแล้ว",
+                "impressions": "การแสดงผล",
+                "clicks": "คลิก",
+                "ctr": "CTR",
+                "conversions": "การซื้อ",
+                "revenue": "รายได้",
+                "roi": "ROI",
+                "actions": "จัดการ"
+            },
+            "status": {
+                "active": "ใช้งานอยู่",
+                "paused": "หยุดชั่วคราว",
+                "completed": "เสร็จสิ้น",
+                "draft": "แบบร่าง",
+                "scheduled": "กำหนดเวลา"
+            },
+            "type": {
+                "product": "สินค้า",
+                "shop": "ร้านค้า",
+                "category": "หมวดหมู่",
+                "brand": "แบรนด์"
+            },
+            "actions": {
+                "manage": "จัดการ",
+                "edit": "แก้ไข",
+                "pause": "หยุดชั่วคราว",
+                "resume": "ดำเนินการต่อ",
+                "duplicate": "ทำซ้ำ",
+                "delete": "ลบ",
+                "viewReport": "ดูรายงาน"
+            },
+            "empty": {
+                "title": "ยังไม่มีแคมเปญโฆษณา",
+                "description": "เริ่มสร้างแคมเปญแรกของคุณเพื่อเพิ่มยอดขาย",
+                "action": "สร้างแคมเปญ"
+            },
+            "chart": {
+                "performance": "ประสิทธิภาพโฆษณา",
+                "trend": "แนวโน้ม"
+            },
+            "perDay": "/วัน",
+            "total": "ทั้งหมด"
+        },
+        "en": {
+            "title": "Shop Ads",
+            "subtitle": "Boost your product visibility and sales with targeted ads",
+            "backToTools": "Back to Tools",
+            "createCampaign": "Create New Campaign",
+            "stats": {
+                "impressions": "Impressions",
+                "clicks": "Clicks",
+                "ctr": "CTR",
+                "spend": "Spend",
+                "revenue": "Revenue",
+                "roi": "ROI"
+            },
+            "activeCampaigns": "Active Campaigns",
+            "allCampaigns": "All Campaigns",
+            "filters": {
+                "last7days": "Last 7 Days",
+                "last30days": "Last 30 Days",
+                "last90days": "Last 90 Days",
+                "custom": "Custom",
+                "status": "Status",
+                "type": "Type",
+                "search": "Search campaigns..."
+            },
+            "table": {
+                "campaignName": "Campaign Name",
+                "status": "Status",
+                "type": "Type",
+                "budget": "Budget",
+                "dailyBudget": "Daily Budget",
+                "totalBudget": "Total Budget",
+                "spent": "Spent",
+                "impressions": "Impressions",
+                "clicks": "Clicks",
+                "ctr": "CTR",
+                "conversions": "Conversions",
+                "revenue": "Revenue",
+                "roi": "ROI",
+                "actions": "Actions"
+            },
+            "status": {
+                "active": "Active",
+                "paused": "Paused",
+                "completed": "Completed",
+                "draft": "Draft",
+                "scheduled": "Scheduled"
+            },
+            "type": {
+                "product": "Product",
+                "shop": "Shop",
+                "category": "Category",
+                "brand": "Brand"
+            },
+            "actions": {
+                "manage": "Manage",
+                "edit": "Edit",
+                "pause": "Pause",
+                "resume": "Resume",
+                "duplicate": "Duplicate",
+                "delete": "Delete",
+                "viewReport": "View Report"
+            },
+            "empty": {
+                "title": "No Ad Campaigns Yet",
+                "description": "Start creating your first campaign to boost sales",
+                "action": "Create Campaign"
+            },
+            "chart": {
+                "performance": "Ad Performance",
+                "trend": "Trend"
+            },
+            "perDay": "/day",
+            "total": "Total"
+        }
+    },
     "finance": {
         "th": {
             "title": "การเงิน",

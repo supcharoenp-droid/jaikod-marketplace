@@ -1,0 +1,412 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import {
+    Star, ShieldCheck, MessageCircle, Clock, Package2,
+    ThumbsUp, ChevronRight, BadgeCheck, MapPin, Store,
+    Heart, Share2, Flag, Users, TrendingUp, Award
+} from 'lucide-react'
+
+// ==========================================
+// TYPES
+// ==========================================
+
+interface SellerInfo {
+    id: string
+    name: string
+    avatar?: string
+    verified: boolean
+    trust_score: number
+    response_time_minutes: number
+    total_listings: number
+    successful_sales: number
+    member_since?: Date
+    last_active?: Date
+    location?: string
+    badges?: string[]
+}
+
+interface ListingPreview {
+    id: string
+    slug: string
+    title: string
+    price: number
+    thumbnail_url: string
+    created_at: Date
+    views: number
+}
+
+// ==========================================
+// ENHANCED SELLER CARD
+// ==========================================
+
+interface EnhancedSellerCardProps {
+    seller: SellerInfo
+    sellerId: string
+    location?: string
+    language?: 'th' | 'en'
+    compact?: boolean
+}
+
+export function EnhancedSellerCard({
+    seller,
+    sellerId,
+    location,
+    language = 'th',
+    compact = false
+}: EnhancedSellerCardProps) {
+    const [isFollowing, setIsFollowing] = useState(false)
+
+    // Calculate rating from trust score (0-100 -> 0-5)
+    const rating = Math.min(5, Math.max(0, seller.trust_score / 20))
+
+    // Calculate member duration
+    const getMemberDuration = () => {
+        if (!seller.member_since) return null
+        const now = new Date()
+        const diff = now.getTime() - new Date(seller.member_since).getTime()
+        const years = Math.floor(diff / (365 * 24 * 60 * 60 * 1000))
+        const months = Math.floor(diff / (30 * 24 * 60 * 60 * 1000))
+        if (years >= 1) return language === 'th' ? `${years} ปี` : `${years} year${years > 1 ? 's' : ''}`
+        if (months >= 1) return language === 'th' ? `${months} เดือน` : `${months} month${months > 1 ? 's' : ''}`
+        return language === 'th' ? 'ใหม่' : 'New'
+    }
+
+    // Response time display
+    const getResponseTime = () => {
+        if (seller.response_time_minutes < 60) {
+            return language === 'th' ? `${seller.response_time_minutes} นาที` : `${seller.response_time_minutes} min`
+        }
+        const hours = Math.round(seller.response_time_minutes / 60)
+        return language === 'th' ? `${hours} ชั่วโมง` : `${hours} hr${hours > 1 ? 's' : ''}`
+    }
+
+    return (
+        <div className="bg-gradient-to-br from-slate-800 to-slate-800/80 rounded-2xl overflow-hidden border border-slate-700/50">
+            {/* Header with gradient */}
+            <div className="relative h-20 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400">
+                <div className="absolute inset-0 bg-black/20" />
+            </div>
+
+            {/* Avatar - overlapping header */}
+            <div className="relative -mt-10 px-4">
+                <div className="flex items-end gap-4">
+                    <div className="relative">
+                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 p-0.5 shadow-xl">
+                            <div className="w-full h-full rounded-xl bg-slate-800 flex items-center justify-center overflow-hidden">
+                                {seller.avatar ? (
+                                    <Image
+                                        src={seller.avatar}
+                                        alt={seller.name}
+                                        width={80}
+                                        height={80}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="text-3xl font-bold text-white">
+                                        {seller.name.charAt(0).toUpperCase()}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                        {/* Verified badge */}
+                        {seller.verified && (
+                            <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-500 rounded-full flex items-center justify-center border-2 border-slate-800">
+                                <BadgeCheck className="w-4 h-4 text-white" />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Name & badges */}
+                    <div className="flex-1 pb-2">
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-lg font-bold text-white">{seller.name}</h3>
+                            {seller.verified && (
+                                <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-full flex items-center gap-1">
+                                    <ShieldCheck className="w-3 h-3" />
+                                    {language === 'th' ? 'ยืนยันตัวตน' : 'Verified'}
+                                </span>
+                            )}
+                        </div>
+                        {getMemberDuration() && (
+                            <p className="text-sm text-gray-400">
+                                {language === 'th' ? 'สมาชิกมาแล้ว' : 'Member for'} {getMemberDuration()}
+                            </p>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Trust Score */}
+            <div className="px-4 py-4">
+                <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm text-gray-400">{language === 'th' ? 'คะแนนความน่าเชื่อถือ' : 'Trust Score'}</span>
+                    <span className="text-lg font-bold text-white">{seller.trust_score}/100</span>
+                </div>
+
+                {/* Progress bar */}
+                <div className="h-2 bg-slate-700 rounded-full overflow-hidden mb-4">
+                    <div
+                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
+                        style={{ width: `${seller.trust_score}%` }}
+                    />
+                </div>
+
+                {/* Verification badges */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                    {seller.verified && (
+                        <span className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500/10 text-emerald-400 text-xs rounded-full border border-emerald-500/30">
+                            <ShieldCheck className="w-3.5 h-3.5" />
+                            {language === 'th' ? 'ยืนยันตัวตน' : 'ID Verified'}
+                        </span>
+                    )}
+                    {seller.response_time_minutes <= 60 && (
+                        <span className="flex items-center gap-1 px-3 py-1.5 bg-cyan-500/10 text-cyan-400 text-xs rounded-full border border-cyan-500/30">
+                            <Clock className="w-3.5 h-3.5" />
+                            {language === 'th' ? 'ตอบเร็ว' : 'Fast Response'}
+                        </span>
+                    )}
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="text-center p-3 bg-slate-900/50 rounded-xl">
+                        <div className="text-lg font-bold text-white">{seller.total_listings}</div>
+                        <div className="text-xs text-gray-400">{language === 'th' ? 'ประกาศ' : 'Listings'}</div>
+                    </div>
+                    <div className="text-center p-3 bg-slate-900/50 rounded-xl">
+                        <div className="text-lg font-bold text-white">{seller.successful_sales}</div>
+                        <div className="text-xs text-gray-400">{language === 'th' ? 'ขายแล้ว' : 'Sold'}</div>
+                    </div>
+                    <div className="text-center p-3 bg-slate-900/50 rounded-xl">
+                        <div className="text-lg font-bold text-emerald-400">
+                            {seller.response_time_minutes <= 60 ? '95%' : '80%'}
+                        </div>
+                        <div className="text-xs text-gray-400">{language === 'th' ? 'ตอบกลับ' : 'Response'}</div>
+                    </div>
+                </div>
+
+                {/* Rating */}
+                <div className="flex items-center gap-2 mb-4">
+                    <div className="flex">
+                        {[1, 2, 3, 4, 5].map(i => (
+                            <Star
+                                key={i}
+                                className={`w-4 h-4 ${i <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'}`}
+                            />
+                        ))}
+                    </div>
+                    <span className="text-sm text-gray-400">
+                        {rating.toFixed(1)} ({seller.successful_sales} {language === 'th' ? 'รีวิว' : 'reviews'})
+                    </span>
+                </div>
+
+                {/* Location */}
+                {location && (
+                    <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
+                        <MapPin className="w-4 h-4 text-purple-400" />
+                        <span>{location}</span>
+                    </div>
+                )}
+            </div>
+
+            {/* Actions */}
+            <div className="px-4 pb-4 space-y-2">
+                <Link
+                    href={`/shop/${sellerId}`}
+                    className="flex items-center justify-center gap-2 w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-white font-medium transition-colors"
+                >
+                    <Store className="w-4 h-4" />
+                    {language === 'th' ? 'ดูประกาศทั้งหมด' : 'View All Listings'}
+                    <span className="text-gray-400">({seller.total_listings})</span>
+                </Link>
+
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setIsFollowing(!isFollowing)}
+                        className={`flex-1 py-2.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${isFollowing
+                            ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30'
+                            : 'bg-slate-700 hover:bg-slate-600 text-gray-300'
+                            }`}
+                    >
+                        <Heart className={`w-4 h-4 ${isFollowing ? 'fill-current' : ''}`} />
+                        {isFollowing
+                            ? (language === 'th' ? 'ติดตามแล้ว' : 'Following')
+                            : (language === 'th' ? 'ติดตาม' : 'Follow')
+                        }
+                    </button>
+                    <button className="p-2.5 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-colors">
+                        <Flag className="w-4 h-4" />
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// ==========================================
+// SELLER OTHER LISTINGS CAROUSEL
+// ==========================================
+
+interface SellerOtherListingsProps {
+    sellerId: string
+    currentListingId: string
+    sellerName: string
+    listings: ListingPreview[]
+    language?: 'th' | 'en'
+}
+
+export function SellerOtherListings({
+    sellerId,
+    currentListingId,
+    sellerName,
+    listings,
+    language = 'th'
+}: SellerOtherListingsProps) {
+    // Filter out current listing
+    const otherListings = listings.filter(l => l.id !== currentListingId)
+
+    if (otherListings.length === 0) return null
+
+    const formatPrice = (price: number) => new Intl.NumberFormat('th-TH').format(price)
+
+    return (
+        <div className="bg-slate-800/50 rounded-2xl p-4">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-white font-semibold flex items-center gap-2">
+                    <Package2 className="w-5 h-5 text-purple-400" />
+                    {language === 'th' ? 'ประกาศอื่นจากผู้ขาย' : 'More from Seller'}
+                </h3>
+                <Link
+                    href={`/shop/${sellerId}`}
+                    className="text-sm text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                >
+                    {language === 'th' ? 'ดูทั้งหมด' : 'View All'}
+                    <ChevronRight className="w-4 h-4" />
+                </Link>
+            </div>
+
+            {/* Horizontal Scroll */}
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+                {otherListings.slice(0, 6).map(listing => (
+                    <Link
+                        key={listing.id}
+                        href={`/listing/${listing.slug}`}
+                        className="flex-shrink-0 w-36 group"
+                    >
+                        {/* Thumbnail */}
+                        <div className="relative aspect-square rounded-xl overflow-hidden mb-2 bg-slate-700">
+                            {listing.thumbnail_url ? (
+                                <Image
+                                    src={listing.thumbnail_url}
+                                    alt={listing.title}
+                                    fill
+                                    className="object-cover group-hover:scale-110 transition-transform duration-300"
+                                />
+                            ) : (
+                                <div className="absolute inset-0 flex items-center justify-center text-gray-500">
+                                    📷
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Info */}
+                        <h4 className="text-sm text-gray-300 group-hover:text-white line-clamp-2 mb-1 transition-colors">
+                            {listing.title}
+                        </h4>
+                        <p className="text-sm font-bold text-white">
+                            ฿{formatPrice(listing.price)}
+                        </p>
+                    </Link>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+// ==========================================
+// SIMILAR LISTINGS (RECOMMENDATIONS)
+// ==========================================
+
+interface SimilarListingsProps {
+    categoryType: string
+    currentListingId: string
+    listings: ListingPreview[]
+    language?: 'th' | 'en'
+}
+
+export function SimilarListings({
+    categoryType,
+    currentListingId,
+    listings,
+    language = 'th'
+}: SimilarListingsProps) {
+    const filteredListings = listings.filter(l => l.id !== currentListingId)
+
+    if (filteredListings.length === 0) return null
+
+    const formatPrice = (price: number) => new Intl.NumberFormat('th-TH').format(price)
+
+    return (
+        <div className="bg-slate-800/50 rounded-2xl p-4">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-white font-semibold flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-orange-400" />
+                    {language === 'th' ? 'สินค้าที่คล้ายกัน' : 'Similar Items'}
+                </h3>
+                <Link
+                    href={`/category/${categoryType}`}
+                    className="text-sm text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                >
+                    {language === 'th' ? 'ดูเพิ่ม' : 'See More'}
+                    <ChevronRight className="w-4 h-4" />
+                </Link>
+            </div>
+
+            {/* Grid */}
+            <div className="grid grid-cols-2 gap-3">
+                {filteredListings.slice(0, 4).map(listing => (
+                    <Link
+                        key={listing.id}
+                        href={`/listing/${listing.slug}`}
+                        className="group"
+                    >
+                        {/* Thumbnail */}
+                        <div className="relative aspect-square rounded-xl overflow-hidden mb-2 bg-slate-700">
+                            {listing.thumbnail_url ? (
+                                <Image
+                                    src={listing.thumbnail_url}
+                                    alt={listing.title}
+                                    fill
+                                    className="object-cover group-hover:scale-110 transition-transform duration-300"
+                                />
+                            ) : (
+                                <div className="absolute inset-0 flex items-center justify-center text-gray-500">
+                                    📷
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Info */}
+                        <h4 className="text-sm text-gray-300 group-hover:text-white line-clamp-2 mb-1 transition-colors">
+                            {listing.title}
+                        </h4>
+                        <p className="text-sm font-bold text-white">
+                            ฿{formatPrice(listing.price)}
+                        </p>
+                    </Link>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+// ==========================================
+// EXPORT ALL
+// ==========================================
+
+export default EnhancedSellerCard

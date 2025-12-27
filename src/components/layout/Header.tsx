@@ -17,7 +17,7 @@ import LanguageSwitcher from '@/components/ui/LanguageSwitcher'
 
 export default function Header() {
     const { user, logout, storeStatus } = useAuth()
-    const { t } = useLanguage()
+    const { t, language } = useLanguage()
     const router = useRouter()
     const pathname = usePathname()
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -87,7 +87,10 @@ export default function Header() {
                         <div className="hidden md:flex items-center gap-3 pr-4 border-r border-gray-200">
                             <div className="text-right hidden sm:block">
                                 <p className="text-sm font-bold text-gray-900">{storeStatus.shopName || user?.displayName}</p>
-                                <p className="text-xs text-green-600">{t('header.online')}</p>
+                                <p className="text-xs text-green-600 flex items-center gap-1">
+                                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                    {language === 'th' ? 'ออนไลน์' : 'Online'}
+                                </p>
                             </div>
                             <div className="w-8 h-8 bg-gray-200 rounded-full overflow-hidden">
                                 {user?.photoURL && <img src={user.photoURL} className="w-full h-full object-cover" alt="" />}

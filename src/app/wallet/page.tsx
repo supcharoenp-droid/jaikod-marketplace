@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLanguage } from '@/contexts/LanguageContext'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import Button from '@/components/ui/Button'
@@ -12,69 +13,114 @@ import {
     TrendingUp, Gift, ShieldCheck, Crown
 } from 'lucide-react'
 
-// Mock Coin Packages
-const COIN_PACKAGES = [
-    { id: 1, coins: 50, price: 50, bonus: 0, popular: false },
-    { id: 2, coins: 100, price: 99, bonus: 5, popular: false },
-    { id: 3, coins: 300, price: 279, bonus: 20, popular: true },
-    { id: 4, coins: 500, price: 449, bonus: 50, popular: false },
-    { id: 5, coins: 1000, price: 849, bonus: 150, popular: false },
-]
-
-// Mock Promotion Services
-const PROMO_SERVICES = [
-    {
-        id: 'boost',
-        name: 'Boost สินค้า',
-        description: 'ดันสินค้าขึ้นหน้าแรกในหมวดหมู่ 24 ชม.',
-        price: 15,
-        icon: Rocket,
-        color: 'from-orange-500 to-red-500',
-        benefits: ['เพิ่มยอดวิว 3-5 เท่า', 'แสดงในหน้าแรกหมวดหมู่', '24 ชั่วโมง']
-    },
-    {
-        id: 'featured',
-        name: 'Featured Badge',
-        description: 'ติดป้าย "แนะนำ" บนสินค้า 7 วัน',
-        price: 100,
-        icon: Star,
-        color: 'from-amber-400 to-yellow-500',
-        benefits: ['ป้าย ⭐ แนะนำ', 'เพิ่มความน่าเชื่อถือ', '7 วัน']
-    },
-    {
-        id: 'flash',
-        name: 'Flash Sale Slot',
-        description: 'ลงสินค้าในโซน Flash Sale เด่นชัด',
-        price: 200,
-        icon: Zap,
-        color: 'from-violet-500 to-purple-600',
-        benefits: ['โซน Flash Sale', 'เพิ่มยอดคลิก 10 เท่า', '48 ชั่วโมง']
-    },
-    {
-        id: 'premium',
-        name: 'Premium Seller',
-        description: 'สมาชิกพรีเมียม ลงขายไม่จำกัด + Badge',
-        price: 299,
-        icon: Crown,
-        color: 'from-gray-800 to-gray-900',
-        benefits: ['ลงขายไม่จำกัด', 'Badge ร้านค้าพรีเมียม', 'Support ด่วน', '30 วัน']
-    },
-]
-
-// Mock Payment Methods
-const PAYMENT_METHODS = [
-    { id: 'promptpay', name: 'PromptPay', icon: QrCode, color: 'bg-blue-500' },
-    { id: 'card', name: 'บัตรเครดิต/เดบิต', icon: CreditCard, color: 'bg-gray-700' },
-    { id: 'truemoney', name: 'TrueMoney Wallet', icon: Smartphone, color: 'bg-orange-500' },
-    { id: 'linepay', name: 'Rabbit LINE Pay', icon: Smartphone, color: 'bg-green-500' },
-]
-
 export default function WalletPage() {
     const { user, loading } = useAuth()
+    const { language } = useLanguage()
+    const lang = language as 'th' | 'en'
     const router = useRouter()
     const [activeTab, setActiveTab] = useState<'topup' | 'services' | 'history'>('topup')
     const [selectedPackage, setSelectedPackage] = useState<number | null>(null)
     const [selectedPayment, setSelectedPayment] = useState<string | null>(null)
+
+    // Translations
+    const t = {
+        myAccount: lang === 'th' ? 'บัญชี JaiStar ของฉัน' : 'My JaiStar Account',
+        star: lang === 'th' ? 'Star' : 'Star',
+        pointsNote: lang === 'th'
+            ? 'แต้มสำหรับโปรโมทสินค้า ไม่สามารถแลกคืนเป็นเงินได้'
+            : 'Points for promoting products. Cannot be exchanged for cash.',
+        history: lang === 'th' ? 'ประวัติ' : 'History',
+        topUp: lang === 'th' ? 'เติมแต้ม' : 'Top Up',
+        tabTopUp: lang === 'th' ? 'เติม JaiStar' : 'Top Up JaiStar',
+        tabServices: lang === 'th' ? 'โปรโมทสินค้า' : 'Promote Products',
+        tabHistory: lang === 'th' ? 'ประวัติการใช้' : 'Usage History',
+        selectPackage: lang === 'th' ? 'เลือกแพ็กเกจ JaiStar' : 'Select JaiStar Package',
+        popular: lang === 'th' ? 'ยอดนิยม' : 'Popular',
+        bonus: lang === 'th' ? 'โบนัส!' : 'Bonus!',
+        payment: lang === 'th' ? 'ชำระเงิน' : 'Payment',
+        payNow: lang === 'th' ? 'ชำระเงิน' : 'Pay Now',
+        securePayment: lang === 'th' ? 'การชำระเงินปลอดภัย 100%' : '100% Secure Payment',
+        noHistory: lang === 'th' ? 'ยังไม่มีประวัติการใช้งาน' : 'No usage history yet',
+        startNow: lang === 'th'
+            ? 'เริ่มต้นเติม JaiStar และโปรโมทสินค้าของคุณวันนี้!'
+            : 'Start topping up JaiStar and promote your products today!',
+        topUpNow: lang === 'th' ? 'เติม JaiStar เลย' : 'Top Up JaiStar Now',
+        use: lang === 'th' ? 'ใช้งาน' : 'Use',
+        creditDebit: lang === 'th' ? 'บัตรเครดิต/เดบิต' : 'Credit/Debit Card',
+    }
+
+    // Star Packages
+    const STAR_PACKAGES = [
+        { id: 1, stars: 50, price: 50, bonus: 0, popular: false },
+        { id: 2, stars: 100, price: 99, bonus: 5, popular: false },
+        { id: 3, stars: 300, price: 279, bonus: 20, popular: true },
+        { id: 4, stars: 500, price: 449, bonus: 50, popular: false },
+        { id: 5, stars: 1000, price: 849, bonus: 150, popular: false },
+    ]
+
+    // Promotion Services
+    const PROMO_SERVICES = [
+        {
+            id: 'boost',
+            name: lang === 'th' ? 'Boost สินค้า' : 'Boost Product',
+            description: lang === 'th'
+                ? 'ดันสินค้าขึ้นหน้าแรกในหมวดหมู่ 24 ชม.'
+                : 'Push product to category front page for 24hrs',
+            price: 15,
+            icon: Rocket,
+            color: 'from-orange-500 to-red-500',
+            benefits: lang === 'th'
+                ? ['เพิ่มยอดวิว 3-5 เท่า', 'แสดงในหน้าแรกหมวดหมู่', '24 ชั่วโมง']
+                : ['3-5x more views', 'Show on category front page', '24 hours']
+        },
+        {
+            id: 'featured',
+            name: lang === 'th' ? 'Featured Badge' : 'Featured Badge',
+            description: lang === 'th'
+                ? 'ติดป้าย "แนะนำ" บนสินค้า 7 วัน'
+                : 'Add "Featured" badge for 7 days',
+            price: 100,
+            icon: Star,
+            color: 'from-amber-400 to-yellow-500',
+            benefits: lang === 'th'
+                ? ['ป้าย ⭐ แนะนำ', 'เพิ่มความน่าเชื่อถือ', '7 วัน']
+                : ['⭐ Featured badge', 'Increase trust', '7 days']
+        },
+        {
+            id: 'flash',
+            name: lang === 'th' ? 'Flash Sale Slot' : 'Flash Sale Slot',
+            description: lang === 'th'
+                ? 'ลงสินค้าในโซน Flash Sale เด่นชัด'
+                : 'List product in Flash Sale section',
+            price: 200,
+            icon: Zap,
+            color: 'from-violet-500 to-purple-600',
+            benefits: lang === 'th'
+                ? ['โซน Flash Sale', 'เพิ่มยอดคลิก 10 เท่า', '48 ชั่วโมง']
+                : ['Flash Sale zone', '10x more clicks', '48 hours']
+        },
+        {
+            id: 'premium',
+            name: lang === 'th' ? 'Premium Seller' : 'Premium Seller',
+            description: lang === 'th'
+                ? 'สมาชิกพรีเมียม ลงขายไม่จำกัด + Badge'
+                : 'Premium membership with unlimited listings + Badge',
+            price: 299,
+            icon: Crown,
+            color: 'from-gray-800 to-gray-900',
+            benefits: lang === 'th'
+                ? ['ลงขายไม่จำกัด', 'Badge ร้านค้าพรีเมียม', 'Support ด่วน', '30 วัน']
+                : ['Unlimited listings', 'Premium shop badge', 'Priority support', '30 days']
+        },
+    ]
+
+    // Payment Methods
+    const PAYMENT_METHODS = [
+        { id: 'promptpay', name: 'PromptPay', icon: QrCode, color: 'bg-blue-500' },
+        { id: 'card', name: t.creditDebit, icon: CreditCard, color: 'bg-gray-700' },
+        { id: 'truemoney', name: 'TrueMoney Wallet', icon: Smartphone, color: 'bg-orange-500' },
+        { id: 'linepay', name: 'Rabbit LINE Pay', icon: Smartphone, color: 'bg-green-500' },
+    ]
 
     // Mock user balance
     const userBalance = 125
@@ -107,13 +153,13 @@ export default function WalletPage() {
                             <div>
                                 <div className="flex items-center gap-2 text-white/80 text-sm font-medium mb-2">
                                     <Coins className="w-5 h-5" />
-                                    กระเป๋า JaiCoin ของฉัน
+                                    {t.myAccount}
                                 </div>
                                 <div className="text-5xl md:text-6xl font-bold flex items-baseline gap-2">
                                     {userBalance.toLocaleString()}
-                                    <span className="text-2xl font-normal text-white/70">Coins</span>
+                                    <span className="text-2xl font-normal text-white/70">⭐ {t.star}</span>
                                 </div>
-                                <p className="text-white/60 text-sm mt-2">≈ ฿{userBalance} (1 Coin = 1 บาท)</p>
+                                <p className="text-white/60 text-sm mt-2">{t.pointsNote}</p>
                             </div>
                             <div className="flex gap-3">
                                 <Button
@@ -122,14 +168,14 @@ export default function WalletPage() {
                                     onClick={() => setActiveTab('history')}
                                 >
                                     <History className="w-4 h-4 mr-2" />
-                                    ประวัติ
+                                    {t.history}
                                 </Button>
                                 <Button
                                     className="bg-white text-purple-600 hover:bg-gray-100 shadow-lg"
                                     onClick={() => setActiveTab('topup')}
                                 >
                                     <Plus className="w-4 h-4 mr-2" />
-                                    เติมเงิน
+                                    {t.topUp}
                                 </Button>
                             </div>
                         </div>
@@ -142,21 +188,21 @@ export default function WalletPage() {
                             className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${activeTab === 'topup' ? 'bg-neon-purple text-white shadow-lg shadow-neon-purple/30' : 'bg-white dark:bg-surface-dark text-text-secondary hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700'}`}
                         >
                             <Plus className="w-4 h-4 inline mr-1.5" />
-                            เติม JaiCoin
+                            {t.tabTopUp}
                         </button>
                         <button
                             onClick={() => setActiveTab('services')}
                             className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${activeTab === 'services' ? 'bg-neon-purple text-white shadow-lg shadow-neon-purple/30' : 'bg-white dark:bg-surface-dark text-text-secondary hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700'}`}
                         >
                             <Rocket className="w-4 h-4 inline mr-1.5" />
-                            โปรโมทสินค้า
+                            {t.tabServices}
                         </button>
                         <button
                             onClick={() => setActiveTab('history')}
                             className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${activeTab === 'history' ? 'bg-neon-purple text-white shadow-lg shadow-neon-purple/30' : 'bg-white dark:bg-surface-dark text-text-secondary hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700'}`}
                         >
                             <History className="w-4 h-4 inline mr-1.5" />
-                            ประวัติการใช้
+                            {t.tabHistory}
                         </button>
                     </div>
 
@@ -170,10 +216,10 @@ export default function WalletPage() {
                                 <div className="lg:col-span-2 bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
                                     <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                                         <Gift className="w-5 h-5 text-neon-purple" />
-                                        เลือกแพ็กเกจ JaiCoin
+                                        {t.selectPackage}
                                     </h3>
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                        {COIN_PACKAGES.map(pkg => (
+                                        {STAR_PACKAGES.map(pkg => (
                                             <button
                                                 key={pkg.id}
                                                 onClick={() => setSelectedPackage(pkg.id)}
@@ -181,16 +227,16 @@ export default function WalletPage() {
                                             >
                                                 {pkg.popular && (
                                                     <div className="absolute -top-2 -right-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-                                                        ยอดนิยม
+                                                        {t.popular}
                                                     </div>
                                                 )}
                                                 <div className="flex items-center gap-2 mb-2">
-                                                    <Coins className="w-5 h-5 text-amber-500" />
-                                                    <span className="text-xl font-bold">{pkg.coins}</span>
+                                                    <span className="text-xl">⭐</span>
+                                                    <span className="text-xl font-bold">{pkg.stars}</span>
                                                 </div>
                                                 {pkg.bonus > 0 && (
                                                     <div className="text-xs text-green-600 font-semibold mb-1">
-                                                        +{pkg.bonus} โบนัส!
+                                                        +{pkg.bonus} {t.bonus}
                                                     </div>
                                                 )}
                                                 <div className="text-lg font-bold text-neon-purple">฿{pkg.price}</div>
@@ -203,7 +249,7 @@ export default function WalletPage() {
                                 <div className="bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
                                     <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                                         <CreditCard className="w-5 h-5 text-neon-purple" />
-                                        ชำระเงิน
+                                        {t.payment}
                                     </h3>
                                     <div className="space-y-2 mb-6">
                                         {PAYMENT_METHODS.map(method => (
@@ -225,12 +271,12 @@ export default function WalletPage() {
                                         className="w-full"
                                         disabled={!selectedPackage || !selectedPayment}
                                     >
-                                        ชำระเงิน
+                                        {t.payNow}
                                         <ArrowRight className="w-4 h-4 ml-2" />
                                     </Button>
                                     <p className="text-xs text-center text-text-secondary mt-3">
                                         <ShieldCheck className="w-3 h-3 inline mr-1" />
-                                        การชำระเงินปลอดภัย 100%
+                                        {t.securePayment}
                                     </p>
                                 </div>
                             </div>
@@ -257,11 +303,11 @@ export default function WalletPage() {
                                                 </ul>
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-1 text-amber-500 font-bold">
-                                                        <Coins className="w-4 h-4" />
-                                                        {service.price} Coins
+                                                        <span>⭐</span>
+                                                        {service.price} Star
                                                     </div>
                                                     <Button size="sm" variant="primary">
-                                                        ใช้งาน
+                                                        {t.use}
                                                     </Button>
                                                 </div>
                                             </div>
@@ -275,10 +321,10 @@ export default function WalletPage() {
                         {activeTab === 'history' && (
                             <div className="bg-white dark:bg-surface-dark rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 text-center">
                                 <History className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                                <h3 className="text-xl font-bold mb-2">ยังไม่มีประวัติการใช้งาน</h3>
-                                <p className="text-text-secondary mb-6">เริ่มต้นเติม JaiCoin และโปรโมทสินค้าของคุณวันนี้!</p>
+                                <h3 className="text-xl font-bold mb-2">{t.noHistory}</h3>
+                                <p className="text-text-secondary mb-6">{t.startNow}</p>
                                 <Button variant="primary" onClick={() => setActiveTab('topup')}>
-                                    เติม JaiCoin เลย
+                                    {t.topUpNow}
                                 </Button>
                             </div>
                         )}
@@ -289,3 +335,4 @@ export default function WalletPage() {
         </div>
     )
 }
+

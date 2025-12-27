@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -19,7 +19,8 @@ import {
     Sparkles,
     AlertCircle,
     ChevronRight,
-    Search
+    Search,
+    Loader2
 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import useProfile from '@/hooks/useProfile'
@@ -54,7 +55,18 @@ interface Order {
 const ORDER_STATUSES = ['all', 'pending', 'paid', 'shipped', 'completed', 'cancelled'] as const
 type OrderStatus = typeof ORDER_STATUSES[number]
 
-export default function OrdersPage() {
+// Loading fallback component
+function LoadingFallback() {
+    return (
+        <ProfileLayout>
+            <div className="flex items-center justify-center min-h-[400px]">
+                <Loader2 className="w-10 h-10 animate-spin text-purple-500" />
+            </div>
+        </ProfileLayout>
+    )
+}
+
+function OrdersPageContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { t, language } = useLanguage()
@@ -424,5 +436,14 @@ export default function OrdersPage() {
                 )}
             </div>
         </ProfileLayout>
+    )
+}
+
+// Export with Suspense wrapper
+export default function OrdersPage() {
+    return (
+        <Suspense fallback={<LoadingFallback />}>
+            <OrdersPageContent />
+        </Suspense>
     )
 }

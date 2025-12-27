@@ -8,15 +8,17 @@
  * - AI-powered content generation
  * - Language consistency validation
  * - Independent editing per language
+ * - Smart structured description (NEW!)
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { detectSubcategory } from '@/lib/subcategory-intelligence'
 import { motion } from 'framer-motion'
 import { DollarSign, MapPin, Package, Sparkles, AlertTriangle } from 'lucide-react'
 import DropdownCategorySelector from './DropdownCategorySelector'
 import BilingualTitleField from './BilingualTitleField'
-import BilingualDescriptionField from './BilingualDescriptionField'
+import SmartDescriptionPanel from './SmartDescriptionPanel'
+// import PriceAnalysisPanel from './PriceAnalysisPanel'  // DISABLED: Price estimation removed
 import {
     analyzeBilingualListing,
     generateBilingualContent,
@@ -27,6 +29,7 @@ import {
     validateTitleSubcategoryMatch,
     type ValidationResult
 } from '@/lib/subcategory-validator'
+import { getCategoryConditions } from '@/lib/category-condition-options'  // ✅ Category-specific conditions
 
 interface ListingData {
     category: string
@@ -37,6 +40,8 @@ interface ListingData {
     description: string  // Legacy - will migrate to description_th
     description_th?: string
     description_en?: string
+    specs?: Record<string, string>  // ✅ Store product specs
+    customNote?: string  // ✅ NEW: Store additional notes
     price: number
     condition: string
     location: {
@@ -62,13 +67,7 @@ interface SmartDetailsFormProps {
     isRegenerating?: boolean
 }
 
-const CONDITIONS = [
-    { value: 'new', label: 'ใหม่' },
-    { value: 'like_new', label: 'เหมือนใหม่' },
-    { value: 'good', label: 'สภาพดี' },
-    { value: 'fair', label: 'ปกติ' },
-    { value: 'used', label: 'มือสอง' },
-]
+// ❌ REMOVED hardcoded CONDITIONS - now using getCategoryConditions() for category-specific options
 
 export default function SmartDetailsForm({
     data,
@@ -91,25 +90,38 @@ export default function SmartDetailsForm({
     const [isGenerating, setIsGenerating] = useState(false)
     const [consistencyScore, setConsistencyScore] = useState(100)
 
-    // ✅ NEW: Validation state
+    // AI specs for SmartDescriptionPanel - ✅ Initialize from data.specs (from AI analysis)
+    const [aiSpecs, setAiSpecs] = useState<Record<string, string>>(data.specs || {})
+
+    // Validation state
     const [validationResult, setValidationResult] = useState<ValidationResult | null>(null)
 
     // ✅ Use global language context
     const { language } = useLanguage()
     const activeLanguage = language.toUpperCase() as 'TH' | 'EN'
 
-    // Update parent when bilingual values change
+    // Use ref to store onChange to avoid infinite loop
+    const onChangeRef = useRef(onChange)
+    onChangeRef.current = onChange
+    const dataRef = useRef(data)
+    dataRef.current = data
+
+    // Update parent when bilingual values change - with debounce to prevent loop
     useEffect(() => {
-        onChange({
-            ...data,
-            title: titleValues.th,  // Legacy support
-            title_th: titleValues.th,
-            title_en: titleValues.en,
-            description: descValues.th,  // Legacy support
-            description_th: descValues.th,
-            description_en: descValues.en
-        })
-    }, [titleValues, descValues])
+        const timeoutId = setTimeout(() => {
+            onChangeRef.current({
+                ...dataRef.current,
+                title: titleValues.th,  // Legacy support
+                title_th: titleValues.th,
+                title_en: titleValues.en,
+                description: descValues.th,  // Legacy support
+                description_th: descValues.th,
+                description_en: descValues.en
+            })
+        }, 100) // Small debounce
+
+        return () => clearTimeout(timeoutId)
+    }, [titleValues.th, titleValues.en, descValues.th, descValues.en]) // Only trigger on actual value changes
 
     // Analyze consistency when content changes
     useEffect(() => {
@@ -249,12 +261,13 @@ export default function SmartDetailsForm({
                     selectedMain={data.category}
                     selectedSub={data.subcategory}  // ✅ Now passing subcategory ID
                     onSelect={(mainId: string, mainName: string, subId?: string, subName?: string) => {
-                        updateField('category', mainId)
-                        if (subId) {
-                            updateField('subcategory', subId)  // ✅ Store subcategory ID
-                        } else {
-                            updateField('subcategory', '')
-                        }
+                        // ✅ FIX: Combine both updates into single onChange to avoid stale closure
+                        console.log('🔄 Category changed:', { mainId, subId })
+                        onChange({
+                            ...data,
+                            category: mainId,
+                            subcategory: subId || ''
+                        })
                     }}
                     aiSuggestion={aiAnalysis ? {
                         mainName: aiAnalysis.category.main,
@@ -328,44 +341,72 @@ export default function SmartDetailsForm({
                     consistencyScore={consistencyScore}
                     isGenerating={isGenerating}
                     activeLanguage={activeLanguage}
+                    categoryId={data.category ? parseInt(data.category) : undefined}
+                    subcategoryId={data.subcategory ? parseInt(data.subcategory) : undefined}
+                    specs={data.specs || aiSpecs}
                 />
             </section>
 
-            {/* Bilingual Description */}
+            {/* 📝 Description Section - Smart Description Panel Only */}
             <section className="p-4 rounded-lg bg-gray-800/50">
-                <BilingualDescriptionField
-                    values={descValues}
-                    onChange={(lang, value) => {
+                <SmartDescriptionPanel
+                    key={`desc-panel-${data.category}-${data.subcategory}`}
+                    title={titleValues.th || titleValues.en || ''}
+                    categoryId={data.category ? parseInt(data.category) : 0}
+                    subcategoryId={data.subcategory ? parseInt(data.subcategory) : undefined}
+                    condition={data.condition}
+                    aiSpecs={aiSpecs}
+                    initialSpecs={data.specs}  // ✅ Restore specs from parent
+                    initialNote={data.customNote}  // ✅ NEW: Restore note from parent
+                    onDescriptionChange={(text) => {
                         setDescValues(prev => ({
                             ...prev,
-                            [lang.toLowerCase()]: value
+                            [activeLanguage.toLowerCase()]: text
                         }))
                     }}
-                    onGenerateMissing={handleGenerateMissing}
-                    isGenerating={isGenerating}
-                    activeLanguage={activeLanguage}  // ✅ Pass global language
+                    onSpecsChange={(newSpecs) => {
+                        // ✅ Sync specs back to parent
+                        onChange({
+                            ...data,
+                            specs: newSpecs
+                        })
+                    }}
+                    onNoteChange={(newNote) => {
+                        // ✅ NEW: Sync note back to parent
+                        onChange({
+                            ...data,
+                            customNote: newNote
+                        })
+                    }}
+                    language={activeLanguage.toLowerCase() as 'th' | 'en'}
                 />
             </section>
 
             {/* Price & Condition */}
             <div className="grid grid-cols-2 gap-4">
-                {/* Price */}
+                {/* Price - with comma formatting */}
                 <section className="p-4 rounded-lg bg-gray-800/50">
-                    <label className="text-sm font-medium text-gray-300 mb-2 block">ราคา (บาท)</label>
+                    <label className="text-sm font-medium text-gray-300 mb-2 block">
+                        ราคา (บาท)
+                    </label>
                     <input
-                        type="number"
-                        value={data.price || ''}
-                        onChange={(e) => updateField('price', parseFloat(e.target.value) || 0)}
-                        placeholder="0"
+                        type="text"
+                        inputMode="numeric"
+                        value={data.price ? data.price.toLocaleString('en-US') : ''}
+                        onChange={(e) => {
+                            // Remove commas and non-numeric characters
+                            const rawValue = e.target.value.replace(/[^0-9]/g, '')
+                            const numericValue = parseInt(rawValue, 10) || 0
+                            updateField('price', numericValue)
+                        }}
+                        placeholder="ใส่ราคาขายที่ต้องการ"
                         className="w-full px-3 py-2 text-sm rounded-lg bg-gray-900 border border-gray-700
                          focus:border-purple-500 text-white placeholder-gray-500
                          transition-all outline-none"
                     />
-                    {aiAnalysis?.price && (
-                        <div className="text-xs text-blue-300 mt-2">
-                            แนะนำ: {aiAnalysis.price.min.toLocaleString()}-{aiAnalysis.price.max.toLocaleString()} ฿
-                        </div>
-                    )}
+                    <p className="text-xs text-gray-500 mt-1">
+                        💡 ตั้งราคาตามที่เห็นสมควร
+                    </p>
                 </section>
 
                 {/* Condition */}
@@ -378,14 +419,62 @@ export default function SmartDetailsForm({
                          focus:border-purple-500 text-white
                          transition-all outline-none"
                     >
-                        {CONDITIONS.map((cond) => (
+                        <option value="">-- เลือกสภาพ --</option>
+                        {getCategoryConditions(
+                            data.category ? parseInt(data.category) : 0,
+                            data.subcategory ? parseInt(data.subcategory) : undefined
+                        ).conditions.map((cond) => (
                             <option key={cond.value} value={cond.value}>
-                                {cond.label}
+                                {activeLanguage === 'TH' ? cond.label_th : cond.label_en}
                             </option>
                         ))}
                     </select>
                 </section>
             </div>
+
+            {/* Smart Price Analysis Panel - DISABLED: Price estimation removed to save tokens
+            <section className="p-4 rounded-lg bg-gray-800/50">
+                {(() => {
+                    // Safe parseInt helper - handle NaN
+                    const catId = data.category ? parseInt(data.category) : 0
+                    const subId = data.subcategory ? parseInt(data.subcategory) : undefined
+                    const safeCatId = isNaN(catId) ? 0 : catId
+                    const safeSubId = subId && !isNaN(subId) ? subId : undefined
+
+                    console.log('SmartDetailsForm → PriceAnalysisPanel:', {
+                        rawCategory: data.category,
+                        parsedCatId: catId,
+                        safeCatId,
+                        rawSubcategory: data.subcategory,
+                        safeSubId,
+                        aiPrice: aiAnalysis?.price
+                    })
+
+                    return (
+                        <PriceAnalysisPanel
+                            categoryId={safeCatId}
+                            subcategoryId={safeSubId}
+                            condition={data.condition}
+                            specs={data.specs || {}}
+                            formData={{
+                                ...data.specs,
+                                condition: data.condition,
+                                category: String(safeCatId),
+                                subcategory: safeSubId ? String(safeSubId) : '',
+                                brand: data.specs?.brand || '',
+                                model: data.specs?.model || '',
+                            }}
+                            imageQualityScore={70}
+                            hasMultipleImages={false}
+                            currentPrice={data.price}
+                            language={activeLanguage.toLowerCase() as 'th' | 'en'}
+                            onPriceSelect={(price) => updateField('price', price)}
+                            aiDetectedPrice={aiAnalysis?.price}
+                        />
+                    )
+                })()}
+            </section>
+            */}
 
             {/* Location */}
             <section className="p-4 rounded-lg bg-gray-800/50">

@@ -6,7 +6,9 @@ import { CATEGORIES } from '@/constants/categories'
 
 export interface CategoryTrendMetric {
     id: string
-    name: string
+    name: string      // Default name (Thai for backward compat)
+    name_th: string   // Thai name
+    name_en: string   // English name
     slug: string
     icon: string
     searchVolume: number // 30%
@@ -65,6 +67,8 @@ export async function calculateCategoryTrends(): Promise<CategoryTrendMetric[]> 
         return {
             id: String(cat.id),
             name: cat.name_th,
+            name_th: cat.name_th,
+            name_en: cat.name_en,
             slug: cat.slug,
             icon: cat.icon || '📦',
             searchVolume: searchVol,

@@ -178,7 +178,7 @@ export default function SystemHealthPage() {
                                     <td className="px-6 py-4 text-right text-gray-500 text-xs">
                                         {log.timestamp?.toDate().toLocaleString()}
                                     </td>
-                                </div>
+                                </tr>
                             ))}
                         </tbody>
                     </table>

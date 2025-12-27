@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import {
@@ -22,7 +22,19 @@ import { ContentModerationService } from '@/lib/content-moderation'
 import type { ModerationResult } from '@/types/moderation'
 import type { MarketPriceAnalysis } from '@/lib/ai-price-estimator'
 
-export default function CreateProductPage() {
+// Loading fallback component
+function LoadingFallback() {
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-bg-dark">
+            <div className="text-center">
+                <Loader2 className="w-10 h-10 animate-spin text-neon-purple mx-auto mb-4" />
+                <p className="text-gray-500">กำลังโหลด...</p>
+            </div>
+        </div>
+    )
+}
+
+function CreateProductPageContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { user, loading: authLoading } = useAuth()
@@ -672,18 +684,10 @@ export default function CreateProductPage() {
                             </div>
 
                             <div className="space-y-6">
-                                {/* Price */}
+                                {/* Price - SIMPLIFIED: AI price estimation disabled */}
                                 <div className="bg-white dark:bg-surface-dark rounded-xl p-6 shadow-sm">
                                     <h2 className="text-lg font-bold mb-4 flex items-center justify-between">
-                                        <span>ราคา</span>
-                                        <button
-                                            type="button"
-                                            onClick={suggestAiPrice}
-                                            disabled={isAiLoading}
-                                            className="text-xs font-normal flex items-center text-neon-purple hover:text-purple-600"
-                                        >
-                                            <Sparkles className="w-3 h-3 mr-1" /> แนะนำราคา
-                                        </button>
+                                        <span>💰 ราคา</span>
                                     </h2>
                                     <div className="space-y-4">
                                         <div className="flex rounded-lg bg-gray-100 p-1 mb-4">
@@ -702,85 +706,7 @@ export default function CreateProductPage() {
                                             ))}
                                         </div>
 
-                                        {priceAnalysis && (
-                                            <div className="mb-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800 transition-all animate-fadeIn">
-                                                <h3 className="text-sm font-semibold text-purple-700 dark:text-purple-300 flex items-center mb-2">
-                                                    <Brain className="w-4 h-4 mr-1" /> วิเคราะห์ราคาตลาด (Market Insights)
-                                                </h3>
-                                                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2 leading-relaxed">
-                                                    {priceAnalysis.analysis_text}
-                                                </p>
-
-                                                {/* Data Sources Badges */}
-                                                <div className="flex flex-wrap gap-2 mb-3">
-                                                    <span className="text-[10px] px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full border border-gray-200 shadow-sm">
-                                                        Internal DB
-                                                    </span>
-                                                    {priceAnalysis.market_price.sources_used?.one2car > 0 && (
-                                                        <span className="text-[10px] px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 shadow-sm">
-                                                            One2Car ({priceAnalysis.market_price.sources_used.one2car})
-                                                        </span>
-                                                    )}
-                                                    {priceAnalysis.market_price.sources_used?.kaidee > 0 && (
-                                                        <span className="text-[10px] px-2 py-0.5 bg-orange-50 text-orange-600 rounded-full border border-orange-100 shadow-sm">
-                                                            Kaidee ({priceAnalysis.market_price.sources_used.kaidee})
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                {/* Suggestions & Quick Sale */}
-                                                {priceAnalysis.suggestions && priceAnalysis.suggestions.length > 0 && (
-                                                    <div className="mb-3 pl-3 border-l-2 border-purple-300 bg-purple-50/50 rounded-r-md py-2 pr-2">
-                                                        {priceAnalysis.suggestions.map((s, i) => (
-                                                            <p key={i} className="text-xs text-gray-600 italic mb-1 flex items-start">
-                                                                <span className="mr-1.5 opacity-70">💡</span> {s}
-                                                            </p>
-                                                        ))}
-                                                        {priceAnalysis.market_price.quick_sale && (
-                                                            <div className="mt-2 pt-2 border-t border-purple-100 flex justify-between items-center bg-white/50 p-1 rounded">
-                                                                <span className="text-xs font-bold text-red-500 flex items-center">
-                                                                    🔥 ราคาเทขาย (Quick Sale):
-                                                                </span>
-                                                                <span className="text-sm font-bold text-red-600">฿{priceAnalysis.market_price.quick_sale.toLocaleString()}</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
-
-                                                <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-100 dark:border-gray-700 mb-3">
-                                                    <div className="grid grid-cols-3 gap-2 text-center mb-2">
-                                                        <div className="flex flex-col items-center justify-end">
-                                                            <span className="text-[10px] text-gray-400 mb-0.5">ต่ำสุดแนะนำ</span>
-                                                            <span className="text-xs font-medium text-gray-600">฿{priceAnalysis.market_price.min.toLocaleString()}</span>
-                                                        </div>
-                                                        <div className="flex flex-col items-center border-x border-gray-100 dark:border-gray-700 px-2 bg-purple-50/50 rounded-sm py-1">
-                                                            <span className="text-[10px] text-purple-500 font-bold mb-0.5">ราคาตลาดกลาง</span>
-                                                            <span className="text-sm font-bold text-purple-600">฿{priceAnalysis.market_price.average.toLocaleString()}</span>
-                                                        </div>
-                                                        <div className="flex flex-col items-center justify-end">
-                                                            <span className="text-[10px] text-gray-400 mb-0.5">สูงสุดแนะนำ</span>
-                                                            <span className="text-xs font-medium text-gray-600">฿{priceAnalysis.market_price.max.toLocaleString()}</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="w-full h-1.5 bg-gray-100 rounded-full mt-2 overflow-hidden flex">
-                                                        <div className="flex-1 bg-gradient-to-r from-green-200 to-green-300 opacity-50"></div>
-                                                        <div className="w-1/3 bg-purple-500 rounded-full mx-0.5"></div>
-                                                        <div className="flex-1 bg-gradient-to-r from-green-300 to-green-200 opacity-50"></div>
-                                                    </div>
-                                                </div>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setFormData(prev => ({ ...prev, price: priceAnalysis.market_price.average }));
-                                                        setPriceAnalysis(null);
-                                                    }}
-                                                    className="w-full py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-sm rounded shadow-sm transition-all flex items-center justify-center gap-1 font-medium"
-                                                >
-                                                    <CheckCircle className="w-4 h-4" /> ใช้ราคาแนะนำ ฿{priceAnalysis.market_price.average.toLocaleString()}
-                                                </button>
-                                            </div>
-                                        )}
+                                        {/* DISABLED: Price Analysis Panel removed to save AI tokens */}
 
                                         <div className="relative">
                                             <span className="absolute left-3 top-2.5 text-gray-400 font-bold text-lg">฿</span>
@@ -909,5 +835,14 @@ export default function CreateProductPage() {
             </main >
             <Footer />
         </div >
+    )
+}
+
+// Export with Suspense wrapper to fix useSearchParams() CSR bailout
+export default function CreateProductPage() {
+    return (
+        <Suspense fallback={<LoadingFallback />}>
+            <CreateProductPageContent />
+        </Suspense>
     )
 }

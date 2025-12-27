@@ -498,10 +498,16 @@ export async function getNearMeProducts(limit: number = 10, maxDistanceKm: numbe
                 return { product: p, distance: distance !== null ? distance : Infinity }
             })
         )
+
+        // Return products with distance injected into the product object
         return productsWithDistance
             .filter(item => item.distance <= maxDistanceKm)
             .sort((a, b) => a.distance - b.distance)
-            .map(item => item.product)
+            .map(item => ({
+                ...item.product,
+                // Inject distance into product's location object for UI display
+                _calculatedDistance: item.distance
+            }))
             .slice(0, limit)
     } catch (error) {
         console.error('Error getting near me products:', error)

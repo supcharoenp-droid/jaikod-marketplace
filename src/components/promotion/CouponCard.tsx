@@ -3,12 +3,36 @@
 import React, { useState } from 'react'
 import { Ticket, Copy, Check, Sparkles } from 'lucide-react'
 import { SmartPromotion } from '@/services/promotionService'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface CouponCardProps {
     coupon: SmartPromotion
 }
 
+const translations = {
+    th: {
+        off: 'ลด',
+        code: 'โค้ด',
+        coupon: 'คูปอง',
+        collectCoupon: 'เก็บคูปอง',
+        copied: 'คัดลอกแล้ว',
+        minSpend: 'ขั้นต่ำ',
+        exp: 'หมดอายุ',
+    },
+    en: {
+        off: 'OFF',
+        code: 'Code',
+        coupon: 'Coupon',
+        collectCoupon: 'Collect',
+        copied: 'Copied',
+        minSpend: 'Min. spend',
+        exp: 'Exp',
+    }
+}
+
 export default function CouponCard({ coupon }: CouponCardProps) {
+    const { language } = useLanguage()
+    const t = translations[language as 'th' | 'en'] || translations.th
     const [copied, setCopied] = useState(false)
 
     const handleCopy = () => {
@@ -16,6 +40,14 @@ export default function CouponCard({ coupon }: CouponCardProps) {
         navigator.clipboard.writeText(coupon.code)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
+    }
+
+    const formatDate = (date: string | Date | undefined) => {
+        if (!date) return '-'
+        return new Date(date).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', {
+            day: 'numeric',
+            month: 'short',
+        })
     }
 
     return (
@@ -32,7 +64,7 @@ export default function CouponCard({ coupon }: CouponCardProps) {
                 <div className="font-bold text-lg leading-none">
                     {coupon.discount_type === 'percent' ? `${coupon.discount_value}%` : `฿${coupon.discount_value}`}
                 </div>
-                <div className="text-[10px] opacity-90 mt-1">OFF</div>
+                <div className="text-[10px] opacity-90 mt-1">{t.off}</div>
             </div>
 
             {/* Right Side: Info */}
@@ -41,7 +73,7 @@ export default function CouponCard({ coupon }: CouponCardProps) {
                     {/* Badge */}
                     <div className="flex items-center gap-2 mb-1">
                         <div className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-100 text-red-600 border border-red-200">
-                            {coupon.type === 'discount_code' ? 'Code' : 'Coupon'}
+                            {coupon.type === 'discount_code' ? t.code : t.coupon}
                         </div>
                         {coupon.match_reason && (
                             <div className="flex items-center gap-0.5 text-[9px] text-neon-purple font-medium">
@@ -54,30 +86,30 @@ export default function CouponCard({ coupon }: CouponCardProps) {
                         {coupon.name}
                     </h4>
                     <p className="text-xs text-gray-500 line-clamp-1">
-                        {coupon.conditions || `Min. spend ฿${coupon.min_spend}`}
+                        {coupon.conditions || `${t.minSpend} ฿${coupon.min_spend}`}
                     </p>
                 </div>
 
                 <div className="flex justify-between items-end">
                     <div className="text-[10px] text-gray-400">
-                        Exp: {new Date(coupon.end_date).toLocaleDateString('th-TH')}
+                        {t.exp}: {formatDate(coupon.end_date)}
                     </div>
 
                     <button
                         onClick={handleCopy}
                         disabled={copied}
                         className={`flex items-center gap-1 px-3 py-1 rounded text-xs font-semibold transition-all ${copied
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-orange-50 text-orange-600 hover:bg-orange-100'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-orange-50 text-orange-600 hover:bg-orange-100'
                             }`}
                     >
                         {copied ? (
                             <>
-                                <Check className="w-3 h-3" /> Copied
+                                <Check className="w-3 h-3" /> {t.copied}
                             </>
                         ) : (
                             <>
-                                เก็บคูปอง
+                                {t.collectCoupon}
                             </>
                         )}
                     </button>

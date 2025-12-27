@@ -14,6 +14,7 @@ interface ProductSectionProps {
     viewAllLink?: string
     layout?: 'slider' | 'grid'
     actionButton?: React.ReactNode // New prop for custom buttons (e.g. "Search Near Me")
+    hideHeader?: boolean // Hide the header section
 }
 
 export default function ProductSection({
@@ -23,7 +24,8 @@ export default function ProductSection({
     products,
     viewAllLink,
     layout = 'slider',
-    actionButton
+    actionButton,
+    hideHeader = false
 }: ProductSectionProps) {
     const scrollRef = useRef<HTMLDivElement>(null)
     const [mounted, setMounted] = useState(false)
@@ -75,44 +77,46 @@ export default function ProductSection({
         <section className="py-8">
             <div className="container mx-auto px-4">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
-                    <div className="flex items-center gap-2">
-                        {icon && <div className="text-neon-purple shrink-0">{icon}</div>}
-                        <div>
-                            <h2 className="text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                                {title}
-                            </h2>
-                            {subtitle && (
-                                <p className="text-sm text-text-secondary dark:text-gray-400 mt-1">
-                                    {subtitle}
-                                </p>
+                {!hideHeader && (
+                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
+                        <div className="flex items-center gap-2">
+                            {icon && <div className="text-neon-purple shrink-0">{icon}</div>}
+                            <div>
+                                <h2 className="text-xl md:text-2xl font-display font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                                    {title}
+                                </h2>
+                                {subtitle && (
+                                    <p className="text-sm text-text-secondary dark:text-gray-400 mt-1">
+                                        {subtitle}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 self-end md:self-auto">
+                            {/* Custom Action Button (e.g. Near Me Search) */}
+                            {actionButton}
+
+                            {viewAllLink && (
+                                <Link href={viewAllLink} className="hidden md:flex items-center text-sm font-medium text-neon-purple hover:underline whitespace-nowrap">
+                                    ดูทั้งหมด <ArrowRight className="w-4 h-4 ml-1" />
+                                </Link>
+                            )}
+
+                            {/* Mobile Navigation Arrows (Slider Only) */}
+                            {layout === 'slider' && (
+                                <div className="flex gap-2 md:hidden">
+                                    <button onClick={() => scroll('left')} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                                        <ChevronLeft className="w-4 h-4" />
+                                    </button>
+                                    <button onClick={() => scroll('right')} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                                        <ChevronRight className="w-4 h-4" />
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>
-
-                    <div className="flex items-center gap-3 self-end md:self-auto">
-                        {/* Custom Action Button (e.g. Near Me Search) */}
-                        {actionButton}
-
-                        {viewAllLink && (
-                            <Link href={viewAllLink} className="hidden md:flex items-center text-sm font-medium text-neon-purple hover:underline whitespace-nowrap">
-                                ดูทั้งหมด <ArrowRight className="w-4 h-4 ml-1" />
-                            </Link>
-                        )}
-
-                        {/* Mobile Navigation Arrows (Slider Only) */}
-                        {layout === 'slider' && (
-                            <div className="flex gap-2 md:hidden">
-                                <button onClick={() => scroll('left')} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                                    <ChevronLeft className="w-4 h-4" />
-                                </button>
-                                <button onClick={() => scroll('right')} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                                    <ChevronRight className="w-4 h-4" />
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                )}
 
                 {/* Content */}
                 {layout === 'slider' ? (

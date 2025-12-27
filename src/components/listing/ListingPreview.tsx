@@ -33,12 +33,34 @@ interface ListingPreviewProps {
     onEdit: (section: 'photos' | 'details') => void
 }
 
-const CONDITIONS_MAP: Record<string, string> = {
-    'new': 'ใหม่',
-    'like_new': 'เหมือนใหม่',
-    'good': 'สภาพดี',
-    'fair': 'สภาพปกติ',
-    'used': 'มือสอง',
+import { getConditionLabel, DEFAULT_CONDITIONS } from '@/lib/category-condition-options'
+
+// Get condition label with fallback
+function getConditionDisplay(condition: string, categoryId?: number): string {
+    // If categoryId provided, use category-specific conditions
+    if (categoryId) {
+        const label = getConditionLabel(categoryId, condition, 'th')
+        if (label && label !== condition) {
+            return label
+        }
+    }
+
+    // Fallback to DEFAULT_CONDITIONS
+    const defaultCond = DEFAULT_CONDITIONS.conditions.find(c => c.value === condition)
+    if (defaultCond) {
+        return defaultCond.label_th
+    }
+
+    // Fallback to simple map for legacy keys
+    const legacyMap: Record<string, string> = {
+        'new': '📦 ใหม่',
+        'like_new': '✨ เหมือนใหม่',
+        'good': '👍 สภาพดี ใช้งานปกติ',
+        'fair': '⚠️ พอใช้',
+        'used': '🔄 มือสอง',
+    }
+
+    return legacyMap[condition] || condition
 }
 
 export default function ListingPreview({ data, onEdit }: ListingPreviewProps) {
@@ -63,8 +85,8 @@ export default function ListingPreview({ data, onEdit }: ListingPreviewProps) {
         >
             {/* Validation Summary */}
             <div className={`p-4 rounded-lg border-2 ${allValid
-                    ? 'bg-green-500/10 border-green-500/30'
-                    : 'bg-yellow-500/10 border-yellow-500/30'
+                ? 'bg-green-500/10 border-green-500/30'
+                : 'bg-yellow-500/10 border-yellow-500/30'
                 }`}>
                 <div className="flex items-center gap-3">
                     {allValid ? (
@@ -160,7 +182,7 @@ export default function ListingPreview({ data, onEdit }: ListingPreviewProps) {
                         </span>
                         {data.condition && (
                             <span className="px-2 py-1 bg-gray-700 rounded text-xs text-gray-300">
-                                {CONDITIONS_MAP[data.condition] || data.condition}
+                                {getConditionDisplay(data.condition, data.category ? parseInt(data.category) : undefined)}
                             </span>
                         )}
                     </div>

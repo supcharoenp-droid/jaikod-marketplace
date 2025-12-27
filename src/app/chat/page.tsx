@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, Suspense } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import {
@@ -32,12 +33,125 @@ import SafetyBanner from '@/components/chat/SafetyBanner'
 import DeleteChatModal from '@/components/chat/DeleteChatModal'
 import { getUserProfile, type UserProfile, calculateTrustScore } from '@/lib/user'
 
-export default function ChatPage() {
+// Translations
+const translations = {
+    th: {
+        loadingChat: 'กำลังโหลดแชท...',
+        loginRequired: 'กรุณาเข้าสู่ระบบเพื่อใช้งานแชท',
+        login: 'เข้าสู่ระบบ',
+        chat: 'แชท',
+        all: 'ทั้งหมด',
+        chatWithBuyers: 'แชทกับผู้ซื้อ',
+        chatWithSellers: 'แชทกับผู้ขาย',
+        noConversations: 'ยังไม่มีบทสนทนา',
+        startChatHint: 'กดปุ่ม "แชทเลย" จากหน้าสินค้าเพื่อเริ่มแชท',
+        noConversationsWith: 'ยังไม่มีการสนทนากับ',
+        buyers: 'ผู้ซื้อ',
+        sellers: 'ผู้ขาย',
+        welcomeToChat: 'ยินดีต้อนรับสู่ JaiKod Chat',
+        selectConversation: 'เริ่มต้นสนทนากับผู้ซื้อ-ผู้ขายได้ง่ายๆ เพียงเลือกรายการจากทางซ้ายมือ',
+        typeMessage: 'พิมพ์ข้อความ...',
+        dealDone: 'ดีลสำเร็จ! รอการชำระเงิน',
+        waitingForPayment: 'รอผู้ซื้อส่งหลักฐานการโอน',
+        pleaseUploadSlip: 'กรุณาส่งสลิปโอนเงินให้ผู้ขาย',
+        cancel: 'ยกเลิก',
+        closeSale: 'ปิดการขาย',
+        attachSlip: 'แนบสลิป',
+        priceOffer: 'ข้อเสนอราคา',
+        acceptOffer: 'รับข้อเสนอ',
+        counterOffer: 'ยื่นข้อเสนอใหม่',
+        reject: 'ปฏิเสธ',
+        waitingForResponse: 'รอการตอบรับ',
+        offerAccepted: '✅ ยอมรับข้อเสนอแล้ว',
+        offerRejected: '❌ ข้อเสนอถูกปฏิเสธ',
+        chatDeleted: 'ลบการสนทนาเรียบร้อยแล้ว',
+        deleteError: 'ไม่สามารถลบแชทได้:',
+        tryAgain: 'กรุณาลองใหม่อีกครั้ง',
+        specifyPrice: 'ระบุราคาที่ต้องการเสนอ (บาท):',
+        invalidPrice: 'กรุณาระบุราคาที่ถูกต้อง',
+        cannotOfferAccepted: 'ไม่สามารถยื่นข้อเสนอได้เนื่องจากมีข้อเสนอที่ได้รับการยอมรับแล้ว',
+        offerSendFailed: 'ส่งข้อเสนอไม่สำเร็จ',
+        messageSendFailed: 'ส่งข้อความไม่สำเร็จ',
+        confirmCancelDeal: 'ยืนยันยกเลิกการขาย? สินค้าจะกลับมาว่างอีกครั้ง',
+        confirmMarkSold: 'ยืนยันปิดการขาย? สินค้าจะถูกเปลี่ยนสถานะเป็น "ขายแล้ว"',
+        errorOccurred: 'เกิดข้อผิดพลาด',
+        fileTooLarge: 'ไฟล์รูปภาพต้องมีขนาดไม่เกิน 5MB',
+        uploadingSlip: 'กำลังอัปโหลดสลิป...',
+        notifyPayment: 'แจ้งโอนเงินครับ/ค่ะ [สลิป]',
+        customer: 'ลูกค้า',
+        store: 'ร้านค้า',
+        featureDeveloping: 'ฟีเจอร์กำลังพัฒนา',
+    },
+    en: {
+        loadingChat: 'Loading chat...',
+        loginRequired: 'Please login to use chat',
+        login: 'Login',
+        chat: 'Chat',
+        all: 'All',
+        chatWithBuyers: 'Buyers',
+        chatWithSellers: 'Sellers',
+        noConversations: 'No conversations yet',
+        startChatHint: 'Click "Chat Now" from a product page to start',
+        noConversationsWith: 'No conversations with',
+        buyers: 'buyers',
+        sellers: 'sellers',
+        welcomeToChat: 'Welcome to JaiKod Chat',
+        selectConversation: 'Select a conversation from the left to start chatting',
+        typeMessage: 'Type a message...',
+        dealDone: 'Deal done! Awaiting payment',
+        waitingForPayment: 'Waiting for buyer to send payment proof',
+        pleaseUploadSlip: 'Please send payment slip to seller',
+        cancel: 'Cancel',
+        closeSale: 'Close Sale',
+        attachSlip: 'Attach Slip',
+        priceOffer: 'Price Offer',
+        acceptOffer: 'Accept',
+        counterOffer: 'Counter Offer',
+        reject: 'Reject',
+        waitingForResponse: 'Waiting for response',
+        offerAccepted: '✅ Offer accepted',
+        offerRejected: '❌ Offer rejected',
+        chatDeleted: 'Chat deleted successfully',
+        deleteError: 'Cannot delete chat:',
+        tryAgain: 'Please try again',
+        specifyPrice: 'Specify your offer price (THB):',
+        invalidPrice: 'Please enter a valid price',
+        cannotOfferAccepted: 'Cannot make offer - an offer has already been accepted',
+        offerSendFailed: 'Failed to send offer',
+        messageSendFailed: 'Failed to send message',
+        confirmCancelDeal: 'Confirm cancel? Product will become available again',
+        confirmMarkSold: 'Confirm mark as sold?',
+        errorOccurred: 'An error occurred',
+        fileTooLarge: 'Image file must not exceed 5MB',
+        uploadingSlip: 'Uploading slip...',
+        notifyPayment: 'Payment notification [slip]',
+        customer: 'Customer',
+        store: 'Store',
+        featureDeveloping: 'Feature under development',
+    }
+}
+
+// Fallback loading component
+function ChatLoading() {
+    return (
+        <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-black">
+            <div className="text-center">
+                <Loader2 className="w-10 h-10 animate-spin text-purple-600 mx-auto mb-4" />
+                <p className="text-gray-500">Loading...</p>
+            </div>
+        </div>
+    )
+}
+
+function ChatPageContent() {
     const { user } = useAuth()
+    const { language } = useLanguage()
+    const t = translations[language]
     const router = useRouter()
     const searchParams = useSearchParams()
     const [rooms, setRooms] = useState<ChatRoom[]>([])
     const [selectedRoom, setSelectedRoom] = useState<ChatRoom | null>(null)
+
     const [messages, setMessages] = useState<ChatMessage[]>([])
     const [inputText, setInputText] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -783,5 +897,14 @@ export default function ChatPage() {
                 onConfirm={confirmDeleteChat}
             />
         </div>
+    )
+}
+
+// Export with Suspense wrapper to fix useSearchParams() CSR bailout
+export default function ChatPage() {
+    return (
+        <Suspense fallback={<ChatLoading />}>
+            <ChatPageContent />
+        </Suspense>
     )
 }

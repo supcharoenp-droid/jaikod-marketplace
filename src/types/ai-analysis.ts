@@ -11,14 +11,6 @@ export interface AnalyzedImage {
     suggested_edit: string[]
 }
 
-analysis_id: string
-images: AnalyzedImage[]
-aggregate: AnalysisAggregate
-seo: SEOSuggestions
-questions_for_seller: QuestionForSeller[]
-moderation: ModerationResult
-timestamp: string
-}
 
 export interface AnalysisAggregate {
     main_category: string

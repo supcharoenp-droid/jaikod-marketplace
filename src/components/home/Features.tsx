@@ -1,54 +1,88 @@
 'use client'
 
 import { Camera, DollarSign, Shield, Search, Zap } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
-const features = [
+const getFeatures = (language: 'th' | 'en') => [
     {
         icon: Camera,
-        title: '📸 Snap & Sell',
-        description: 'ถ่ายรูปสินค้า AI เติมรายละเอียดให้อัตโนมัติ ลงขายเสร็จภายใน 30 วินาที',
+        title: language === 'th' ? '📸 Snap & Sell' : '📸 Snap & Sell',
+        description: language === 'th'
+            ? 'ถ่ายรูปสินค้า AI เติมรายละเอียดให้อัตโนมัติ ลงขายเสร็จภายใน 30 วินาที'
+            : 'Take a photo, AI fills in the details automatically. List in 30 seconds.',
         color: 'from-purple-500 to-pink-500',
     },
     {
         icon: DollarSign,
-        title: '💰 AI แนะนำราคา',
-        description: 'วิเคราะห์ตลาดแบบ Real-time แนะนำราคาที่เหมาะสม ขายได้เร็วขึ้น',
+        title: language === 'th' ? '💰 AI แนะนำราคา' : '💰 AI Price Suggestion',
+        description: language === 'th'
+            ? 'วิเคราะห์ตลาดแบบ Real-time แนะนำราคาที่เหมาะสม ขายได้เร็วขึ้น'
+            : 'Real-time market analysis. Get fair price suggestions. Sell faster.',
         color: 'from-orange-500 to-red-500',
     },
     {
         icon: Shield,
-        title: '🛡️ ระบบความปลอดภัย',
-        description: 'AI ตรวจจับมิจฉาชีพ ยืนยันตัวตน ปกป้องคุณจากการถูกหลอกลวง',
+        title: language === 'th' ? '🛡️ ระบบความปลอดภัย' : '🛡️ Safety System',
+        description: language === 'th'
+            ? 'AI ตรวจจับมิจฉาชีพ ยืนยันตัวตน ปกป้องคุณจากการถูกหลอกลวง'
+            : 'AI fraud detection. Identity verification. Protected from scams.',
         color: 'from-blue-500 to-cyan-500',
     },
     {
         icon: Search,
-        title: '🔍 ค้นหาอัจฉริยะ',
-        description: 'ค้นหาด้วยภาษาธรรมดา หรือถ่ายรูป AI จะหาสินค้าที่คุณต้องการให้',
+        title: language === 'th' ? '🔍 ค้นหาอัจฉริยะ' : '🔍 Smart Search',
+        description: language === 'th'
+            ? 'ค้นหาด้วยภาษาธรรมดา หรือถ่ายรูป AI จะหาสินค้าที่คุณต้องการให้'
+            : 'Search using natural language or photos. AI finds what you need.',
         color: 'from-green-500 to-emerald-500',
     },
     {
         icon: Zap,
-        title: '⚡ ซื้อขายรวดเร็ว',
-        description: 'ระบบเสนอราคา คำนวณค่าส่งอัตโนมัติ ชำระเงินในแอป ปลอดภัย',
+        title: language === 'th' ? '⚡ ซื้อขายรวดเร็ว' : '⚡ Fast Transactions',
+        description: language === 'th'
+            ? 'ระบบเสนอราคา คำนวณค่าส่งอัตโนมัติ ชำระเงินในแอป ปลอดภัย'
+            : 'Make offers, auto shipping calculation, secure in-app payments.',
         color: 'from-yellow-500 to-orange-500',
     },
 ]
 
+const translations = {
+    th: {
+        badge: 'AI-Powered Features',
+        title: 'ทำไมต้อง',
+        subtitle: 'เราใช้ AI ช่วยแก้ปัญหาที่คุณเจอในการซื้อขายของมือสอง',
+        learnMore: 'เรียนรู้เพิ่มเติม',
+        trySnapSell: 'ลองใช้ Snap & Sell ฟรี',
+        howItWorks: 'ดูวิธีการใช้งาน',
+    },
+    en: {
+        badge: 'AI-Powered Features',
+        title: 'Why Choose',
+        subtitle: 'We use AI to solve the problems you face when buying and selling secondhand items.',
+        learnMore: 'Learn more',
+        trySnapSell: 'Try Snap & Sell Free',
+        howItWorks: 'How It Works',
+    }
+}
+
 export default function Features() {
+    const { language } = useLanguage()
+    const t = translations[language as 'th' | 'en'] || translations.th
+    const features = getFeatures(language as 'th' | 'en')
+
     return (
         <section className="py-20 bg-white dark:bg-bg-dark">
             <div className="container mx-auto px-4">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 dark:bg-purple-900/30 text-neon-purple font-medium mb-4">
                         <span className="text-xl">🤖</span>
-                        AI-Powered Features
+                        {t.badge}
                     </div>
                     <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
-                        ทำไมต้อง <span className="text-gradient">JaiKod</span>?
+                        {t.title} <span className="text-gradient">JaiKod</span>?
                     </h2>
                     <p className="text-lg text-text-secondary dark:text-gray-400">
-                        เราใช้ AI ช่วยแก้ปัญหาที่คุณเจอในการซื้อขายของมือสอง
+                        {t.subtitle}
                     </p>
                 </div>
 
@@ -84,7 +118,7 @@ export default function Features() {
                                         href="#"
                                         className="inline-flex items-center text-neon-purple hover:text-purple-600 font-medium transition-colors group"
                                     >
-                                        เรียนรู้เพิ่มเติม
+                                        {t.learnMore}
                                         <svg
                                             className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"
                                             fill="none"
@@ -108,13 +142,13 @@ export default function Features() {
                             className="btn-primary inline-flex items-center justify-center"
                         >
                             <Camera className="w-5 h-5 mr-2" />
-                            ลองใช้ Snap & Sell ฟรี
+                            {t.trySnapSell}
                         </a>
                         <a
                             href="/how-it-works"
                             className="btn-outline inline-flex items-center justify-center"
                         >
-                            ดูวิธีการใช้งาน
+                            {t.howItWorks}
                         </a>
                     </div>
                 </div>

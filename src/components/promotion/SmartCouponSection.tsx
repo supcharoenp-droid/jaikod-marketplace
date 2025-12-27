@@ -4,8 +4,24 @@ import React, { useEffect, useState } from 'react'
 import { TicketPercent, ChevronRight } from 'lucide-react'
 import CouponCard from './CouponCard'
 import { getPersonalizedCoupons, SmartPromotion } from '@/services/promotionService'
+import { useLanguage } from '@/contexts/LanguageContext'
+
+const translations = {
+    th: {
+        title: 'คูปองส่วนลดเพื่อคุณ',
+        subtitle: 'คัดพิเศษเฉพาะคุณ',
+        viewAll: 'ดูทั้งหมด',
+    },
+    en: {
+        title: 'Coupons For You',
+        subtitle: 'Specially selected for you',
+        viewAll: 'View All',
+    }
+}
 
 export default function SmartCouponSection() {
+    const { language } = useLanguage()
+    const t = translations[language as 'th' | 'en'] || translations.th
     const [coupons, setCoupons] = useState<SmartPromotion[]>([])
     const [loading, setLoading] = useState(true)
 
@@ -29,12 +45,12 @@ export default function SmartCouponSection() {
                         <TicketPercent className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">คูปองส่วนลดเพื่อคุณ</h2>
-                        <p className="text-xs text-gray-500">คัดพิเศษเฉพาะคุณ</p>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t.title}</h2>
+                        <p className="text-xs text-gray-500">{t.subtitle}</p>
                     </div>
                 </div>
                 <button className="text-sm font-medium text-orange-500 flex items-center hover:text-orange-600">
-                    ดูทั้งหมด <ChevronRight className="w-4 h-4" />
+                    {t.viewAll} <ChevronRight className="w-4 h-4" />
                 </button>
             </div>
 

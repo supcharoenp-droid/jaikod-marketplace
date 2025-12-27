@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import {
     Camera, Sparkles, AlertTriangle, ChevronDown, X,
-    Zap, ArrowLeft
+    Zap, ArrowLeft, Check, Shield
 } from 'lucide-react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -11,6 +11,18 @@ import { CATEGORIES } from '@/constants/categories'
 import { useRouter } from 'next/navigation'
 import { quickSellAiAssistant, QuickSellOutput } from '@/services/aiListingService'
 import AddressSelector from '@/components/ui/AddressSelector'
+// Enhanced Listing Components
+import {
+    BATTERY_HEALTH_OPTIONS,
+    WARRANTY_OPTIONS,
+    USAGE_AGE_OPTIONS,
+    ORIGINAL_BOX_OPTIONS,
+    RECEIPT_OPTIONS,
+    SELLING_REASON_OPTIONS,
+    LAPTOP_DEFECT_OPTIONS,
+    LAPTOP_TARGET_AUDIENCE,
+    suggestTargetAudience
+} from '@/lib/enhanced-listing-options'
 
 interface OnePageListingFormProps {
     initialData?: any
@@ -48,8 +60,8 @@ export default function OnePageListingForm({
                 category_main: initialData.category_main || prev.category_main,
                 category_sub: initialData.category_sub || prev.category_sub,
                 province: initialData.province || prev.province,
-                district: initialData.district || prev.district,
-                subdistrict: initialData.subdistrict || prev.subdistrict,
+                admin_id: initialData.amphoe || prev.admin_id,
+                district_id: initialData.district || prev.district_id,
                 shipping_methods: initialData.shipping_methods || prev.shipping_methods,
                 shipping_fee: initialData.shipping_fee || prev.shipping_fee,
                 stock: initialData.stock || prev.stock,
@@ -73,7 +85,6 @@ export default function OnePageListingForm({
         warranty_months: initialData?.warranty_months || '',
         category_main: initialData?.category_main || '',
         category_sub: initialData?.category_sub || '',
-        category_sub: initialData?.category_sub || '',
         province: initialData?.province || '',
         admin_id: initialData?.amphoe || '', // AddressSelector uses admin_id for Amphoe
         district_id: initialData?.district || '', // AddressSelector uses district_id for Tambon
@@ -96,6 +107,22 @@ export default function OnePageListingForm({
             deposit_required: initialData?.auction_config?.deposit_required || false
         }
     })
+
+    // --- State: Enhanced Details (NEW!) ---
+    const [enhancedDetails, setEnhancedDetails] = useState({
+        battery: initialData?.enhancedDetails?.battery || '',
+        defects: initialData?.enhancedDetails?.defects || ['none'] as string[],
+        warranty: initialData?.enhancedDetails?.warranty || '',
+        usageAge: initialData?.enhancedDetails?.usageAge || '',
+        originalBox: initialData?.enhancedDetails?.originalBox || '',
+        receipt: initialData?.enhancedDetails?.receipt || '',
+        sellingReason: initialData?.enhancedDetails?.sellingReason || '',
+        otherDefectText: initialData?.enhancedDetails?.otherDefectText || '',
+        targetAudiences: initialData?.enhancedDetails?.targetAudiences || [] as string[],
+    })
+
+    // --- State: Show Enhanced Details Section ---
+    const [showEnhancedDetails, setShowEnhancedDetails] = useState(false)
 
     const [validationErrors, setValidationErrors] = useState<string[]>([])
 
@@ -158,7 +185,9 @@ export default function OnePageListingForm({
                 price: formData.sale_type === 'auction' ? formData.auction_config.start_price : formData.price,
                 // Map AddressSelector fields to Product fields
                 amphoe: formData.admin_id, // AddressSelector uses admin_id for Amphoe name
-                district: formData.district_id // AddressSelector uses district_id for Tambon name
+                district: formData.district_id, // AddressSelector uses district_id for Tambon name
+                // Enhanced Details (NEW!)
+                enhancedDetails: enhancedDetails
             }
             onSubmit(finalData)
         } else {
@@ -365,7 +394,253 @@ export default function OnePageListingForm({
                     </div>
                 </section>
 
-                {/* 6. Location */}
+                {/* 6. Enhanced Details (NEW!) */}
+                <section className="p-5">
+                    <button
+                        onClick={() => setShowEnhancedDetails(!showEnhancedDetails)}
+                        className="w-full flex items-center justify-between mb-4"
+                    >
+                        <div className="flex items-center gap-2">
+                            <span className="font-bold text-gray-900 dark:text-white">6. รายละเอียดเพิ่มเติม</span>
+                            {Object.values(enhancedDetails).filter(v => v && (Array.isArray(v) ? v.length > 0 && !(v.length === 1 && v[0] === 'none') : true)).length > 0 && (
+                                <span className="text-[10px] bg-green-100 text-green-600 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <Check className="w-3 h-3" /> กรอกแล้ว
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-400">(เพิ่มโอกาสขาย +25%)</span>
+                            <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${showEnhancedDetails ? 'rotate-180' : ''}`} />
+                        </div>
+                    </button>
+
+                    <AnimatePresence>
+                        {showEnhancedDetails && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden space-y-5"
+                            >
+                                {/* Battery Health */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">🔋 สุขภาพแบตเตอรี่</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {BATTERY_HEALTH_OPTIONS.map(option => (
+                                            <button
+                                                key={option.value}
+                                                onClick={() => setEnhancedDetails(prev => ({ ...prev, battery: option.value }))}
+                                                className={`text-left p-3 rounded-xl border text-sm transition-all ${enhancedDetails.battery === option.value
+                                                    ? 'bg-green-50 border-green-400 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                                                    : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400'
+                                                    }`}
+                                            >
+                                                <div className="flex items-center gap-1">
+                                                    {enhancedDetails.battery === option.value && <Check className="w-3 h-3" />}
+                                                    <span>{option.label_th}</span>
+                                                </div>
+                                                {option.description_th && (
+                                                    <div className="text-[10px] text-gray-400 mt-0.5">{option.description_th}</div>
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Defects - Multiselect */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">⚠️ ตำหนิ/ข้อบกพร่อง (เลือกได้หลายข้อ)</label>
+
+                                    {/* No Defects Button */}
+                                    <button
+                                        onClick={() => setEnhancedDetails(prev => ({ ...prev, defects: ['none'] }))}
+                                        className={`w-full p-3 rounded-xl border text-sm font-medium transition-all flex items-center justify-center gap-2 ${enhancedDetails.defects.includes('none') && enhancedDetails.defects.length === 1
+                                            ? 'bg-green-50 border-green-400 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                                            : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-gray-300 dark:bg-gray-800 dark:border-gray-700'
+                                            }`}
+                                    >
+                                        <Sparkles className="w-4 h-4" />
+                                        ✨ ไม่มีตำหนิ
+                                    </button>
+
+                                    {/* Defect Options */}
+                                    {!(enhancedDetails.defects.includes('none') && enhancedDetails.defects.length === 1) && (
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {LAPTOP_DEFECT_OPTIONS.filter(o => o.value !== 'none').map(option => {
+                                                const isSelected = enhancedDetails.defects.includes(option.value)
+                                                return (
+                                                    <button
+                                                        key={option.value}
+                                                        onClick={() => {
+                                                            setEnhancedDetails(prev => {
+                                                                let newDefects = prev.defects.filter((d: string) => d !== 'none')
+                                                                if (isSelected) {
+                                                                    newDefects = newDefects.filter((d: string) => d !== option.value)
+                                                                } else {
+                                                                    newDefects = [...newDefects, option.value]
+                                                                }
+                                                                if (newDefects.length === 0) newDefects = ['none']
+                                                                return { ...prev, defects: newDefects }
+                                                            })
+                                                        }}
+                                                        className={`px-3 py-1.5 rounded-full text-xs border transition-all ${isSelected
+                                                            ? 'bg-orange-100 border-orange-400 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300'
+                                                            : 'bg-gray-100 border-gray-200 text-gray-500 hover:border-gray-300 dark:bg-gray-800 dark:border-gray-700'
+                                                            }`}
+                                                    >
+                                                        {isSelected && <Check className="w-3 h-3 inline mr-1" />}
+                                                        {option.label_th}
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Warranty */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">📅 ประกันเหลือ</label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {WARRANTY_OPTIONS.map(option => (
+                                            <button
+                                                key={option.value}
+                                                onClick={() => setEnhancedDetails(prev => ({ ...prev, warranty: option.value }))}
+                                                className={`p-2 rounded-lg border text-xs transition-all ${enhancedDetails.warranty === option.value
+                                                    ? 'bg-blue-50 border-blue-400 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                                                    : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-gray-300 dark:bg-gray-800 dark:border-gray-700'
+                                                    }`}
+                                            >
+                                                {enhancedDetails.warranty === option.value && <Check className="w-3 h-3 inline mr-1" />}
+                                                {option.emoji} {option.label_th.replace(option.emoji || '', '').trim()}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Usage Age */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">📆 อายุการใช้งาน</label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {USAGE_AGE_OPTIONS.map(option => (
+                                            <button
+                                                key={option.value}
+                                                onClick={() => setEnhancedDetails(prev => ({ ...prev, usageAge: option.value }))}
+                                                className={`p-2 rounded-lg border text-xs transition-all ${enhancedDetails.usageAge === option.value
+                                                    ? 'bg-purple-50 border-purple-400 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+                                                    : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-gray-300 dark:bg-gray-800 dark:border-gray-700'
+                                                    }`}
+                                            >
+                                                {enhancedDetails.usageAge === option.value && <Check className="w-3 h-3 inline mr-1" />}
+                                                {option.label_th}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Trust Signals */}
+                                <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl space-y-4">
+                                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        <Shield className="w-4 h-4 text-green-500" />
+                                        ความน่าเชื่อถือ
+                                    </div>
+
+                                    {/* Original Box */}
+                                    <div className="space-y-2">
+                                        <label className="text-xs text-gray-500">📦 กล่องและอุปกรณ์</label>
+                                        <div className="flex gap-2">
+                                            {ORIGINAL_BOX_OPTIONS.map(option => (
+                                                <button
+                                                    key={option.value}
+                                                    onClick={() => setEnhancedDetails(prev => ({ ...prev, originalBox: option.value }))}
+                                                    className={`flex-1 p-2 rounded-lg border text-xs transition-all ${enhancedDetails.originalBox === option.value
+                                                        ? 'bg-green-50 border-green-400 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                                                        : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300 dark:bg-gray-800 dark:border-gray-700'
+                                                        }`}
+                                                >
+                                                    {option.label_th}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Receipt */}
+                                    <div className="space-y-2">
+                                        <label className="text-xs text-gray-500">🧾 ใบเสร็จ/ใบรับประกัน</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {RECEIPT_OPTIONS.map(option => (
+                                                <button
+                                                    key={option.value}
+                                                    onClick={() => setEnhancedDetails(prev => ({ ...prev, receipt: option.value }))}
+                                                    className={`px-3 py-1.5 rounded-full text-xs border transition-all ${enhancedDetails.receipt === option.value
+                                                        ? 'bg-green-50 border-green-400 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                                                        : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300 dark:bg-gray-800 dark:border-gray-700'
+                                                        }`}
+                                                >
+                                                    {option.label_th}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Selling Reason */}
+                                    <div className="space-y-2">
+                                        <label className="text-xs text-gray-500">💬 เหตุผลที่ขาย (ไม่บังคับ)</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {SELLING_REASON_OPTIONS.map(option => (
+                                                <button
+                                                    key={option.value}
+                                                    onClick={() => setEnhancedDetails(prev => ({ ...prev, sellingReason: option.value }))}
+                                                    className={`px-3 py-1.5 rounded-lg text-xs border transition-all ${enhancedDetails.sellingReason === option.value
+                                                        ? 'bg-amber-50 border-amber-400 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                                                        : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300 dark:bg-gray-800 dark:border-gray-700'
+                                                        }`}
+                                                >
+                                                    {option.label_th}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Target Audience (for Computer/Mobile categories) */}
+                                {(formData.category_main === '4' || formData.category_main === '3' || formData.category_main === 4 || formData.category_main === 3) && (
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">👤 เหมาะสำหรับ</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {LAPTOP_TARGET_AUDIENCE.slice(0, 10).map(audience => {
+                                                const isSelected = enhancedDetails.targetAudiences.includes(audience.id)
+                                                return (
+                                                    <button
+                                                        key={audience.id}
+                                                        onClick={() => {
+                                                            setEnhancedDetails(prev => {
+                                                                if (isSelected) {
+                                                                    return { ...prev, targetAudiences: prev.targetAudiences.filter((a: string) => a !== audience.id) }
+                                                                } else {
+                                                                    return { ...prev, targetAudiences: [...prev.targetAudiences, audience.id] }
+                                                                }
+                                                            })
+                                                        }}
+                                                        className={`px-3 py-1.5 rounded-full text-xs border transition-all ${isSelected
+                                                            ? 'bg-purple-100 border-purple-400 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+                                                            : 'bg-gray-100 border-gray-200 text-gray-500 hover:border-gray-300 dark:bg-gray-800 dark:border-gray-700'
+                                                            }`}
+                                                    >
+                                                        {isSelected && <Check className="w-3 h-3 inline mr-1" />}
+                                                        {audience.label_th}
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </section>
+
+                {/* 7. Location */}
                 <section className="p-5">
                     <div className="flex items-center justify-between mb-4">
                         <label className="font-bold text-gray-900 dark:text-white">6. Location</label>

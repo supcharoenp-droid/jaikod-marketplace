@@ -3,8 +3,16 @@
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { Shield } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function PrivacyPage() {
+    const { language } = useLanguage()
+    const lang = language as 'th' | 'en'
+
+    const t = {
+        title: lang === 'th' ? 'นโยบายความเป็นส่วนตัว' : 'Privacy Policy',
+        lastUpdated: lang === 'th' ? 'อัปเดตล่าสุด: 6 ธันวาคม 2567' : 'Last updated: December 6, 2024',
+    }
     return (
         <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-bg-dark">
             <Header />
@@ -13,8 +21,11 @@ export default function PrivacyPage() {
                 <section className="py-12 bg-gradient-to-br from-blue-600 to-indigo-700 text-white text-center">
                     <div className="container mx-auto px-4">
                         <Shield className="w-12 h-12 mx-auto mb-4" />
-                        <h1 className="text-3xl md:text-4xl font-bold mb-2">นโยบายความเป็นส่วนตัว</h1>
-                        <p className="text-blue-200">อัปเดตล่าสุด: 6 ธันวาคม 2567</p>
+                        <h1 className="text-3xl md:text-4xl font-bold mb-2">{t.title}</h1>
+                        <p className="text-blue-200">{t.lastUpdated}</p>
+                        {lang === 'en' && (
+                            <p className="text-amber-300 text-sm mt-2">* This document is provided in Thai as the authoritative legal version.</p>
+                        )}
                     </div>
                 </section>
 

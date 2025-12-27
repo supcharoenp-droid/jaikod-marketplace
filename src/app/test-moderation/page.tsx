@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ModerationStatus from '@/components/product/ModerationStatus'
-import { ContentModerationService } from '@/lib/content-moderation'
+import { moderateContent } from '@/lib/content-moderation'
 import type { ModerationResult } from '@/types/moderation'
 import { Send, Sparkles } from 'lucide-react'
 
@@ -24,8 +24,27 @@ export default function ModerationTestPage() {
     const handleCheck = async () => {
         setIsChecking(true)
         try {
-            const result = await ContentModerationService.moderateProduct(productData)
-            setModerationResult(result)
+            const result = await moderateContent(productData.title, productData.description)
+            // Convert moderateContent result to ModerationResult type
+            const now = new Date()
+            setModerationResult({
+                product_id: productData.id,
+                status: result.isApproved ? 'approved' : 'rejected',
+                overall_score: result.confidence * 100,
+                checks: result.violations.map((v, idx) => ({
+                    check_id: `check-${idx}`,
+                    type: 'ai' as const,
+                    status: 'fail' as const,
+                    category: v.type || 'content',
+                    message: v.description || 'Violation detected',
+                    confidence: result.confidence,
+                    checked_at: now
+                })),
+                reasons: result.violations.length > 0 ? ['inappropriate'] : undefined,
+                auto_approved: result.isApproved,
+                created_at: now,
+                updated_at: now
+            })
         } catch (error) {
             console.error('Moderation failed:', error)
         } finally {

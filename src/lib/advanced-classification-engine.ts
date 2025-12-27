@@ -17,15 +17,19 @@ import { CATEGORIES } from '@/constants/categories'
 // ========================================
 const BRAND_CONTEXT_RULES: Record<string, Record<string, string[]>> = {
     'canon': {
-        camera: ['กล้อง', 'camera', 'lens', 'เลนส์', 'eos', 'powershot', 'dslr', 'mirrorless', 'ถ่ายรูป', 'ถ่ายภาพ'],
-        // 🔥 ENHANCED: Added more printer-specific keywords
+        // 🔥 CRITICAL FIX: printer MUST come BEFORE camera to ensure correct classification
+        // This fixes "เครื่องพิมพ์มัลติฟังก์ชัน Canon" being classified as Camera
         printer: [
             'ปริ้นเตอร์', 'printer', 'pixma', 'maxify', 'หมึก', 'toner', 'g-series', 'ecotank',
             'เครื่องพิมพ์', 'พิมพ์', 'print', 'printing', 'มัลติฟังก์ชัน', 'multifunction',
             'สแกน', 'scan', 'ถ่ายเอกสาร', 'copy', 'สำนักงาน', 'office', 'inkjet', 'laser',
-            'ปริ้น', 'เครื่องปริ้น', 'imageclass', 'lbp', 'mf-series', 'ถ่าย', 'เอกสาร'
+            'ปริ้น', 'เครื่องปริ้น', 'imageclass', 'lbp', 'mf-series',
+            // 🔥 ADDED: Common Canon printer model patterns
+            'mf4', 'mf3', 'mf2', 'mf6', 'lbp6', 'lbp2', 'g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7'
         ],
         scanner: ['สแกนเนอร์', 'scanner', 'lide', 'canoscan'],
+        // Camera comes AFTER printer - only used if no printer keywords match
+        camera: ['กล้อง', 'camera', 'lens', 'เลนส์', 'eos', 'powershot', 'dslr', 'mirrorless', 'ถ่ายรูป', 'ถ่ายภาพ'],
     },
     'epson': {
         printer: [
@@ -143,33 +147,52 @@ const BRAND_CONTEXT_RULES: Record<string, Record<string, string[]>> = {
         tablet: ['ipad', 'แท็บเล็ต', 'tablet', 'ipad pro', 'ipad air'],
         watch: ['apple watch', 'watch', 'ultra', 'นาฬิกา', 'series 9'],
         earbuds: ['airpods', 'หูฟัง', 'pro', 'max'],
-    }
+    },
+
+    // 🔥 NEW: Baseus - ปั๊มลม vs อุปกรณ์เสริมมือถือ
+    'baseus': {
+        automotive: ['ปั๊มลม', 'air pump', 'เติมลม', 'ยาง', 'tire', 'inflator', 'compressor'],
+        gadget: ['สายชาร์จ', 'charger', 'cable', 'powerbank', 'แบตสำรอง', 'ที่วางมือถือ', 'car holder'],
+    },
+
+    // 🔥 NEW: Worx - เครื่องมือช่าง vs ปั๊มลม
+    'worx': {
+        automotive: ['ปั๊มลม', 'air pump', 'เติมลม', 'ยาง', 'tire', 'inflator'],
+        tools: ['สว่าน', 'drill', 'เครื่องมือ', 'tool', 'ตัดหญ้า', 'เลื่อย', 'saw'],
+    },
+
+    // 🔥 NEW: Ryobi - เครื่องมือช่าง
+    'ryobi': {
+        tools: ['สว่าน', 'drill', 'เครื่องมือ', 'tool', 'ตัดหญ้า', 'เลื่อย', 'saw'],
+        automotive: ['ปั๊มลม', 'air pump', 'เติมลม', 'compressor'],
+    },
 }
 
 // ========================================
 // 2. EXCLUSION KEYWORDS (ห้ามไปหมวดนี้)
 // ========================================
 const EXCLUSION_KEYWORDS: Record<number, string[]> = {
-    // Category 8 (Camera) - ห้ามถ้าพบคำเหล่านี้ (🔥 ENHANCED!)
+    // Category 8 (Camera) - ห้ามถ้าพบคำเหล่านี้
     8: [
         // Printers
         'ปริ้นเตอร์', 'printer', 'หมึกพิมพ์', 'toner', 'inkjet', 'laser printer',
-        'เครื่องพิมพ์', 'พิมพ์', 'print', 'printing', // 🔥 ADDED
-        'มัลติฟังก์ชัน', 'multifunction', 'all-in-one', // 🔥 ADDED
+        'เครื่องพิมพ์', 'พิมพ์', 'print', 'printing',
+        'มัลติฟังก์ชัน', 'multifunction', 'all-in-one',
         'สแกนเนอร์', 'scanner', 'โปรเจคเตอร์', 'projector',
         'เครื่องพิมพ์บัตร', 'card printer', 'pvc printer', 'badge printer',
-        'เครื่องพิมพ์การ์ด', 'id card printer',
-        'เครื่องปริ้น', 'ปริ้น', 'copy', 'ถ่ายเอกสาร', 'เอกสาร', // 🔥 ADDED
-        'สำนักงาน', 'office', 'pixma', 'maxify', 'imageclass', // 🔥 ADDED Canon printer models
+        'เครื่องปริ้น', 'ปริ้น', 'copy', 'ถ่ายเอกสาร',
+        'สำนักงาน', 'office', 'pixma', 'maxify', 'imageclass',
         // Air pumps
-        'ปั๊มลม', 'air pump', 'air compressor'
+        'ปั๊มลม', 'air pump', 'air compressor',
+        // 🔥 Audio exclusion (Sony headphones ≠ Sony camera)
+        'หูฟัง', 'headphone', 'earbuds', 'earphone', 'wh-1000', 'wf-1000'
     ],
 
     // Category 4 (Computer) - ห้ามถ้าพบคำเหล่านี้
     4: [
         'กล้องดิจิตอล', 'digital camera', 'dslr', 'mirrorless',
         'เลนส์กล้อง', 'camera lens', 'canon eos', 'nikon z', 'fujifilm x',
-        // 🔥 AIR PUMP - CRITICAL FIX (ENHANCED!)
+        // Air Pump exclusion
         'ปั๊มลม', 'air pump', 'ปั๊มลมพกพา', 'เติมลม', 'tire inflator',
         'ปั๊มลมไฟฟ้า', 'portable air pump', 'ปั๊มพกพา', 'ปั๊มเติมลม',
         'เครื่องเติมลม', 'ที่เติมลม', 'ที่สูบลม', 'air compressor',
@@ -178,7 +201,10 @@ const EXCLUSION_KEYWORDS: Record<number, string[]> = {
         'ตุ๊กตา', 'doll', 'ของเล่น', 'toy', 'plush',
         // Automotive/Real Estate
         'รถยนต์', 'รถมือสอง', 'car for sale', 'มอเตอร์ไซค์',
-        'คอนโด', 'บ้าน', 'ที่ดิน', 'house', 'condo'
+        'คอนโด', 'บ้าน', 'ที่ดิน', 'house', 'condo',
+        // 🔥 Appliance exclusion
+        'ตู้เย็น', 'refrigerator', 'แอร์', 'air conditioner', 'เครื่องซักผ้า',
+        'พัดลม', 'ฟอกอากาศ', 'air purifier', 'ทีวี', 'television'
     ],
 
     // Category 1 (Automotive) - ห้ามถ้าพบคำเหล่านี้
@@ -187,11 +213,34 @@ const EXCLUSION_KEYWORDS: Record<number, string[]> = {
         'สติกเกอร์รถ', 'car sticker', 'รูปรถ', 'car photo', 'โปสเตอร์'
     ],
 
-    // Category 3 (Mobile) - ห้ามถ้าพบคำเหล่านี้
+    // 🔥 Category 3 (Mobile) - ห้ามถ้าพบคำเหล่านี้
     3: [
-        'กล้อง', 'camera', 'dslr', 'mirrorless',
-        'โน้ตบุ๊ค', 'laptop', 'notebook',
-        'ตุ๊กตา', 'toy', 'doll'
+        'laptop', 'notebook', 'โน้ตบุ๊ค', 'desktop', 'monitor',
+        'เครื่องพิมพ์', 'printer',
+        // Samsung/LG TV exclusion
+        'ทีวี', 'tv', 'television', 'smart tv', 'android tv',
+        'ตู้เย็น', 'refrigerator', 'แอร์', 'air conditioner',
+        'เครื่องซักผ้า', 'washing machine',
+        // Camera exclusion
+        'กล้อง', 'camera', 'dslr', 'mirrorless', 'เลนส์', 'lens'
+    ],
+
+    // 🔥 Category 5 (Appliances) - ห้ามถ้าพบคำเหล่านี้
+    5: [
+        // Mobile terms
+        'smartphone', 'สมาร์ทโฟน', 'มือถือ', '5g', 'dual sim',
+        'galaxy s', 'galaxy a', 'iphone', 'redmi', 'poco',
+        // Computer terms
+        'laptop', 'notebook', 'โน้ตบุ๊ค', 'keyboard', 'คีย์บอร์ด',
+        'mouse', 'เมาส์', 'ram', 'ssd', 'cpu'
+    ],
+
+    // 🔥 Category 7 (Gaming) - ห้ามถ้าพบคำเหล่านี้
+    7: [
+        // Exclude office computers
+        'office', 'สำนักงาน', 'business', 'เครื่องพิมพ์', 'printer',
+        // Exclude cameras (unless GoPro/Action cam)
+        'dslr', 'mirrorless', 'เลนส์', 'full frame'
     ]
 }
 
@@ -511,20 +560,28 @@ export class AdvancedClassificationEngine {
 
     /**
      * Analyze brand context from title and description
+     * 🔥 ENHANCED: Returns the context with THE MOST matches, not the first match
      */
     private analyzeBrandContext(text: string): { brand: string; context: string } | null {
         const textLower = text.toLowerCase()
 
         for (const [brand, contexts] of Object.entries(BRAND_CONTEXT_RULES)) {
             if (textLower.includes(brand)) {
+                // 🔥 CRITICAL FIX: Find context with MOST matches, not first match
+                let bestMatch: { context: string; matchCount: number } | null = null
+
                 for (const [context, triggers] of Object.entries(contexts)) {
                     const matchCount = triggers.filter(t =>
                         textLower.includes(t.toLowerCase())
                     ).length
 
-                    if (matchCount >= 1) {
-                        return { brand, context }
+                    if (matchCount > 0 && (!bestMatch || matchCount > bestMatch.matchCount)) {
+                        bestMatch = { context, matchCount }
                     }
+                }
+
+                if (bestMatch) {
+                    return { brand, context: bestMatch.context }
                 }
             }
         }
@@ -651,7 +708,21 @@ export class AdvancedClassificationEngine {
                 'phone': 3,
                 'appliance': 5,
                 'gadget': 3,
-                'tv': 5
+                'tv': 5,
+                // 🔥 ADDED: Missing contexts
+                'automotive': 1,  // For air pumps, car accessories
+                'gaming': 7,      // For consoles, controllers
+                'audio': 3,       // For headphones, speakers (mobile accessories)
+                'battery': 99,    // For general batteries
+                'sewing': 5,      // For sewing machines (appliances)
+                'vacuum': 5,      // For robot vacuums
+                'tools': 13,      // For power tools → Home & Garden
+                'motherboard': 4, // For computer components
+                'earbuds': 3,     // For wireless earbuds
+                'speaker': 5,     // For speakers → Appliances
+                'car': 1,         // For car audio → Automotive
+                'tablet': 3,      // For tablets → Mobile
+                'watch': 6,       // For watches → Fashion
             }
 
             const catId = contextCategoryMap[brandContext.context]

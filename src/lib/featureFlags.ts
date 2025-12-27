@@ -20,7 +20,7 @@ export type FeatureFlag =
     | 'video_call'
 
     // Payment Features
-    | 'jaicoin_topup'
+    | 'jaistar_topup'
     | 'premium_subscription'
     | 'installment_payment'
     | 'escrow_protection'
@@ -162,10 +162,10 @@ const DEFAULT_FLAGS: Record<FeatureFlag, FeatureFlagConfig> = {
     },
 
     // Payment Features
-    jaicoin_topup: {
-        id: 'jaicoin_topup',
-        name: 'JaiCoin Top-up',
-        description: 'ระบบเติมเงิน JaiCoin',
+    jaistar_topup: {
+        id: 'jaistar_topup',
+        name: 'JaiStar Top-up',
+        description: 'ระบบเติมแต้ม JaiStar',
         enabled: true,
         rolloutStrategy: 'global',
         owner: 'payment-team',

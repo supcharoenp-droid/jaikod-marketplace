@@ -8,7 +8,7 @@
  * - 402: คอมพิวเตอร์ตั้งโต๊ะ (Desktop PCs)
  * - 403: จอคอมพิวเตอร์ (Monitors)
  * - 404: อุปกรณ์เสริมคอมพิวเตอร์ (Peripherals)
- * - 405: ปริ้นเตอร์และเครื่องตอกบัตร (Printers & Office)
+ * - 405: ปริ้นเตอร์และอุปกรณ์สำนักงาน (Printers & Office Equipment)
  * - 406: Components & Parts
  * - 407: Gaming PC
  * - 408: คีย์บอร์ด (Keyboards)
@@ -31,7 +31,12 @@ export const COMPREHENSIVE_COMPUTER_KEYWORDS = [
     'เครื่องพิมพ์บัตร', 'card printer', 'id card printer', 'pvc card printer',
     'เครื่องพิมพ์การ์ด', 'canon printer', 'epson printer', 'hp printer',
     'inkjet', 'laser printer', 'toner', 'หมึกพิมพ์', 'ecotank',
+
+    // Calculators & Office Equipment
+    'เครื่องคิดเลข', 'calculator', 'electronic calculator',
+    'casio calculator', 'citizen calculator', 'เครื่องคำนวณ',
 ]
+
 
 // ========================================
 // SUBCATEGORY KEYWORDS - For precise subcategory matching
@@ -1221,6 +1226,38 @@ export const COMPUTER_SUBCATEGORY_KEYWORDS: Record<number, string[]> = {
         'เครื่องตอกบัตร', 'time recorder', 'fingerprint scanner',
         'เครื่องนับธนบัตร', 'money counter',
         'เครื่องตัดกระดาษ', 'paper cutter',
+
+        // ========== CALCULATORS / เครื่องคิดเลข ==========
+        // Thai Terms
+        'เครื่องคิดเลข', 'เครื่องคิดตัวเลข', 'เครื่องคำนวณ',
+        'เครื่องคิดเลขตั้งโต๊ะ', 'เครื่องคิดเลขพกพา', 'เครื่องคิดเลขสำนักงาน',
+        'เครื่องคิดเลขวิทยาศาสตร์', 'เครื่องคิดเลข 12 หลัก', 'เครื่องคิดเลข 14 หลัก',
+        'เครื่องคิดเลขมีปริ้น', 'เครื่องคิดเลขพิมพ์ใบเสร็จ',
+
+        // English Terms
+        'calculator', 'electronic calculator', 'desktop calculator',
+        'scientific calculator', 'financial calculator', 'printing calculator',
+        '12 digit calculator', '14 digit calculator', '16 digit calculator',
+        'office calculator', 'basic calculator', 'business calculator',
+        'graphing calculator', 'programmable calculator', 'adding machine',
+
+        // Calculator Brands
+        'casio calculator', 'casio fx', 'casio dj', 'casio hr',
+        'citizen calculator', 'citizen sdc', 'citizen ct',
+        'sharp calculator', 'sharp el',
+        'canon calculator', 'canon hs', 'canon as',
+        'hp calculator', 'texas instruments', 'ti-84', 'ti-30',
+        'olympia calculator', 'aurora calculator', 'kenko calculator',
+
+        // Models
+        'fx-991', 'fx-570', 'fx-82', 'fx-350', 'fx-95', 'fx-115',
+        'dj-120d', 'dj-240d', 'mj-120d', 'mx-120b', 'mz-12s',
+        'hr-8rc', 'hr-100rc', 'dr-120r', 'dr-210r',
+        'f4320', 'f4320a', 'electronic calculator',
+
+        // Features
+        'solar calculator', 'เครื่องคิดเลขพลังแสง', 'dual power calculator',
+        'tax calculator', 'check calculator', 'เครื่องคิดเลขมีเปอร์เซ็นต์',
 
         // 3D Printing (Hot!)
         '3d printer', 'เครื่องปริ้น 3d', 'เครื่องพิมพ์ 3 มิติ',

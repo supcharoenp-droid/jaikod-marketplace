@@ -1,7 +1,7 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { useAuth } from './AuthContext'
+import { createContext, useContext, ReactNode } from 'react'
+import { useLanguage } from './LanguageContext'
 import sellerTranslations from '@/i18n/seller-centre.json'
 
 type Language = 'th' | 'en'
@@ -17,46 +17,16 @@ interface SellerLanguageContextType {
 const SellerLanguageContext = createContext<SellerLanguageContextType | undefined>(undefined)
 
 export function SellerLanguageProvider({ children }: { children: ReactNode }) {
-    const { user } = useAuth()
-    const [language, setLanguageState] = useState<Language>('en')
+    // ใช้ global LanguageContext แทนการจัดการ state แยก
+    // เพื่อให้ภาษา sync กันทั้ง site
+    const { language: globalLanguage, setLanguage: setGlobalLanguage } = useLanguage()
 
-    // Load language from user profile on mount
-    useEffect(() => {
-        if (user?.language) {
-            const userLang = user.language.toLowerCase()
-            if (userLang === 'th' || userLang === 'en') {
-                setLanguageState(userLang)
-            }
-        } else {
-            // Fallback to browser language or EN
-            const browserLang = navigator.language.toLowerCase()
-            if (browserLang.startsWith('th')) {
-                setLanguageState('th')
-            } else {
-                setLanguageState('en')
-            }
-        }
-    }, [user])
+    // แปลง global language เป็น seller language type
+    const language: Language = globalLanguage === 'th' ? 'th' : 'en'
 
-    // Set language and save to user profile
-    const setLanguage = async (lang: Language) => {
-        setLanguageState(lang)
-
-        // Save to localStorage
-        localStorage.setItem('seller-language', lang)
-
-        // TODO: Save to user profile in Firestore
-        if (user) {
-            try {
-                const { doc, updateDoc } = await import('firebase/firestore')
-                const { db } = await import('@/lib/firebase')
-                await updateDoc(doc(db, 'users', user.uid), {
-                    language: lang.toUpperCase()
-                })
-            } catch (error) {
-                console.error('Error saving language preference:', error)
-            }
-        }
+    // Set language ผ่าน global context
+    const setLanguage = (lang: Language) => {
+        setGlobalLanguage(lang)
     }
 
     // Get translation for a specific key
