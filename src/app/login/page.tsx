@@ -10,7 +10,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function LoginPage() {
     const router = useRouter()
-    const { signIn, signInWithGoogle, signInWithFacebook, signInWithLine, user, loading, impersonate } = useAuth()
+    const { signIn, signInWithGoogle, signInWithFacebook, signInWithLine, user, loading } = useAuth()
     const { language } = useLanguage()
     const lang = language as 'th' | 'en'
     const [isLoading, setIsLoading] = useState(false)
@@ -238,31 +238,6 @@ export default function LoginPage() {
                     <Link href="/register" className="text-neon-purple hover:text-purple-600 font-medium">
                         {t.register}
                     </Link>
-                </div>
-
-                {/* DEV ONLY */}
-                <div className="mt-8 border-t border-gray-100 dark:border-gray-800 pt-6 space-y-3">
-                    <p className="text-xs text-center text-gray-400 mb-2 font-mono uppercase tracking-wider">Developer Tools</p>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setIsLoading(true)
-                            impersonate('seed_seller_002').catch(() => setIsLoading(false))
-                        }}
-                        className="w-full py-2 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-lg text-sm font-bold transition-colors border border-dashed border-purple-200 dark:border-purple-800 flex items-center justify-center gap-2"
-                    >
-                        🛍️ Login as Top Seller (Level 5)
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setIsLoading(true)
-                            impersonate('new_buyer_001').catch(() => setIsLoading(false))
-                        }}
-                        className="w-full py-2 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm font-bold transition-colors border border-dashed border-green-200 dark:border-green-800 flex items-center justify-center gap-2"
-                    >
-                        👶 Login as New User (Buyer)
-                    </button>
                 </div>
             </div>
         </div>
