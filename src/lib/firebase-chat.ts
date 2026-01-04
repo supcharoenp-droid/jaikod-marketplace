@@ -294,28 +294,42 @@ export async function markConversationAsRead(
     userId: string
 ): Promise<void> {
     try {
+        // First check if user is participant
         const conversationRef = doc(db, CONVERSATIONS_COLLECTION, conversationId)
+        const conversationSnap = await getDoc(conversationRef)
 
+        if (!conversationSnap.exists()) {
+            console.warn('Conversation not found:', conversationId)
+            return
+        }
+
+        const data = conversationSnap.data()
+        if (!data.participants?.includes(userId)) {
+            console.warn('User is not a participant of this conversation')
+            return
+        }
+
+        // Update unread count
         await updateDoc(conversationRef, {
             [`unreadCount.${userId}`]: 0
         })
 
-        // Mark all messages as read
+        // Mark messages as read - simplified query
+        // Get all unread messages and filter client-side
         const messagesRef = collection(db, CONVERSATIONS_COLLECTION, conversationId, MESSAGES_COLLECTION)
-        const q = query(
-            messagesRef,
-            where('senderId', '!=', userId),
-            where('isRead', '==', false)
-        )
+        const q = query(messagesRef, where('isRead', '==', false))
 
         const snapshot = await getDocs(q)
-        const updates = snapshot.docs.map(doc =>
-            updateDoc(doc.ref, { isRead: true })
-        )
+        const updates = snapshot.docs
+            .filter(doc => doc.data().senderId !== userId) // Filter client-side
+            .map(doc => updateDoc(doc.ref, { isRead: true }))
 
-        await Promise.all(updates)
+        if (updates.length > 0) {
+            await Promise.all(updates)
+        }
     } catch (error) {
         console.error('Error marking as read:', error)
+        // Don't throw - this is not critical
     }
 }
 

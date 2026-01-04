@@ -7,8 +7,8 @@ import Button from '@/components/ui/Button'
 import { CATEGORIES } from '@/constants/categories'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import ProductCard from '@/components/product/ProductCard'
-import UnifiedProductCard from '@/components/product/UnifiedProductCard'
+import SmartProductCardV3 from '@/components/product/SmartProductCardV3'
+import { toSmartProductData } from '@/components/product/SmartProductCardV2'
 import { getProductsByCategory } from '@/lib/products'
 import { getListingsByCategory, UniversalListing } from '@/lib/listings'
 import { Product } from '@/types'
@@ -238,11 +238,17 @@ export default function CategoryPage() {
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                             {/* New listings first */}
                             {listings.map((listing) => (
-                                <UnifiedProductCard key={`listing-${listing.id}`} product={listingToUnifiedProduct(listing)} />
+                                <SmartProductCardV3
+                                    key={`listing-${listing.id}`}
+                                    product={toSmartProductData(listingToUnifiedProduct(listing))}
+                                />
                             ))}
                             {/* Legacy products */}
                             {products.map((product) => (
-                                <ProductCard key={`product-${product.id}`} product={product} />
+                                <SmartProductCardV3
+                                    key={`product-${product.id}`}
+                                    product={toSmartProductData(product)}
+                                />
                             ))}
                         </div>
                     ) : (

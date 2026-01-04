@@ -49,7 +49,7 @@ export interface Listing {
     distance_km?: number // Computed relative to user
 
     // Badges & Status
-    badges: ('GOOD_PRICE' | 'NEARBY' | 'VERIFIED' | 'URGENT')[]
+    badges: ('GOOD_PRICE' | 'NEARBY' | 'VERIFIED' | 'URGENT' | 'HOT' | 'NEW')[]
     status: 'active' | 'sold' | 'reserved'
 
     // Stats

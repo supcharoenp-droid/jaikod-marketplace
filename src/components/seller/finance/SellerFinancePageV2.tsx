@@ -349,7 +349,7 @@ export default function SellerFinancePageV2() {
                             <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} />
                             <Tooltip
                                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                formatter={(value: number) => [`฿${value.toLocaleString()}`, 'รายได้']}
+                                formatter={(value) => [`฿${Number(value).toLocaleString()}`, 'รายได้']}
                             />
                             <Area type="monotone" dataKey="income" stroke="#10B981" fillOpacity={1} fill="url(#colorIncome)" strokeWidth={3} />
                         </AreaChart>

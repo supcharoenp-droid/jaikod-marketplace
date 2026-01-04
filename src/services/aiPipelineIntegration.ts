@@ -155,7 +155,7 @@ export async function runCompleteAIPipeline(
             image_score: enhancementResult.image_score,
             detected_product: enhancementResult.detected_product,
             detected_category: enhancementResult.detected_category,
-            recommendations: enhancementResult.recommendations
+            recommendations: enhancementResult.recommendations.map((r: any) => typeof r === 'string' ? r : r.text || r.message || String(r))
         }
 
         // ==============================================

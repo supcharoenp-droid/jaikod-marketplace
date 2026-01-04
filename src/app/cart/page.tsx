@@ -88,10 +88,9 @@ export default function CartPage() {
                                     exit={{ opacity: 0, height: 0 }}
                                     className="bg-white dark:bg-gray-900 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex gap-4 relative overflow-hidden group"
                                 >
-                                    {/* Image */}
                                     <div className="w-24 h-24 bg-gray-100 rounded-xl relative flex-shrink-0 overflow-hidden">
                                         <Image
-                                            src={item.product.thumbnail_url}
+                                            src={item.product.thumbnail_url || '/placeholder-product.png'}
                                             alt={item.product.title}
                                             fill
                                             className="object-cover"

@@ -23,6 +23,7 @@ import {
 import { db } from './firebase'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { storage } from './firebase'
+import { createNotification } from './notifications'
 
 // Collections
 const CHAT_ROOMS = 'chat_rooms'
@@ -37,6 +38,16 @@ export interface ChatRoom {
     listing_title: string
     listing_image?: string
     listing_price?: number
+    // Enhanced listing data
+    listing_status?: 'available' | 'sold' | 'reserved' | 'deleted'
+    listing_category?: string
+    listing_condition?: string
+    // Participant names (for display)
+    buyer_name?: string
+    buyer_photo?: string
+    seller_name?: string
+    seller_photo?: string
+    // Core chat data
     last_message: string
     last_message_at: Date
     last_sender_id: string
@@ -48,6 +59,14 @@ export interface ChatRoom {
     deleted_by_seller?: boolean
     cleared_at_buyer?: any // Timestamp of when buyer cleared chat
     cleared_at_seller?: any // Timestamp of when seller cleared chat
+    // V2 Features
+    muted_by_buyer?: boolean
+    muted_by_seller?: boolean
+    archived_by_buyer?: boolean
+    archived_by_seller?: boolean
+    blocked_by?: string // User ID who blocked
+    reported_by?: string // User ID who reported
+    report_reason?: string
     created_at: Date
 }
 
@@ -58,10 +77,17 @@ export interface ChatMessage {
     sender_name: string
     text: string
     image_url?: string
-    type?: 'text' | 'image' | 'offer' | 'system'
+    type?: 'text' | 'image' | 'offer' | 'system' | 'location'
     metadata?: {
         price?: number
-        offer_status?: 'pending' | 'accepted' | 'rejected'
+        offer_status?: 'pending' | 'accepted' | 'rejected' | 'cancelled'
+        orderId?: string
+        location?: {
+            name: string
+            lat: number
+            lng: number
+            address?: string
+        }
     }
     status: 'sent' | 'delivered' | 'read'
     created_at: Date
@@ -254,7 +280,7 @@ export async function sendChatMessage(
     senderName: string,
     text: string,
     imageFile?: File,
-    type: 'text' | 'image' | 'offer' | 'system' = 'text',
+    type: 'text' | 'image' | 'offer' | 'system' | 'location' = 'text',
     metadata?: any
 ): Promise<string> {
     try {
@@ -302,6 +328,15 @@ export async function sendChatMessage(
                 deleted_by_buyer: false,
                 deleted_by_seller: false
             })
+
+            // CREATE NOTIFICATION FOR THE OTHER PERSON
+            const receiverId = isBuyer ? roomData.seller_id : roomData.buyer_id
+            await createNotification(receiverId, {
+                type: 'MESSAGE',
+                title: senderName,
+                body: text || (type === 'image' ? '📷 ส่งรูปภาพ' : type === 'offer' ? '💰 ยื่นข้อเสนอราคา' : type === 'location' ? '📍 แชร์พิกัดนัดรับ' : 'ส่งข้อความใหม่'),
+                link: `/chat` // or something more specific if needed
+            }).catch(e => console.error('Silent error creating chat notification:', e))
         }
 
         return messageRef.id
@@ -477,5 +512,291 @@ export async function updateMessageMetadata(messageId: string, metadata: any): P
     } catch (error) {
         console.error('Error updating message metadata:', error)
         throw error
+    }
+}
+
+/**
+ * Delete a single message (V2 Feature)
+ * Only allows sender to delete their own messages
+ */
+export async function deleteMessage(messageId: string, senderId: string): Promise<void> {
+    try {
+        const msgRef = doc(db, CHAT_MESSAGES, messageId)
+        const msgSnap = await getDoc(msgRef)
+
+        if (!msgSnap.exists()) {
+            throw new Error('Message not found')
+        }
+
+        const msgData = msgSnap.data()
+
+        // Verify sender owns message
+        if (msgData.sender_id !== senderId) {
+            throw new Error('Unauthorized: You can only delete your own messages')
+        }
+
+        // Soft delete by marking as deleted (preserves data for audit)
+        await updateDoc(msgRef, {
+            text: '[ข้อความถูกลบ]',
+            is_deleted: true,
+            deleted_at: serverTimestamp()
+        })
+    } catch (error) {
+        console.error('Error deleting message:', error)
+        throw error
+    }
+}
+
+/**
+ * Set typing indicator (V2 Feature)
+ * Updates user's typing status in room
+ */
+export async function setTypingStatus(roomId: string, userId: string, isTyping: boolean): Promise<void> {
+    try {
+        const roomRef = doc(db, CHAT_ROOMS, roomId)
+        await updateDoc(roomRef, {
+            [`typing_${userId}`]: isTyping ? serverTimestamp() : null
+        })
+    } catch (error) {
+        console.error('Error setting typing status:', error)
+        // Non-critical, don't throw
+    }
+}
+
+/**
+ * Subscribe to typing status (V2 Feature)
+ */
+export function subscribeToTypingStatus(
+    roomId: string,
+    userId: string,
+    callback: (isTyping: boolean, typingUserId: string | null) => void
+): Unsubscribe {
+    const roomRef = doc(db, CHAT_ROOMS, roomId)
+
+    return onSnapshot(roomRef, (snapshot) => {
+        if (!snapshot.exists()) return
+
+        const data = snapshot.data()
+
+        // Check for other user's typing status
+        const keys = Object.keys(data).filter(k => k.startsWith('typing_') && !k.includes(userId))
+
+        for (const key of keys) {
+            const typingTimestamp = data[key]
+            if (typingTimestamp) {
+                const typingTime = typingTimestamp.toDate?.() || new Date(typingTimestamp)
+                const now = new Date()
+                // Only show typing if updated within last 5 seconds
+                if (now.getTime() - typingTime.getTime() < 5000) {
+                    const typingUserId = key.replace('typing_', '')
+                    callback(true, typingUserId)
+                    return
+                }
+            }
+        }
+
+        callback(false, null)
+    })
+}
+
+// ==========================================
+// V2 FEATURES - Enhanced Chat Management
+// ==========================================
+
+/**
+ * Mute/Unmute chat notifications for a user
+ */
+export async function toggleMuteChat(roomId: string, role: 'buyer' | 'seller', mute: boolean): Promise<void> {
+    try {
+        const roomRef = doc(db, CHAT_ROOMS, roomId)
+        const field = role === 'buyer' ? 'muted_by_buyer' : 'muted_by_seller'
+        await updateDoc(roomRef, { [field]: mute })
+    } catch (error) {
+        console.error('Error toggling mute:', error)
+        throw error
+    }
+}
+
+/**
+ * Archive/Unarchive chat for a user
+ */
+export async function toggleArchiveChat(roomId: string, role: 'buyer' | 'seller', archive: boolean): Promise<void> {
+    try {
+        const roomRef = doc(db, CHAT_ROOMS, roomId)
+        const field = role === 'buyer' ? 'archived_by_buyer' : 'archived_by_seller'
+        await updateDoc(roomRef, { [field]: archive })
+    } catch (error) {
+        console.error('Error toggling archive:', error)
+        throw error
+    }
+}
+
+/**
+ * Block user in a chat room
+ */
+export async function blockUserInChat(roomId: string, blockingUserId: string): Promise<void> {
+    try {
+        const roomRef = doc(db, CHAT_ROOMS, roomId)
+        await updateDoc(roomRef, {
+            blocked_by: blockingUserId,
+            is_active: false // Deactivate room when blocked
+        })
+    } catch (error) {
+        console.error('Error blocking user:', error)
+        throw error
+    }
+}
+
+/**
+ * Unblock user in a chat room
+ */
+export async function unblockUserInChat(roomId: string): Promise<void> {
+    try {
+        const roomRef = doc(db, CHAT_ROOMS, roomId)
+        await updateDoc(roomRef, {
+            blocked_by: null,
+            is_active: true
+        })
+    } catch (error) {
+        console.error('Error unblocking user:', error)
+        throw error
+    }
+}
+
+/**
+ * Report user in a chat room
+ */
+export async function reportChatUser(
+    roomId: string,
+    reportingUserId: string,
+    reason: string
+): Promise<void> {
+    try {
+        const roomRef = doc(db, CHAT_ROOMS, roomId)
+        await updateDoc(roomRef, {
+            reported_by: reportingUserId,
+            report_reason: reason
+        })
+
+        // Also create a report document for admin review
+        await addDoc(collection(db, 'reports'), {
+            type: 'chat',
+            room_id: roomId,
+            reporter_id: reportingUserId,
+            reason: reason,
+            status: 'pending',
+            created_at: serverTimestamp()
+        })
+    } catch (error) {
+        console.error('Error reporting user:', error)
+        throw error
+    }
+}
+
+/**
+ * Search messages in a room
+ */
+export async function searchMessagesInRoom(
+    roomId: string,
+    searchQuery: string
+): Promise<ChatMessage[]> {
+    try {
+        // Firebase doesn't support full-text search, so we fetch all messages 
+        // and filter client-side (for small datasets)
+        // For production, consider Algolia or similar
+        const messagesRef = collection(db, CHAT_MESSAGES)
+        const q = query(
+            messagesRef,
+            where('room_id', '==', roomId),
+            orderBy('created_at', 'desc'),
+            limit(500)
+        )
+
+        const snapshot = await getDocs(q)
+        const allMessages = snapshot.docs.map(d => ({
+            id: d.id,
+            ...d.data(),
+            created_at: (d.data().created_at as Timestamp)?.toDate() || new Date()
+        })) as ChatMessage[]
+
+        // Filter by search query (case-insensitive)
+        const lowerQuery = searchQuery.toLowerCase()
+        return allMessages.filter(msg =>
+            msg.text?.toLowerCase().includes(lowerQuery) ||
+            msg.sender_name?.toLowerCase().includes(lowerQuery)
+        )
+    } catch (error) {
+        console.error('Error searching messages:', error)
+        return []
+    }
+}
+
+/**
+ * Update participant names in a room (called when creating/opening room)
+ */
+export async function updateParticipantNames(
+    roomId: string,
+    buyerName: string,
+    buyerPhoto: string | undefined,
+    sellerName: string,
+    sellerPhoto: string | undefined
+): Promise<void> {
+    try {
+        const roomRef = doc(db, CHAT_ROOMS, roomId)
+        await updateDoc(roomRef, {
+            buyer_name: buyerName || 'ผู้ซื้อ',
+            buyer_photo: buyerPhoto || null,
+            seller_name: sellerName || 'ผู้ขาย',
+            seller_photo: sellerPhoto || null
+        })
+    } catch (error) {
+        console.error('Error updating participant names:', error)
+    }
+}
+
+/**
+ * Update listing status in a room
+ */
+export async function updateListingStatusInRoom(
+    roomId: string,
+    status: 'available' | 'sold' | 'reserved' | 'deleted'
+): Promise<void> {
+    try {
+        const roomRef = doc(db, CHAT_ROOMS, roomId)
+        await updateDoc(roomRef, {
+            listing_status: status
+        })
+    } catch (error) {
+        console.error('Error updating listing status:', error)
+    }
+}
+
+/**
+ * Get archived chats for a user
+ */
+export async function getArchivedChats(userId: string): Promise<ChatRoom[]> {
+    try {
+        const q = query(
+            collection(db, CHAT_ROOMS),
+            where('participants', 'array-contains', userId)
+        )
+
+        const snapshot = await getDocs(q)
+        const rooms = snapshot.docs
+            .map(d => ({
+                id: d.id,
+                ...d.data(),
+                last_message_at: (d.data().last_message_at as Timestamp)?.toDate() || new Date(),
+                created_at: (d.data().created_at as Timestamp)?.toDate() || new Date()
+            })) as ChatRoom[]
+
+        // Filter to only archived rooms for this user
+        return rooms.filter(room => {
+            const isBuyer = room.buyer_id === userId
+            return isBuyer ? room.archived_by_buyer : room.archived_by_seller
+        })
+    } catch (error) {
+        console.error('Error getting archived chats:', error)
+        return []
     }
 }

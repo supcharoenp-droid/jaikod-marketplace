@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { estimatePrice, type ProductData } from '@/lib/ai-price-estimator';
+import { estimatePrice } from '@/lib/ai-price-estimator';
 import { generateProductDescription, type GenerateDescriptionInput } from '@/lib/ai-description-generator';
 
 export default function DemoPostPage() {
@@ -17,7 +17,7 @@ export default function DemoPostPage() {
         setLoading(true);
 
         // ข้อมูลสินค้าตัวอย่าง: iPhone 13 Pro Max
-        const productData: ProductData = {
+        const productData = {
             categoryId: 'mobiles',
             attributes: {
                 brand: 'Apple',
@@ -35,9 +35,11 @@ export default function DemoPostPage() {
         };
 
         const descInput: GenerateDescriptionInput = {
-            categoryId: 'mobiles',
-            attributes: productData.attributes,
-            tone: 'friendly'
+            title: 'iPhone 13 Pro Max 256GB Sierra Blue',
+            category: 'mobiles',
+            condition: 'มือสอง สภาพดีมาก',
+            price: 42900,
+            keywords: ['iPhone', 'Apple', 'มือสอง', 'สภาพดี']
         };
 
         try {

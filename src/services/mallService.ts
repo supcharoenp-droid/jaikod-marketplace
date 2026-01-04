@@ -3,7 +3,7 @@ import { getTrustedSellersNearMe } from './sellerScoring'
 import { getBestSellingProducts } from '@/lib/products'
 
 // Mock Data for Official Stores
-const OFFICIAL_STORES: Partial<SellerProfile>[] = [
+const OFFICIAL_STORES: any[] = [
     {
         id: 'mall1',
         user_id: 'u_mall1',

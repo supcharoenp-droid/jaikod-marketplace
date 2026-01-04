@@ -618,7 +618,7 @@ export default function SmartListingPage() {
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium mb-2">{t.location}</label>
                                     <AddressSelector
-                                        onLocationChange={(loc) => {
+                                        onLocationChange={(loc: { province: string; amphoe: string; district: string; zipcode: string }) => {
                                             setProvince(loc.province)
                                             setAmphoe(loc.amphoe)
                                             setDistrict(loc.district)

@@ -7,6 +7,7 @@
 'use client'
 
 import { useEffect } from 'react'
+// @ts-ignore - canvas-confetti has no type declarations
 import confetti from 'canvas-confetti'
 
 interface AICelebrationProps {

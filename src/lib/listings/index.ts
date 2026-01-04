@@ -977,6 +977,41 @@ export async function deleteListing(listingId: string, sellerId: string, hardDel
 }
 
 // ==========================================
+// GET RECENT LISTINGS
+// ==========================================
+
+/**
+ * Get recent active listings
+ * Used for homepage and discovery
+ */
+export async function getRecentListings(limitCount: number = 12): Promise<UniversalListing[]> {
+    try {
+        const q = query(
+            collection(db, LISTINGS_COLLECTION),
+            where('status', '==', 'active'),
+            orderBy('created_at', 'desc'),
+            limit(limitCount)
+        )
+
+        const snapshot = await getDocs(q)
+
+        return snapshot.docs.map(docSnap => {
+            const data = docSnap.data()
+            return {
+                id: docSnap.id,
+                ...data,
+                created_at: data.created_at?.toDate?.() || new Date(),
+                updated_at: data.updated_at?.toDate?.() || new Date(),
+                expires_at: data.expires_at?.toDate?.() || new Date(),
+            } as UniversalListing
+        })
+    } catch (error) {
+        console.error('Error getting recent listings:', error)
+        return []
+    }
+}
+
+// ==========================================
 // EXPORTS
 // ==========================================
 

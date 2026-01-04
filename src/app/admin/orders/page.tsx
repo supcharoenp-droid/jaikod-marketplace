@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { useAdmin } from '@/contexts/AdminContext'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { getAdminOrders, getOrderStats, updateAdminOrderStatus, AdminOrder } from '@/lib/admin/order-service'
+import { getAdminOrders, getOrderStats, updateAdminOrderStatus, refundOrder, AdminOrder } from '@/lib/admin/order-service'
 import { format } from 'date-fns'
 import { th, enUS } from 'date-fns/locale'
 
@@ -22,6 +22,12 @@ export default function OrderManagementPage() {
     // Filters
     const [filterStatus, setFilterStatus] = useState('all') // all, pending_payment, paid, shipped, cancelled
     const [searchTerm, setSearchTerm] = useState('')
+
+    // Refund Modal
+    const [isRefundModalOpen, setIsRefundModalOpen] = useState(false)
+    const [refundTarget, setRefundTarget] = useState<{ id: string, amount: number } | null>(null)
+    const [refundReason, setRefundReason] = useState('')
+    const [refundAmount, setRefundAmount] = useState(0)
 
     useEffect(() => {
         loadData()
@@ -62,6 +68,30 @@ export default function OrderManagementPage() {
             alert(t('admin.save_failed') || 'Error')
         }
     }
+
+    const openRefundModal = (order: AdminOrder) => {
+        setRefundTarget({ id: order.id, amount: order.net_total || 0 })
+        setRefundAmount(order.net_total || 0)
+        setRefundReason('')
+        setIsRefundModalOpen(true)
+    }
+
+    const handleRefundSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!adminUser || !refundTarget) return
+
+        if (!confirm(`ยืนยันการคืนเงิน ฿${refundAmount.toLocaleString()}?`)) return
+
+        try {
+            await refundOrder(adminUser, refundTarget.id, refundAmount, refundReason)
+            setIsRefundModalOpen(false)
+            alert(t('admin.refund_success') || 'Refund processed successfully')
+            loadData()
+        } catch (e) {
+            alert('Refund Failed: ' + e)
+        }
+    }
+
 
     return (
         <AdminLayout>
@@ -198,9 +228,19 @@ export default function OrderManagementPage() {
                                                     {t('admin.action_complete')}
                                                 </button>
                                             )}
-                                            {order.status !== 'cancelled' && order.status !== 'completed' && (
+                                            {order.status !== 'cancelled' && order.status !== 'completed' && order.status !== 'refunded' && (
                                                 <button onClick={() => handleStatusUpdate(order.id, 'cancelled')} className="text-red-500 hover:underline text-xs ml-2">
                                                     {t('admin.action_cancel')}
+                                                </button>
+                                            )}
+
+                                            {/* Refund Button for Paid/Shipped/Cancelled/Completed */}
+                                            {['paid', 'shipped', 'completed', 'cancelled'].includes(order.status) && (
+                                                <button
+                                                    onClick={() => openRefundModal(order)}
+                                                    className="text-orange-500 hover:underline text-xs ml-2 font-bold"
+                                                >
+                                                    {t('admin.action_refund') || 'Refund'}
                                                 </button>
                                             )}
                                         </div>
@@ -213,6 +253,49 @@ export default function OrderManagementPage() {
                         </tbody>
                     </table>
                 </div>
+                {/* Refund Modal */}
+                {isRefundModalOpen && refundTarget && (
+                    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                        <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl shadow-xl overflow-hidden">
+                            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                                <h3 className="font-bold text-lg text-red-600 flex items-center gap-2">
+                                    <AlertCircle className="w-5 h-5" />
+                                    {t('admin.refund_title') || 'Process Refund'}
+                                </h3>
+                                <button onClick={() => setIsRefundModalOpen(false)}><XCircle className="w-6 h-6 text-gray-400" /></button>
+                            </div>
+                            <form onSubmit={handleRefundSubmit} className="p-6 space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">{t('admin.refund_amount') || 'Refund Amount (THB)'}</label>
+                                    <input
+                                        type="number"
+                                        max={refundTarget.amount}
+                                        min={0}
+                                        className="w-full border p-2 rounded-lg font-mono text-lg font-bold"
+                                        value={refundAmount}
+                                        onChange={e => setRefundAmount(Number(e.target.value))}
+                                    />
+                                    <div className="text-xs text-gray-500 mt-1">Max: ฿{refundTarget.amount.toLocaleString()}</div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">{t('admin.refund_reason') || 'Reason'}</label>
+                                    <textarea
+                                        required
+                                        className="w-full border p-2 rounded-lg"
+                                        rows={3}
+                                        value={refundReason}
+                                        onChange={e => setRefundReason(e.target.value)}
+                                        placeholder="e.g. Out of stock, Damaged item..."
+                                    ></textarea>
+                                </div>
+                                <div className="pt-2 flex gap-2 justify-end">
+                                    <button type="button" onClick={() => setIsRefundModalOpen(false)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+                                    <button type="submit" className="px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700">Confirm Refund</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
             </div>
         </AdminLayout>
     )

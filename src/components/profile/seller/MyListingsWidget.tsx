@@ -19,6 +19,7 @@ import {
     ListingSummary,
     ListingCounts
 } from '@/lib/profile/seller-listings'
+import toastService from '@/services/toastService'
 
 // ==========================================
 // TYPES
@@ -268,6 +269,7 @@ export default function MyListingsWidget({
     const [listings, setListings] = useState<ListingSummary[]>([])
     const [counts, setCounts] = useState<ListingCounts | null>(null)
     const [loading, setLoading] = useState(true)
+    const [deletedListings, setDeletedListings] = useState<Map<string, ListingSummary>>(new Map())
 
     useEffect(() => {
         loadListings()
@@ -291,33 +293,141 @@ export default function MyListingsWidget({
     }
 
     const handleAction = async (action: string, listingId: string) => {
-        switch (action) {
-            case 'renew':
-                await SellerListingsService.renew(listingId)
-                break
-            case 'close':
-                await SellerListingsService.close(listingId)
-                break
-            case 'reopen':
-                await SellerListingsService.reopen(listingId)
-                break
-            case 'mark_sold':
-                await SellerListingsService.markSold(listingId)
-                break
-            case 'delete':
-                if (confirm('ต้องการลบประกาศนี้หรือไม่?')) {
-                    await SellerListingsService.delete(listingId)
+        try {
+            switch (action) {
+                case 'renew':
+                    const renewToast = toastService.loading(language === 'th' ? 'กำลังต่ออายุ...' : 'Renewing...')
+                    await SellerListingsService.renew(listingId)
+                    toastService.dismiss(renewToast)
+                    toastService.success(language === 'th' ? 'ต่ออายุประกาศสำเร็จ' : 'Renewed successfully', { icon: '🔄' })
+                    await loadListings()
+                    break
+
+                case 'close':
+                    if (!confirm(language === 'th' ? 'ต้องการปิดการขายหรือไม่?' : 'Close this listing?')) {
+                        return
+                    }
+                    const closeToast = toastService.loading(language === 'th' ? 'กำลังปิดการขาย...' : 'Closing...')
+                    await SellerListingsService.close(listingId)
+                    toastService.dismiss(closeToast)
+                    toastService.success(language === 'th' ? 'ปิดการขายสำเร็จ' : 'Closed successfully', { icon: '🔒' })
+                    await loadListings()
+                    break
+
+                case 'reopen':
+                    const reopenToast = toastService.loading(language === 'th' ? 'กำลังเปิดขายใหม่...' : 'Reopening...')
+                    await SellerListingsService.reopen(listingId)
+                    toastService.dismiss(reopenToast)
+                    toastService.success(language === 'th' ? 'เปิดขายใหม่สำเร็จ' : 'Reopened successfully', { icon: '✅' })
+                    await loadListings()
+                    break
+
+                case 'mark_sold':
+                    if (!confirm(language === 'th' ? 'ต้องการทำเครื่องหมาย "ขายแล้ว" หรือไม่?' : 'Mark as sold?')) {
+                        return
+                    }
+                    const soldToast = toastService.loading(language === 'th' ? 'กำลังบันทึก...' : 'Updating...')
+                    await SellerListingsService.markSold(listingId)
+                    toastService.dismiss(soldToast)
+                    toastService.success(language === 'th' ? 'ทำเครื่องหมาย "ขายแล้ว" สำเร็จ' : 'Marked as sold', { icon: '💰' })
+                    await loadListings()
+                    break
+
+                case 'delete':
+                    handleDelete(listingId)
+                    break
+
+                case 'edit':
+                    window.location.href = `/sell/edit/${listingId}`
+                    return
+
+                case 'boost':
+                    window.location.href = `/boost/${listingId}`
+                    return
+
+                default:
+                    console.warn('Unknown action:', action)
+                    return
+            }
+        } catch (error: any) {
+            console.error('❌ Error performing action:', error)
+            toastService.error(
+                language === 'th'
+                    ? `เกิดข้อผิดพลาด: ${error.message || 'โปรดลองใหม่อีกครั้ง'}`
+                    : `Error: ${error.message || 'Please try again'}`,
+                {
+                    duration: 5000,
+                    action: {
+                        label: language === 'th' ? 'ลองอีกครั้ง' : 'Retry',
+                        onClick: () => handleAction(action, listingId)
+                    }
                 }
-                break
-            case 'edit':
-                window.location.href = `/sell/edit/${listingId}`
-                return
-            case 'boost':
-                window.location.href = `/boost/${listingId}`
-                return
+            )
         }
-        // Reload after action
-        loadListings()
+    }
+
+    // Handle Delete with Undo
+    const handleDelete = (listingId: string) => {
+        // Find the listing
+        const listing = listings.find(l => l.id === listingId)
+        if (!listing) return
+
+        // Store for potential undo
+        setDeletedListings(prev => new Map(prev).set(listingId, listing))
+
+        // Optimistic UI update - remove from list immediately
+        setListings(prev => prev.filter(l => l.id !== listingId))
+
+        // Show toast with undo option
+        toastService.successWithUndo(
+            language === 'th' ? 'ลบประกาศสำเร็จ' : 'Listing deleted',
+            () => handleUndoDelete(listingId),
+            {
+                undoLabel: language === 'th' ? 'ย้อนกลับ' : 'Undo',
+                duration: 5000
+            }
+        )
+
+        // Actually delete after 5 seconds (if not undone)
+        setTimeout(async () => {
+            if (deletedListings.has(listingId)) {
+                try {
+                    await SellerListingsService.delete(listingId)
+                    // Remove from deleted listings map
+                    setDeletedListings(prev => {
+                        const newMap = new Map(prev)
+                        newMap.delete(listingId)
+                        return newMap
+                    })
+                    // Refresh counts
+                    await loadListings()
+                } catch (error: any) {
+                    console.error('Error deleting:', error)
+                    // Restore if delete failed
+                    handleUndoDelete(listingId)
+                    toastService.error(
+                        language === 'th' ? 'ลบไม่สำเร็จ กรุณาลองใหม่' : 'Delete failed. Please try again'
+                    )
+                }
+            }
+        }, 5000)
+    }
+
+    // Handle Undo Delete
+    const handleUndoDelete = (listingId: string) => {
+        const listing = deletedListings.get(listingId)
+        if (listing) {
+            // Restore to list
+            setListings(prev => [...prev, listing].sort((a, b) =>
+                new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            ))
+            // Remove from deleted map
+            setDeletedListings(prev => {
+                const newMap = new Map(prev)
+                newMap.delete(listingId)
+                return newMap
+            })
+        }
     }
 
     const statuses: (ListingStatus | 'all')[] = compact

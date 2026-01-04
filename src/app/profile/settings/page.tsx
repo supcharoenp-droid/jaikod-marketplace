@@ -26,7 +26,7 @@ import { useRouter } from 'next/navigation'
 export default function SettingsPage() {
     const { t, language, setLanguage } = useLanguage()
     const { user, logout } = useAuth()
-    const { profile } = useProfile()
+    const profileData = useProfile()
     const router = useRouter()
 
     const [settings, setSettings] = useState({

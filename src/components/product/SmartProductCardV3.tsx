@@ -1,15 +1,14 @@
 'use client'
 
 /**
- * SmartProductCard V3 - Premium Product Card with Enhanced Features
+ * SmartProductCard V3 - Compact Edition
  * 
  * Features:
  * - Fixed heights for consistent grid layout
  * - Image gallery hover (slides through images on hover)
- * - Distance badge with self-calculation
- * - Unified location display (Thai/English based on language)
- * - No layout shift on hover
- * - Clear separation between product and seller info
+ * - Color-coded distance badge
+ * - Unified location display
+ * - NO seller section (shown on detail page)
  */
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
@@ -17,15 +16,20 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-    Heart, MapPin, Eye, Clock, BadgeCheck, Sparkles, TrendingDown,
-    MessageCircle, Share2, ShoppingBag, Flame, Shield, Star, Zap,
-    Camera, User, ChevronLeft, ChevronRight
+    Heart, MapPin, Sparkles, TrendingDown, Flame, Camera, Rocket
 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useWishlist } from '@/hooks/useWishlist'
-import { formatDistanceToNow } from '@/lib/utils'
+import { useViewerLocation } from '@/hooks/useViewerLocation'
 import { SmartProductData } from './SmartProductCardV2'
-import { formatLocation as formatLocationHelper, formatDistanceDisplay as formatDistanceHelper } from '@/lib/location-localization'
+import {
+    calculateDistance,
+    formatDistanceDisplay,
+    getDistanceColorClass,
+    formatLocationText,
+    getDistrictCenterCoordinates
+} from '@/lib/location-engine'
+import ActivityBadge from '@/components/common/ActivityBadge'
 
 // ==========================================
 // PLACEHOLDER IMAGES
@@ -142,31 +146,60 @@ export default function SmartProductCardV3({
     // Extract values once for stable dependencies
     const providedDistance = product.location?.distance
     const province = product.location?.province
+    const amphoe = product.location?.amphoe
+    const listingLat = (product as any).location?.coordinates?.lat
+    const listingLng = (product as any).location?.coordinates?.lng
 
-    // Calculate distance for all products - either use provided or calculate from province
+    // Get viewer location using Global Location Engine
+    const { location: viewerLocation, isLoading: viewerLocationLoading, hasLocation } = useViewerLocation()
+
+    // State for approximate indicator
+    const [isApproximate, setIsApproximate] = useState(false)
+
+    // Calculate distance using Global Location Engine
     useEffect(() => {
-        const calculateDist = async () => {
-            // If distance already provided, use it
-            if (providedDistance !== undefined && providedDistance > 0) {
-                setCalculatedDistance(providedDistance)
+        // Wait for viewer location (NO fallback - if no location, hide distance)
+        if (viewerLocationLoading) return
+        if (!viewerLocation || !hasLocation) {
+            setCalculatedDistance(null)
+            return
+        }
+
+        // If distance already provided by listing data, use it
+        if (providedDistance !== undefined && providedDistance > 0) {
+            setCalculatedDistance(providedDistance)
+            setIsApproximate(false)
+            return
+        }
+
+        // Priority 1: Listing has exact coordinates
+        if (listingLat && listingLng) {
+            const dist = calculateDistance(
+                { latitude: viewerLocation.latitude, longitude: viewerLocation.longitude },
+                { latitude: listingLat, longitude: listingLng }
+            )
+            setCalculatedDistance(dist)
+            setIsApproximate(false)
+            return
+        }
+
+        // Priority 2: Calculate using province/district centroids
+        if (province) {
+            const listingLocation = getDistrictCenterCoordinates(province, amphoe)
+            if (listingLocation) {
+                const dist = calculateDistance(
+                    { latitude: viewerLocation.latitude, longitude: viewerLocation.longitude },
+                    { latitude: listingLocation.latitude, longitude: listingLocation.longitude }
+                )
+                setCalculatedDistance(dist)
+                setIsApproximate(true) // Centroid-based is always approximate
                 return
             }
-
-            // Otherwise calculate from province
-            if (province) {
-                try {
-                    const { calculateDistanceToProduct } = await import('@/lib/geolocation')
-                    const dist = await calculateDistanceToProduct(province)
-                    if (dist !== null) {
-                        setCalculatedDistance(dist)
-                    }
-                } catch (e) {
-                    // Silently fail - distance is optional
-                }
-            }
         }
-        calculateDist()
-    }, [providedDistance, province])
+
+        // No valid listing location - hide distance
+        setCalculatedDistance(null)
+    }, [providedDistance, province, amphoe, listingLat, listingLng, viewerLocation, viewerLocationLoading, hasLocation])
 
     // Price calculations
     const hasDiscount = product.originalPrice && product.originalPrice > product.price
@@ -174,21 +207,17 @@ export default function SmartProductCardV3({
         ? Math.round((1 - product.price / product.originalPrice!) * 100)
         : 0
 
-    // Time calculations
+    // Time calculations - only for NEW badge
     const isNew = (Date.now() - product.createdAt.getTime()) < (3 * 24 * 60 * 60 * 1000)
-    const timeAgo = formatDistanceToNow(product.createdAt, language as 'th' | 'en')
 
-    // Seller online status
-    const isSellerOnline = product.seller?.isOnline
+    // Format location using location engine
+    const formatLocation = useCallback((provinceName?: string, districtName?: string): string => {
+        return formatLocationText(provinceName, districtName, language as 'th' | 'en')
+    }, [language])
 
-    // Format location using centralized helper (always Thai format for consistency)
-    const formatLocation = useCallback((province?: string, amphoe?: string): string => {
-        return formatLocationHelper(province, amphoe)
-    }, [])
-
-    // Format distance for display using centralized helper
-    const getDistanceDisplay = useCallback((distance: number) => {
-        return formatDistanceHelper(distance, language as 'th' | 'en')
+    // Get distance display text using location engine
+    const getDistanceText = useCallback((distance: number) => {
+        return formatDistanceDisplay(distance, language as 'th' | 'en')
     }, [language])
 
     // Handle wishlist toggle
@@ -264,6 +293,24 @@ export default function SmartProductCardV3({
                     {/* Bottom Gradient */}
                     <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent z-10 pointer-events-none" />
 
+                    {/* SELLER VIEW: Promotion Status Overlay */}
+                    {product.source === 'listing' && (product as any).promotion?.isActive && (
+                        <div className="absolute inset-0 bg-purple-900/40 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="bg-white text-purple-600 px-3 py-1 rounded-full text-[10px] font-black shadow-lg flex items-center gap-1 animate-bounce">
+                                <Rocket className="w-3 h-3" />
+                                PROMOTING NOW
+                            </div>
+                            <div className="text-white text-[10px] font-bold mt-1 bg-black/50 px-2 py-0.5 rounded-full">
+                                Ends: {(() => {
+                                    const endTime = (product as any).promotion.endTime;
+                                    if (!endTime) return 'Soon';
+                                    const date = endTime.toDate ? endTime.toDate() : new Date(endTime);
+                                    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                })()}
+                            </div>
+                        </div>
+                    )}
+
                     {/* TOP LEFT BADGES */}
                     <div className="absolute top-2 left-2 flex flex-col gap-1 z-20">
                         {/* Hot Badge */}
@@ -297,60 +344,39 @@ export default function SmartProductCardV3({
                         )}
                     </div>
 
-                    {/* TOP RIGHT - Quick Actions (Always Visible) */}
-                    <div className="absolute top-2 right-2 flex flex-col gap-1.5 z-20">
-                        {/* View Button with Count */}
-                        <button
-                            className="flex items-center gap-1 px-2 py-1 rounded-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-md text-gray-600 dark:text-gray-300"
-                        >
-                            <Eye className="w-3.5 h-3.5" />
-                            {product.stats?.views ? (
-                                <span className="text-[10px] font-medium">
-                                    {product.stats.views > 999 ? `${(product.stats.views / 1000).toFixed(1)}k` : product.stats.views}
-                                </span>
-                            ) : null}
-                        </button>
-
-                        {/* Wishlist Button */}
+                    {/* TOP RIGHT - Wishlist Only */}
+                    <div className="absolute top-2 right-2 z-20">
                         <motion.button
                             onClick={handleLikeClick}
                             whileTap={{ scale: 0.9 }}
                             className={`
-                                flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-sm shadow-md transition-all
+                                flex items-center justify-center w-8 h-8 rounded-full backdrop-blur-sm shadow-md transition-all
                                 ${isLiked
                                     ? 'bg-red-500 text-white'
                                     : 'bg-white/90 dark:bg-slate-800/90 text-gray-600 dark:text-gray-300 hover:bg-red-50 hover:text-red-500'
                                 }
                             `}
                         >
-                            <Heart className={`w-3.5 h-3.5 ${isLiked ? 'fill-current' : ''}`} />
-                            {product.stats?.favorites ? (
-                                <span className="text-[10px] font-medium">
-                                    {product.stats.favorites}
-                                </span>
-                            ) : null}
+                            <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
                         </motion.button>
-
-                        {/* Cart Button */}
-                        <button
-                            className="flex items-center justify-center w-8 h-8 rounded-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-md text-gray-600 dark:text-gray-300 hover:bg-purple-50 hover:text-purple-500 transition-colors"
-                        >
-                            <ShoppingBag className="w-3.5 h-3.5" />
-                        </button>
                     </div>
 
-                    {/* BOTTOM LEFT - Distance Badge (Elegant Minimal Design) */}
-                    {calculatedDistance !== null && calculatedDistance > 0 && (
-                        <div className="absolute bottom-2 left-2 z-20">
-                            <span className="
-                                px-2 py-1 bg-black/60 backdrop-blur-sm text-white text-[11px] font-medium rounded-lg 
-                                flex items-center gap-1 shadow-sm
-                            ">
-                                <MapPin className="w-3 h-3 opacity-80" />
-                                <span>{getDistanceDisplay(calculatedDistance)?.text}</span>
+                    {/* BOTTOM LEFT - Location + Distance Badge */}
+                    <div className="absolute bottom-2 left-2 z-20">
+                        <span className={`
+                            px-2 py-1 backdrop-blur-sm text-white text-[11px] font-medium rounded-lg 
+                            flex items-center gap-1 shadow-sm
+                            ${calculatedDistance !== null ? getDistanceColorClass(calculatedDistance) : 'bg-gray-600/80'}
+                        `}>
+                            <MapPin className="w-3 h-3 opacity-80" />
+                            <span className="truncate max-w-[100px]">
+                                {product.location?.province || 'ไม่ระบุ'}
+                                {calculatedDistance !== null && (
+                                    <> · {isApproximate ? '~' : ''}{getDistanceText(calculatedDistance)}</>
+                                )}
                             </span>
-                        </div>
-                    )}
+                        </span>
+                    </div>
 
                     {/* BOTTOM RIGHT - Image Gallery Dots */}
                     {allImages.length > 1 && (
@@ -395,92 +421,17 @@ export default function SmartProductCardV3({
                         )}
                     </div>
 
-                    {/* Location - Fixed Height (Amphoe, Province only - Distance is shown on image) */}
-                    <div className="mt-2 h-4 flex items-center gap-1 text-[11px] text-gray-500 dark:text-gray-400">
-                        <MapPin className="w-3 h-3 flex-shrink-0" />
-                        <span className="truncate">
-                            {formatLocation(product.location?.province, product.location?.amphoe)}
-                        </span>
-                    </div>
-
-                    {/* DIVIDER */}
-                    <div className="my-3 h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-slate-600 to-transparent" />
-
-                    {/* SELLER SECTION - Fixed Height */}
-                    {showSellerInfo && (
-                        <div className="h-10 flex items-center gap-2.5">
-                            {/* Avatar with Online Indicator */}
-                            <div className="relative flex-shrink-0">
-                                <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-purple-400 to-pink-400 shadow-sm">
-                                    {product.seller?.avatar ? (
-                                        <Image
-                                            src={product.seller.avatar}
-                                            alt={product.seller?.name || 'Seller'}
-                                            width={32}
-                                            height={32}
-                                            className="object-cover"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-white text-xs font-bold">
-                                            {product.seller?.name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Online Status Dot */}
-                                {isSellerOnline && (
-                                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-slate-800" />
-                                )}
-                            </div>
-
-                            {/* Seller Info */}
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1">
-                                    <span className="text-xs font-medium text-gray-800 dark:text-gray-200 truncate">
-                                        {product.seller?.name || (language === 'th' ? 'ผู้ขาย' : 'Seller')}
-                                    </span>
-                                    {product.seller?.isVerified && (
-                                        <BadgeCheck className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
-                                    )}
-                                </div>
-
-                                {/* Seller Badge/Status */}
-                                <div className="flex items-center gap-1.5 mt-0.5">
-                                    {product.seller?.trustScore && product.seller.trustScore >= 70 ? (
-                                        <span className="inline-flex items-center gap-0.5 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
-                                            <Shield className="w-3 h-3" />
-                                            {language === 'th' ? 'ร้านแนะนำ' : 'Trusted'}
-                                        </span>
-                                    ) : isNew ? (
-                                        <span className="text-[10px] text-blue-500 font-medium">
-                                            {language === 'th' ? 'ผู้ขายใหม่' : 'New Seller'}
-                                        </span>
-                                    ) : null}
-
-                                    {product.seller?.responseTime && (
-                                        <span className="text-[10px] text-gray-400 flex items-center gap-0.5">
-                                            <Zap className="w-2.5 h-2.5 text-amber-500" />
-                                            {product.seller.responseTime}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* FOOTER - Time Ago */}
-                    <div className="mt-2 pt-2 border-t border-gray-100 dark:border-slate-700 flex items-center justify-between text-[10px] text-gray-400">
-                        <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {timeAgo}
-                        </span>
-
-                        {/* Listing Code */}
-                        {product.listingCode && (
-                            <span className="font-mono text-gray-300">
-                                #{product.listingCode.slice(-6)}
-                            </span>
-                        )}
+                    {/* Activity Intelligence - Time Only (Location is on image badge) */}
+                    <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                        <ActivityBadge
+                            createdAt={product.createdAt || new Date()}
+                            updatedAt={(product as any).updatedAt}
+                            viewsToday={(product as any).viewsToday || product.stats?.views}
+                            wishlistCount={(product as any).wishlistCount || product.stats?.favorites}
+                            lastChatAt={(product as any).lastChatAt}
+                            categoryId={(product as any).categoryId || 0}
+                            variant="inline"
+                        />
                     </div>
                 </div>
 

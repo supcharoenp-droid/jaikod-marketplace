@@ -49,9 +49,14 @@ export async function createNotification(
     }
 ): Promise<string> {
     try {
+        // Filter out undefined values
+        const cleanData = Object.fromEntries(
+            Object.entries(data).filter(([_, v]) => v !== undefined)
+        )
+
         const docRef = await addDoc(collection(db, NOTIFICATIONS_COLLECTION), {
             userId,
-            ...data,
+            ...cleanData,
             isRead: false,
             createdAt: serverTimestamp()
         })

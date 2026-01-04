@@ -127,12 +127,31 @@ const CAR_TEMPLATE = {
                 {
                     key: 'engine_cc', label_th: 'ขนาดเครื่อง', label_en: 'Engine Size', importance: 'recommended', type: 'select',
                     options: [
+                        // Eco / Small Cars (660cc - 1.4L)
+                        { value: '660', label_th: '660cc (Kei Car)', label_en: '660cc (Kei)' },
                         { value: '1000', label_th: '1.0 ลิตร', label_en: '1.0L' },
+                        { value: '1200', label_th: '1.2 ลิตร', label_en: '1.2L' },
+                        { value: '1300', label_th: '1.3 ลิตร', label_en: '1.3L' },
+                        { value: '1400', label_th: '1.4 ลิตร', label_en: '1.4L' },
                         { value: '1500', label_th: '1.5 ลิตร', label_en: '1.5L' },
+                        // Medium Cars (1.6L - 2.0L)
+                        { value: '1600', label_th: '1.6 ลิตร', label_en: '1.6L' },
                         { value: '1800', label_th: '1.8 ลิตร', label_en: '1.8L' },
                         { value: '2000', label_th: '2.0 ลิตร', label_en: '2.0L' },
+                        // Large / Diesel (2.2L - 3.0L)
+                        { value: '2200', label_th: '2.2 ลิตร', label_en: '2.2L' },
+                        { value: '2300', label_th: '2.3 ลิตร', label_en: '2.3L' },
+                        { value: '2400', label_th: '2.4 ลิตร', label_en: '2.4L' },
                         { value: '2500', label_th: '2.5 ลิตร', label_en: '2.5L' },
-                        { value: '3000+', label_th: '3.0 ลิตรขึ้นไป', label_en: '3.0L+' },
+                        { value: '2700', label_th: '2.7 ลิตร', label_en: '2.7L' },
+                        { value: '2800', label_th: '2.8 ลิตร', label_en: '2.8L' },
+                        { value: '3000', label_th: '3.0 ลิตร', label_en: '3.0L' },
+                        // V6/V8 (3.5L+)
+                        { value: '3300', label_th: '3.3 ลิตร', label_en: '3.3L' },
+                        { value: '3500', label_th: '3.5 ลิตร (V6)', label_en: '3.5L (V6)' },
+                        { value: '4000', label_th: '4.0 ลิตร', label_en: '4.0L' },
+                        { value: '5000', label_th: '5.0 ลิตร (V8)', label_en: '5.0L (V8)' },
+                        { value: 'other', label_th: 'อื่นๆ / ไม่ทราบ', label_en: 'Other' },
                     ]
                 },
             ]
@@ -255,6 +274,7 @@ function EditCarListingContent() {
             const data = await getListingById(listingId)
             if (!data) {
                 setError(lang === 'th' ? 'ไม่พบประกาศ' : 'Listing not found')
+                setLoading(false)
                 return
             }
 

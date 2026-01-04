@@ -1,231 +1,215 @@
 'use client'
 
 /**
- * REVIEW CARD COMPONENT
+ * ============================================
+ * Review Card
+ * ============================================
  * 
- * Displays a single review with rating, comment, media, and actions
+ * Display a single review
  */
 
-import { useState } from 'react'
-import Image from 'next/image'
-import { Star, ThumbsUp, User, CheckCircle, Reply, MoreHorizontal } from 'lucide-react'
-import { Review, markReviewHelpful } from '@/lib/reviews'
-import { useAuth } from '@/contexts/AuthContext'
+import React, { useState } from 'react'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import {
+    ThumbsUp,
+    Flag,
+    CheckCircle,
+    MessageCircle,
+    ChevronDown,
+    ChevronUp,
+    MoreHorizontal
+} from 'lucide-react'
+import { Review } from '@/services/reviewService'
 import { useLanguage } from '@/contexts/LanguageContext'
+import StarRatingDisplay from './StarRatingDisplay'
+
+// ============================================
+// TYPES
+// ============================================
 
 interface ReviewCardProps {
     review: Review
-    showProduct?: boolean
-    onReply?: (reviewId: string) => void
+    showSellerResponse?: boolean
+    onHelpful?: (reviewId: string) => void
+    onReport?: (reviewId: string) => void
 }
 
-export default function ReviewCard({ review, showProduct = false, onReply }: ReviewCardProps) {
-    const { user } = useAuth()
+// ============================================
+// HELPER
+// ============================================
+
+function formatDate(date: Date): string {
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+
+    if (days === 0) return 'วันนี้'
+    if (days === 1) return 'เมื่อวาน'
+    if (days < 7) return `${days} วันที่แล้ว`
+    if (days < 30) return `${Math.floor(days / 7)} สัปดาห์ที่แล้ว`
+    if (days < 365) return `${Math.floor(days / 30)} เดือนที่แล้ว`
+    return `${Math.floor(days / 365)} ปีที่แล้ว`
+}
+
+// ============================================
+// COMPONENT
+// ============================================
+
+export default function ReviewCard({
+    review,
+    showSellerResponse = true,
+    onHelpful,
+    onReport
+}: ReviewCardProps) {
     const { language } = useLanguage()
-    const lang = language as 'th' | 'en'
+    const [expanded, setExpanded] = useState(false)
+    const [showImages, setShowImages] = useState(false)
 
-    const [isHelpful, setIsHelpful] = useState(user ? review.helpful_by.includes(user.uid) : false)
-    const [helpfulCount, setHelpfulCount] = useState(review.helpful_count)
-    const [showFullComment, setShowFullComment] = useState(false)
-
-    // Translations
-    const t = {
-        helpful: lang === 'th' ? 'เป็นประโยชน์' : 'Helpful',
-        verifiedPurchase: lang === 'th' ? 'ซื้อจริง' : 'Verified Purchase',
-        sellerResponse: lang === 'th' ? 'ตอบกลับจากผู้ขาย' : 'Seller Response',
-        showMore: lang === 'th' ? 'อ่านเพิ่มเติม' : 'Show more',
-        showLess: lang === 'th' ? 'แสดงน้อยลง' : 'Show less',
-        pros: lang === 'th' ? 'ข้อดี' : 'Pros',
-        cons: lang === 'th' ? 'ข้อเสีย' : 'Cons',
-    }
-
-    // Format date
-    const formatDate = (date: Date) => {
-        const months_th = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
-        const months_en = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        const d = new Date(date)
-        const day = d.getDate()
-        const month = lang === 'th' ? months_th[d.getMonth()] : months_en[d.getMonth()]
-        const year = lang === 'th' ? d.getFullYear() + 543 : d.getFullYear()
-        return `${day} ${month} ${year}`
-    }
-
-    // Handle helpful click
-    const handleHelpful = async () => {
-        if (!user) {
-            alert(lang === 'th' ? 'กรุณาเข้าสู่ระบบก่อน' : 'Please login first')
-            return
-        }
-
-        const result = await markReviewHelpful(review.id, user.uid)
-        setIsHelpful(result)
-        setHelpfulCount(prev => result ? prev + 1 : prev - 1)
-    }
-
-    // Check if comment is long
-    const isLongComment = review.comment.length > 200
+    const needsExpansion = review.comment.length > 300
 
     return (
-        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 space-y-3">
             {/* Header */}
-            <div className="flex items-start justify-between mb-3">
+            <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                     {/* Avatar */}
-                    <div className="w-10 h-10 rounded-full bg-slate-700 overflow-hidden flex items-center justify-center">
-                        {review.reviewer_avatar ? (
-                            <Image
-                                src={review.reviewer_avatar}
-                                alt={review.reviewer_name}
-                                width={40}
-                                height={40}
+                    <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                        {review.reviewerAvatar ? (
+                            <img
+                                src={review.reviewerAvatar}
+                                alt={review.reviewerName}
                                 className="w-full h-full object-cover"
                             />
                         ) : (
-                            <User className="w-5 h-5 text-gray-500" />
+                            <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold">
+                                {review.reviewerName.charAt(0).toUpperCase()}
+                            </div>
                         )}
                     </div>
 
                     {/* Name & Date */}
                     <div>
                         <div className="flex items-center gap-2">
-                            <span className="font-medium text-white">{review.reviewer_name}</span>
-                            {review.is_verified_purchase && (
-                                <span className="flex items-center gap-1 text-xs text-emerald-400">
+                            <span className="font-medium text-gray-900 dark:text-white">
+                                {review.reviewerName}
+                            </span>
+                            {review.isVerified && (
+                                <span className="flex items-center gap-1 px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-medium rounded-full">
                                     <CheckCircle className="w-3 h-3" />
-                                    {t.verifiedPurchase}
+                                    ซื้อจริง
                                 </span>
                             )}
                         </div>
-                        <span className="text-xs text-gray-500">{formatDate(review.created_at)}</span>
+                        <span className="text-xs text-gray-500">
+                            {formatDate(review.createdAt)}
+                        </span>
                     </div>
                 </div>
 
-                {/* More options */}
-                <button className="p-1 text-gray-500 hover:text-gray-300 rounded">
-                    <MoreHorizontal className="w-4 h-4" />
-                </button>
+                {/* Rating */}
+                <StarRatingDisplay rating={review.overallRating} size="sm" />
             </div>
 
-            {/* Rating Stars */}
-            <div className="flex items-center gap-2 mb-3">
-                <div className="flex">
-                    {[1, 2, 3, 4, 5].map(i => (
-                        <Star
-                            key={i}
-                            className={`w-4 h-4 ${i <= review.ratings.overall
-                                    ? 'text-yellow-400 fill-yellow-400'
-                                    : 'text-gray-600'
-                                }`}
-                        />
-                    ))}
+            {/* Detail Ratings (if available) */}
+            {review.ratings && (
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                    {review.ratings.communication && (
+                        <span>การสื่อสาร: {review.ratings.communication}/5</span>
+                    )}
+                    {review.ratings.shipping && (
+                        <span>จัดส่ง: {review.ratings.shipping}/5</span>
+                    )}
+                    {review.ratings.itemAsDescribed && (
+                        <span>ตรงปก: {review.ratings.itemAsDescribed}/5</span>
+                    )}
+                    {review.ratings.value && (
+                        <span>คุ้มค่า: {review.ratings.value}/5</span>
+                    )}
                 </div>
-                {review.title && (
-                    <span className="font-medium text-white">{review.title}</span>
-                )}
-            </div>
+            )}
 
             {/* Comment */}
-            <p className={`text-gray-300 text-sm mb-3 ${!showFullComment && isLongComment ? 'line-clamp-3' : ''
-                }`}>
+            <p className={`text-gray-700 dark:text-gray-300 text-sm leading-relaxed ${!expanded && needsExpansion ? 'line-clamp-3' : ''}`}>
                 {review.comment}
             </p>
 
-            {isLongComment && (
+            {needsExpansion && (
                 <button
-                    onClick={() => setShowFullComment(!showFullComment)}
-                    className="text-sm text-purple-400 hover:text-purple-300 mb-3"
+                    onClick={() => setExpanded(!expanded)}
+                    className="text-sm text-purple-600 hover:underline flex items-center gap-1"
                 >
-                    {showFullComment ? t.showLess : t.showMore}
+                    {expanded ? (
+                        <>ย่อ <ChevronUp className="w-4 h-4" /></>
+                    ) : (
+                        <>อ่านเพิ่มเติม <ChevronDown className="w-4 h-4" /></>
+                    )}
                 </button>
             )}
 
-            {/* Pros/Cons */}
-            {(review.pros?.length || review.cons?.length) && (
-                <div className="grid grid-cols-2 gap-3 mb-3">
-                    {review.pros && review.pros.length > 0 && (
-                        <div>
-                            <p className="text-xs text-emerald-400 font-medium mb-1">{t.pros}</p>
-                            <ul className="text-xs text-gray-400 space-y-0.5">
-                                {review.pros.map((pro, i) => (
-                                    <li key={i} className="flex items-center gap-1">
-                                        <span className="text-emerald-400">+</span> {pro}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-                    {review.cons && review.cons.length > 0 && (
-                        <div>
-                            <p className="text-xs text-red-400 font-medium mb-1">{t.cons}</p>
-                            <ul className="text-xs text-gray-400 space-y-0.5">
-                                {review.cons.map((con, i) => (
-                                    <li key={i} className="flex items-center gap-1">
-                                        <span className="text-red-400">-</span> {con}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {/* Media */}
-            {review.media && review.media.length > 0 && (
-                <div className="flex gap-2 mb-3 overflow-x-auto pb-2">
-                    {review.media.map((media, i) => (
-                        <div
-                            key={i}
-                            className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-slate-700"
+            {/* Images */}
+            {review.images && review.images.length > 0 && (
+                <div>
+                    {showImages ? (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex flex-wrap gap-2"
                         >
-                            {media.type === 'image' ? (
-                                <Image
-                                    src={media.url}
-                                    alt={`Review image ${i + 1}`}
-                                    width={80}
-                                    height={80}
-                                    className="w-full h-full object-cover"
+                            {review.images.map((img, i) => (
+                                <img
+                                    key={i}
+                                    src={img}
+                                    alt=""
+                                    className="w-20 h-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
                                 />
-                            ) : (
-                                <video
-                                    src={media.url}
-                                    className="w-full h-full object-cover"
-                                />
-                            )}
-                        </div>
-                    ))}
+                            ))}
+                        </motion.div>
+                    ) : (
+                        <button
+                            onClick={() => setShowImages(true)}
+                            className="text-sm text-purple-600 hover:underline"
+                        >
+                            ดูรูปภาพ ({review.images.length})
+                        </button>
+                    )}
                 </div>
             )}
 
             {/* Seller Response */}
-            {review.seller_response && (
-                <div className="bg-slate-700/50 rounded-lg p-3 mb-3 border-l-2 border-purple-500">
-                    <p className="text-xs text-purple-400 font-medium mb-1">{t.sellerResponse}</p>
-                    <p className="text-sm text-gray-300">{review.seller_response.message}</p>
+            {showSellerResponse && review.response && (
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 ml-4 border-l-4 border-purple-500">
+                    <div className="flex items-center gap-2 mb-2">
+                        <MessageCircle className="w-4 h-4 text-purple-600" />
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                            ผู้ขายตอบกลับ
+                        </span>
+                        <span className="text-xs text-gray-500">
+                            {formatDate(review.response.createdAt)}
+                        </span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {review.response.content}
+                    </p>
                 </div>
             )}
 
             {/* Actions */}
-            <div className="flex items-center gap-4 pt-2 border-t border-slate-700/50">
+            <div className="flex items-center gap-4 pt-2 border-t border-gray-100 dark:border-gray-700">
                 <button
-                    onClick={handleHelpful}
-                    className={`flex items-center gap-1.5 text-sm ${isHelpful
-                            ? 'text-purple-400'
-                            : 'text-gray-500 hover:text-gray-300'
-                        }`}
+                    onClick={() => onHelpful?.(review.id)}
+                    className="flex items-center gap-1 text-sm text-gray-500 hover:text-purple-600 transition-colors"
                 >
-                    <ThumbsUp className={`w-4 h-4 ${isHelpful ? 'fill-current' : ''}`} />
-                    {t.helpful} ({helpfulCount})
+                    <ThumbsUp className="w-4 h-4" />
+                    <span>เป็นประโยชน์</span>
                 </button>
-
-                {onReply && (
-                    <button
-                        onClick={() => onReply(review.id)}
-                        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-300"
-                    >
-                        <Reply className="w-4 h-4" />
-                        Reply
-                    </button>
-                )}
+                <button
+                    onClick={() => onReport?.(review.id)}
+                    className="flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 transition-colors"
+                >
+                    <Flag className="w-4 h-4" />
+                    <span>รายงาน</span>
+                </button>
             </div>
         </div>
     )

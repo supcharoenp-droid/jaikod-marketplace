@@ -11,20 +11,14 @@ export interface RecommendedSeller extends SellerProfile {
 }
 
 // Mock sellers with location data
-const MOCK_SELLERS_DB: Partial<SellerProfile>[] = [
+const MOCK_SELLERS_DB: any[] = [
     {
         id: 's_local_1',
         shop_name: 'Lung Too Gadgets',
         shop_slug: 'lung-too',
         shop_description: 'ขายมือถือมือสอง สภาพนางฟ้า นัดรับได้ทั่วลาดพร้าว',
         shop_logo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop',
-        address: {
-            province: 'กรุงเทพมหานคร',
-            amphoe: 'ลาดพร้าว',
-            district: 'จอมพล',
-            zipcode: '10900',
-            detail: 'Lat Phrao'
-        },
+        location_province: 'กรุงเทพมหานคร',
         main_categories: ['mobile-tablet'],
         rating_score: 4.8,
         rating_count: 120,
@@ -32,8 +26,6 @@ const MOCK_SELLERS_DB: Partial<SellerProfile>[] = [
         response_rate: 98,
         is_verified_seller: true,
         badges: ['verified_seller', 'fast_reply'],
-        // Custom field for mock logic
-        // lat: 13.80, lng: 100.55 (Lat Phrao approx)
     },
     {
         id: 's_local_2',
@@ -41,13 +33,7 @@ const MOCK_SELLERS_DB: Partial<SellerProfile>[] = [
         shop_slug: 'vintage-cam',
         shop_description: 'กล้องฟิล์ม กล้องเก่าสะสม ของดีมีประกัน',
         shop_logo: 'https://images.unsplash.com/photo-1542206395-9feb3edaa68d?w=150&h=150&fit=crop',
-        address: {
-            province: 'กรุงเทพมหานคร',
-            amphoe: 'จตุจักร',
-            district: 'จตุจักร',
-            zipcode: '10900',
-            detail: 'Chatuchak'
-        },
+        location_province: 'กรุงเทพมหานคร',
         main_categories: ['cameras', 'collectibles'],
         rating_score: 4.9,
         rating_count: 500,
@@ -60,13 +46,7 @@ const MOCK_SELLERS_DB: Partial<SellerProfile>[] = [
         shop_slug: 'aj-sneakers',
         shop_description: 'รองเท้ามือสองของแท้ หายาก ราคาแบ่งปัน',
         shop_logo: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?w=150&h=150&fit=crop',
-        address: {
-            province: 'กรุงเทพมหานคร',
-            amphoe: 'พญาไท',
-            district: 'สามเสนใน',
-            zipcode: '10400',
-            detail: 'Ari'
-        },
+        location_province: 'กรุงเทพมหานคร',
         main_categories: ['fashion'],
         rating_score: 4.5,
         rating_count: 80,
@@ -103,7 +83,7 @@ export async function rankSellersByProximityAndTrust(
         // 3. Category Match
         // Check if seller categories match user history
         const userInterests = Object.keys(behavior.profile.categoryScores).filter(k => behavior.profile.categoryScores[Number(k)] > 2)
-        const hasInterestMatch = seller.main_categories?.some(c => userInterests.includes(c))
+        const hasInterestMatch = seller.main_categories?.some((c: string) => userInterests.includes(c))
 
         let matchScore = (trustScore * 0.5) // Base on trust
 

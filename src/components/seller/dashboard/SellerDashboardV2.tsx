@@ -18,6 +18,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { useDisplayName } from '@/hooks/useDisplayName'
 import { getSellerOrders } from '@/lib/orders'
 import { getProductsBySeller } from '@/lib/products'
 import { Order } from '@/types'
@@ -32,20 +33,24 @@ import {
     QuickActionsGrid
 } from '@/components/seller/dashboard/DashboardComponents'
 
-// Existing Components
+// New Components
 import SellerOnboarding from '@/components/seller/SellerOnboarding'
 import AIActionCenter from '@/components/seller/AIActionCenter'
 import ProductHealthWidget from '@/components/seller/ProductHealthWidget'
+import WelcomePrompt from '@/components/seller/WelcomePrompt'
+import ProfileCompletionWidget from '@/components/seller/ProfileCompletionWidget'
 
 export default function SellerDashboardV2() {
     const router = useRouter()
     const { user, storeStatus } = useAuth()
     const { t, language } = useLanguage()
+    const { displayName, hasCustomName, initials, isLoading: profileLoading } = useDisplayName()
 
     // States
     const [isLoading, setIsLoading] = React.useState(true)
     const [sellerProfile, setSellerProfile] = React.useState<any>(null)
     const [recentOrders, setRecentOrders] = React.useState<any[]>([])
+    const [showWelcomePrompt, setShowWelcomePrompt] = React.useState(false)
     const [stats, setStats] = React.useState({
         salesToday: 0,
         salesTrend: 0,
@@ -92,10 +97,10 @@ export default function SellerDashboardV2() {
                 const formattedOrders = sortedOrders.slice(0, 5).map(order => ({
                     id: order.id,
                     customer: order.shipping_address?.name || 'ลูกค้า',
-                    product: order.items?.[0]?.title || 'สินค้า',
+                    product: (order.items?.[0] as any)?.title || (order.items?.[0] as any)?.name || 'สินค้า',
                     amount: order.net_total || 0,
                     status: order.status as any,
-                    date: formatTimeAgo(order.created_at)
+                    date: formatTimeAgo(typeof order.created_at === 'string' ? order.created_at : order.created_at.toISOString())
                 }))
                 setRecentOrders(formattedOrders)
 
@@ -145,7 +150,30 @@ export default function SellerDashboardV2() {
         }
 
         fetchDashboardData()
-    }, [user])
+
+        // Show welcome prompt if no custom name
+        if (!profileLoading && !hasCustomName && user) {
+            // แสดง modal หลังจาก 2 วินาที
+            const timer = setTimeout(() => {
+                setShowWelcomePrompt(true)
+            }, 2000)
+            return () => clearTimeout(timer)
+        }
+    }, [user, profileLoading, hasCustomName])
+
+    // Function to update shop name
+    const handleCompleteWelcome = async (shopName: string) => {
+        try {
+            const { updateSellerProfile } = await import('@/lib/seller')
+            await updateSellerProfile(user!.uid, { shop_name: shopName })
+
+            // Refresh profile
+            window.location.reload()
+        } catch (error) {
+            console.error('Error updating shop name:', error)
+            throw error
+        }
+    }
 
     // Format time ago
     function formatTimeAgo(dateStr: string): string {
@@ -275,7 +303,7 @@ export default function SellerDashboardV2() {
                     <div>
                         <h1 className="text-2xl md:text-3xl font-black text-white flex items-center gap-3">
                             <span className="text-3xl">👋</span>
-                            {t('สวัสดี', 'Hello')}, {sellerProfile?.shop_name || user?.displayName || 'Seller'}!
+                            {t('สวัสดี', 'Hello')}, {displayName}!
                         </h1>
                         <p className="text-gray-400 mt-1">
                             {t('นี่คือสรุปธุรกิจร้านคุณวันนี้', 'Here\'s your business summary for today')}
@@ -325,6 +353,9 @@ export default function SellerDashboardV2() {
                     />
                 </div>
                 <div className="space-y-4">
+                    {/* Profile Completion Widget - Compact */}
+                    <ProfileCompletionWidget compact={true} />
+
                     <h3 className="font-bold text-white flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-purple-400" />
                         {t('ทางลัดด่วน', 'Quick Actions')}
@@ -361,6 +392,13 @@ export default function SellerDashboardV2() {
                     <AIActionCenter />
                 </div>
             </div>
+
+            {/* Welcome Prompt Modal */}
+            <WelcomePrompt
+                isOpen={showWelcomePrompt}
+                onClose={() => setShowWelcomePrompt(false)}
+                onComplete={handleCompleteWelcome}
+            />
         </div>
     )
 }

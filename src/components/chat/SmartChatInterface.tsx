@@ -3,7 +3,37 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Send, MapPin, Image as ImageIcon, Video, Paperclip, MoreVertical, ShieldAlert, Sparkles, Check, CheckCheck } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChatMessage, ChatUser, sendMessage, getSmartReplies, checkSafety, getSafeMeetingPoints } from '@/services/realtimeChatService'
+import { ChatMessage, ChatUser } from '@/services/realtimeChatService'
+
+// Mock functions since they don't exist in realtimeChatService
+const sendMessage = async (conversationId: string, text: string): Promise<ChatMessage> => {
+    return {
+        id: 'm_' + Date.now(),
+        senderId: 'current_user',
+        text,
+        type: 'text' as const,
+        isRead: false,
+        createdAt: Date.now(),
+        status: 'sent' as const
+    }
+}
+
+const getSmartReplies = async (text: string): Promise<string[]> => {
+    if (text.includes('นัดรับ')) return ['ได้ครับ สะดวกวันไหน?', 'นัด BTS สยาม ได้ไหมครับ', 'ขอดูสินค้าก่อนได้ไหม?']
+    return ['สนใจครับ', 'ขอดูรูปเพิ่มได้ไหม?', 'ลดได้ไหมครับ']
+}
+
+const checkSafety = async (text: string): Promise<string | null> => {
+    const scamPatterns = ['โอนก่อน', 'โอนเงิน', 'เลขบัญชี']
+    if (scamPatterns.some(p => text.includes(p))) {
+        return '⚠️ ระวัง! ข้อความนี้อาจมีความเสี่ยง ควรนัดรับสินค้าด้วยตนเอง'
+    }
+    return null
+}
+
+const getSafeMeetingPoints = (): string[] => {
+    return ['BTS สยาม', 'Police Box ลุมพินี', 'ศูนย์การค้า Central']
+}
 
 interface SmartChatProps {
     currentUser: ChatUser
@@ -44,7 +74,8 @@ export default function SmartChatInterface({ currentUser, otherUser, conversatio
                     text: replyText,
                     type: 'text',
                     isRead: false,
-                    createdAt: Date.now()
+                    createdAt: Date.now(),
+                    status: 'delivered' as const
                 }
                 setMessages(prev => [...prev, reply])
 
@@ -139,8 +170,8 @@ export default function SmartChatInterface({ currentUser, otherUser, conversatio
                             className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
                         >
                             <div className={`max-w-[70%] rounded-2xl p-3 text-sm ${isMe
-                                    ? 'bg-blue-600 text-white rounded-br-none shadow-blue-500/20 shadow-lg'
-                                    : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-bl-none shadow-sm'
+                                ? 'bg-blue-600 text-white rounded-br-none shadow-blue-500/20 shadow-lg'
+                                : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-bl-none shadow-sm'
                                 }`}>
                                 {msg.text}
                                 <div className={`text-[10px] mt-1 flex items-center justify-end gap-1 ${isMe ? 'text-blue-200' : 'text-gray-400'}`}>

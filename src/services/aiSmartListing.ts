@@ -182,7 +182,7 @@ export async function classifyCategory(
     })
 
     return {
-        categoryId: parseInt(result.primary.category_id || '1'),
+        categoryId: parseInt(String(result.primary.category_id || '1')),
         categoryName: {
             th: result.primary.category_name_th || 'อื่นๆ',
             en: result.primary.category_name_en || 'Others'
@@ -193,7 +193,7 @@ export async function classifyCategory(
             en: result.short_reason
         },
         alternatives: result.alternatives.map(alt => ({
-            categoryId: parseInt(alt.category_id || '99'),
+            categoryId: parseInt(String(alt.category_id || '99')),
             categoryName: alt.category_name_th || 'อื่นๆ',
             confidence: alt.confidence
         }))

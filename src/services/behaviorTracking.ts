@@ -8,8 +8,6 @@
  * 3. Purchase Intent Prediction
  */
 
-import { Product } from '@/types'
-import { getProductsByIds, getAllProducts, searchProducts, getTrendingProducts } from '@/lib/products'
 import { CATEGORIES } from '@/constants/categories'
 
 // ==========================================
@@ -262,7 +260,7 @@ function updateUserProfile(behavior: UserBehavior, newAction: ProductInteraction
 // ------------------------------------------
 // 5. PUBLIC AI OUTPUT FUNCTIONS (PERSONALIZED FEED)
 // ------------------------------------------
-import { rankProducts, getMockTrendingCategories } from './aiRankingEngine'
+// Ranking functions moved to dynamic imports within functions to avoid circular dependencies
 
 /**
  * Get highly personalized product recommendations
@@ -272,10 +270,12 @@ export async function getPersonalizedRecommendations(limit: number = 20): Promis
     const behavior = getUserBehavior()
 
     // 1. Fetch Candidates (Pool of 100 recent/trending products)
+    const { getAllProducts } = await import('@/lib/products')
     const candidates = await getAllProducts(100)
 
     // 2. Prepare Ranking Context
     // In a real app, we'd get real user location from a context or geo API
+    const { rankProducts, getMockTrendingCategories } = await import('./aiRankingEngine')
     const context = {
         behavior: behavior,
         userLocation: { lat: 13.7563, lng: 100.5018, province: 'กรุงเทพมหานคร' }, // Mock Bangkok
@@ -300,6 +300,7 @@ export async function getPersonalizedDiscounts(limit: number = 10): Promise<Prod
 
     if (interestedCategoryIds.length === 0) return []
 
+    const { getAllProducts } = await import('@/lib/products')
     const allProducts = await getAllProducts(100)
 
     return allProducts
@@ -358,7 +359,8 @@ export async function getIntentBooster(limit: number = 5): Promise<{ category: s
     const catName = CATEGORIES.find(c => c.id === topCatId)?.name_th || 'ที่คุณสนใจ'
 
     // Get top products in this category that haven't been bought yet
-    const allProducts = await getAllProducts(50)
+    const { getAllProducts } = await import('@/lib/products')
+    const allProducts = await getAllProducts(100)
     const boostedProducts = allProducts
         .filter(p => Number(p.category_id) === topCatId && !behavior.contactedProductIds.includes(String(p.id)))
         .slice(0, limit)
@@ -371,9 +373,10 @@ export async function getIntentBooster(limit: number = 5): Promise<{ category: s
 /**
  * Main Feed Aggregator for "For You" Page
  */
-import { getTrustedSellersNearMe } from './sellerScoring'
+// Seller scoring moved to dynamic import within getForYouFeed
 
 export async function getForYouFeed() {
+    const { getTrustedSellersNearMe } = await import('./sellerScoring')
     // Parallelize for performance
     const [
         aiRecommended,
@@ -388,7 +391,7 @@ export async function getForYouFeed() {
         getPersonalizedRecommendations(12),
         getBasedOnSearchHistory(6),
         getNearMeProducts(8, 20),
-        getTrendingProducts(8),
+        (await import('@/lib/products')).getTrendingProducts(8),
         getPersonalizedDiscounts(6),
         getJustListedNearMe(6, 20),
         getIntentBooster(5),
@@ -430,6 +433,7 @@ export async function getHighIntentProducts(limit: number = 5): Promise<Product[
 
     if (highIntentIds.length === 0) return []
 
+    const { getProductsByIds } = await import('@/lib/products')
     return getProductsByIds(highIntentIds)
 }
 
@@ -461,6 +465,7 @@ export async function getRecentlyViewed(limit: number = 10): Promise<Product[]> 
     const behavior = getUserBehavior()
     const ids = behavior.viewedProducts.slice(0, limit)
     if (ids.length === 0) return []
+    const { getProductsByIds } = await import('@/lib/products')
     return getProductsByIds(ids)
 }
 
@@ -469,6 +474,7 @@ export async function getBasedOnSearchHistory(limit: number = 10): Promise<{ que
     const lastSearch = behavior.searchHistory[0]
     if (!lastSearch) return null
 
+    const { searchProducts } = await import('@/lib/products')
     const products = await searchProducts(lastSearch.query)
     return { query: lastSearch.query, products: products.slice(0, limit) }
 }
@@ -479,6 +485,7 @@ export async function getBasedOnFavorites(limit: number = 10): Promise<Product[]
 
     // Get similar active products in same categories as favorites
     // Simplified: Just return some products (Real implementation needs vector search)
+    const { getProductsByIds } = await import('@/lib/products')
     const products = await getProductsByIds(behavior.favoriteProductIds.slice(0, limit))
     return products
 }
@@ -490,6 +497,7 @@ export async function getTrendingInInterests(limit: number = 10): Promise<Produc
 export async function getNearMeProducts(limit: number = 10, maxDistanceKm: number = 50): Promise<Product[]> {
     try {
         const { calculateDistanceToProduct } = await import('@/lib/geolocation')
+        const { getAllProducts } = await import('@/lib/products')
         const allProducts = await getAllProducts(50)
         const productsWithDistance = await Promise.all(
             allProducts.map(async (p) => {

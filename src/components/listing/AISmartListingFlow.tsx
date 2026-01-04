@@ -235,23 +235,29 @@ export default function AISmartListingFlow() {
                 imageUrls.push(URL.createObjectURL(imgFile))
             }
 
-            // Create product
-            await createProduct({
-                name: listingData.title,
-                description: listingData.description,
-                price: listingData.price,
-                categoryId: listingData.categoryId || 99,
-                subCategoryId: listingData.subCategoryId,
-                images: imageUrls,
-                condition: listingData.condition,
-                province: listingData.province,
-                amphoe: listingData.amphoe,
-                district: listingData.district,
-                zipcode: listingData.zipcode,
-                attributes: listingData.attributes,
-                userId: user.id,
-                status: 'active'
-            })
+            // Create product - pass all required arguments
+            await createProduct(
+                {
+                    title: listingData.title,
+                    description: listingData.description,
+                    description_th: listingData.description,
+                    description_en: '',
+                    category_id: String(listingData.categoryId || 99),
+                    price: listingData.price,
+                    price_type: 'negotiable' as const,
+                    condition: listingData.condition,
+                    stock: 1,
+                    province: listingData.province,
+                    amphoe: listingData.amphoe,
+                    district: listingData.district,
+                    zipcode: listingData.zipcode,
+                    can_ship: true,
+                    can_pickup: false,
+                    images: imageUrls
+                },
+                (user as any).uid || (user as any).id,  // userId
+                (user as any).displayName || (user as any).name || 'ผู้ใช้งาน' // userName
+            )
 
             // Success!
             alert(language === 'th' ?

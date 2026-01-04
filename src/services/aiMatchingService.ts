@@ -32,20 +32,25 @@ export async function getDiscoveryDeck(userId: string, limit: number = 20): Prom
     const seenIds = new Set(behavior.viewedProducts)
     const candidates = allProducts.filter(p => !seenIds.has(p.id))
 
-    // 3. Rank with AI Engine
+    // 3. Rank with AI Engine - Convert array to object format
+    const trendingCategoriesMap = MOCK_USER_CONTEXT.trendingCategories.reduce((acc, item) => {
+        acc[item.id] = Math.round(item.growth * 100)
+        return acc
+    }, {} as { [id: string]: number })
+
     const ranked = await rankProducts(candidates, {
         behavior,
         userLocation: MOCK_USER_CONTEXT.userLocation,
-        trendingCategories: MOCK_USER_CONTEXT.trendingCategories
+        trendingCategories: trendingCategoriesMap
     })
 
     // 4. Format for Deck
     return ranked.slice(0, limit).map(item => {
         // Generate a "Match Reason" for UI
         let reason = "แนะนำสำหรับคุณ"
-        if (item.factors.behavior > 80) reason = "ตรงกับความชอบของคุณ 95%"
-        else if (item.factors.geo > 90) reason = "อยู่ใกล้คุณมาก (1 กม.)"
-        else if (item.factors.trending > 80) reason = "กำลังเป็นกระแส 🔥"
+        if (item.factors.userBehavior > 80) reason = "ตรงกับความชอบของคุณ 95%"
+        else if (item.factors.geoDistance > 90) reason = "อยู่ใกล้คุณมาก (1 กม.)"
+        else if (item.factors.categoryPop > 80) reason = "กำลังเป็นกระแส 🔥"
 
         return {
             ...item.product,
@@ -62,11 +67,11 @@ export async function getDiscoveryDeck(userId: string, limit: number = 20): Prom
 export async function processSwipeAction(product: Product, action: 'like' | 'pass' | 'superlike') {
     // 1. Update local behavior model immediately
     if (action === 'like') {
-        trackInteraction('like', String(product.id), Number(product.category_id), product.price)
+        trackInteraction(String(product.id), 'like', { categoryId: Number(product.category_id), price: product.price })
     } else if (action === 'superlike') {
         // Superlike counts as heavy interest
-        trackInteraction('like', String(product.id), Number(product.category_id), product.price)
-        trackInteraction('view', String(product.id), Number(product.category_id), product.price)
+        trackInteraction(String(product.id), 'like', { categoryId: Number(product.category_id), price: product.price })
+        trackInteraction(String(product.id), 'view', { categoryId: Number(product.category_id), price: product.price })
         // trigger save logic
     } else {
         // Pass - maybe negative scoring in future models

@@ -147,7 +147,7 @@ export default function MallPage() {
                                             }`}>
                                             {index + 1}
                                         </div>
-                                        <img src={store.shop_logo} className="w-12 h-12 rounded-lg bg-gray-100 object-cover" />
+                                        <img src={store.shop_logo} alt={store.shop_name} className="w-12 h-12 rounded-lg bg-gray-100 object-cover" />
                                         <div>
                                             <div className="font-bold flex items-center gap-1">
                                                 {store.shop_name}

@@ -88,28 +88,36 @@ async function generateSuggestions(queryText: string, maxResults: number) {
     }
 }
 
-async function getProductPreviews(query: string, maxItems: number) {
+async function getProductPreviews(searchQuery: string, maxItems: number) {
     try {
         // Search in listings first (newer system)
         const listingsRef = collection(db, 'listings')
-        const listingsQuery = query(listingsRef,
+        const listingsQ = query(listingsRef,
             where('status', '==', 'active'),
             limit(maxItems)
         )
 
-        const snapshot = await getDocs(listingsQuery)
+        const snapshot = await getDocs(listingsQ)
 
         const results = snapshot.docs
-            .map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }))
-            .filter((item: any) =>
-                item.title?.toLowerCase().includes(query) ||
-                item.title_th?.toLowerCase().includes(query)
+            .map(doc => {
+                const data = doc.data()
+                return {
+                    id: doc.id,
+                    title: data.title,
+                    title_th: data.title_th,
+                    price: data.price,
+                    thumbnail_url: data.thumbnail_url,
+                    images: data.images,
+                    slug: data.slug
+                }
+            })
+            .filter((item) =>
+                item.title?.toLowerCase().includes(searchQuery) ||
+                item.title_th?.toLowerCase().includes(searchQuery)
             )
             .slice(0, maxItems)
-            .map((item: any) => ({
+            .map((item) => ({
                 id: item.id,
                 title: item.title_th || item.title,
                 price: item.price,

@@ -6,7 +6,8 @@ import ProfileOverviewV3 from '@/components/profile/v3/ProfileOverviewV3'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function ProfileOverviewPage() {
-    const { user, sellerType } = useAuth()
+    const { user, storeStatus } = useAuth()
+    const sellerType = storeStatus.sellerType
 
     // Determine member type based on auth context
     const getMemberType = (): 'general' | 'store_general' | 'store_official' => {

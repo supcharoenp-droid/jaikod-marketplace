@@ -66,7 +66,6 @@ export default function CheckoutPage() {
             // Find selected address obj (In real app, fetch from user profile)
             const addrObj = MOCK_ADDRESSES.find(a => a.id === selectedAddress)
             const shippingAddress: Address = {
-                id: addrObj?.id,
                 name: addrObj?.name || 'Home',
                 address_line1: addrObj?.full || '',
                 province: 'Bangkok', // Mock parsing
@@ -342,7 +341,7 @@ export default function CheckoutPage() {
                                     {cart?.items.map(item => (
                                         <div key={item.id} className="flex gap-3">
                                             <div className="w-12 h-12 bg-gray-100 rounded-lg relative overflow-hidden flex-shrink-0">
-                                                <Image src={item.product.thumbnail_url} alt="" fill className="object-cover" />
+                                                <Image src={item.product.thumbnail_url || '/placeholder-product.png'} alt="" fill className="object-cover" />
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="text-sm font-medium truncate dark:text-white">{item.product.title}</div>
@@ -362,10 +361,10 @@ export default function CheckoutPage() {
                                         <span>{t('cart.shipping')}</span>
                                         <span>฿{currentShippingPrice}</span>
                                     </div>
-                                    {cart?.discount > 0 && (
+                                    {(cart?.discount ?? 0) > 0 && (
                                         <div className="flex justify-between text-sm text-green-600">
                                             <span>Discount</span>
-                                            <span>-฿{cart.discount.toLocaleString()}</span>
+                                            <span>-฿{(cart?.discount ?? 0).toLocaleString()}</span>
                                         </div>
                                     )}
                                 </div>

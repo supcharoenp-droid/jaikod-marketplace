@@ -14,6 +14,8 @@ import { injectMockNotifications } from '@/services/aiNotificationService'
 import ChatDropdown from './ChatDropdown'
 import { useLanguage } from '@/contexts/LanguageContext'
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher'
+import JaiKodLogo from '@/components/branding/JaiKodLogo'
+import LocationSelector from '@/components/common/LocationSelector'
 
 export default function Header() {
     const { user, logout, storeStatus } = useAuth()
@@ -27,8 +29,14 @@ export default function Header() {
     const [unreadCount, setUnreadCount] = useState(0)
     const [unreadChatCount, setUnreadChatCount] = useState(0)
     const [showNotifications, setShowNotifications] = useState(false)
+    const [mounted, setMounted] = useState(false)
 
     const isSellerMode = pathname?.startsWith('/seller')
+
+    // Client-side mounting check
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     // Subscribe to Notifications
     useEffect(() => {
@@ -66,9 +74,27 @@ export default function Header() {
         }
     }
 
+    // Prevent hydration mismatch - wait for client mount
+    if (!mounted) {
+        return (
+            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm h-20">
+                <div className="container mx-auto px-4 h-full flex items-center justify-between">
+                    <div className="w-32 h-8 bg-gray-200 animate-pulse rounded" />
+                    <div className="flex-1 max-w-2xl mx-8">
+                        <div className="w-full h-12 bg-gray-100 animate-pulse rounded-full" />
+                    </div>
+                    <div className="flex gap-3">
+                        <div className="w-24 h-10 bg-gray-200 animate-pulse rounded-lg" />
+                        <div className="w-24 h-10 bg-gray-200 animate-pulse rounded-lg" />
+                    </div>
+                </div>
+            </header>
+        )
+    }
+
     if (isSellerMode) {
         return (
-            <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+            <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm" suppressHydrationWarning>
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-8">
                         <Link href="/" className="flex items-center gap-2 group">
@@ -89,11 +115,11 @@ export default function Header() {
                                 <p className="text-sm font-bold text-gray-900">{storeStatus.shopName || user?.displayName}</p>
                                 <p className="text-xs text-green-600 flex items-center gap-1">
                                     <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                    {language === 'th' ? 'ออนไลน์' : 'Online'}
+                                    <span suppressHydrationWarning>{language === 'th' ? 'ออนไลน์' : 'Online'}</span>
                                 </p>
                             </div>
-                            <div className="w-8 h-8 bg-gray-200 rounded-full overflow-hidden">
-                                {user?.photoURL && <img src={user.photoURL} className="w-full h-full object-cover" alt="" />}
+                            <div className="w-8 h-8 bg-gray-200 rounded-full overflow-hidden" suppressHydrationWarning>
+                                {user?.photoURL && <img src={user.photoURL} className="w-full h-full object-cover" alt="" suppressHydrationWarning />}
                             </div>
                         </div>
                         <Button variant="ghost" size="sm" onClick={() => router.push('/')}>
@@ -107,21 +133,19 @@ export default function Header() {
     }
 
     return (
-        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300">
+        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300" suppressHydrationWarning>
             <div className="container mx-auto px-4">
                 {/* Desktop Header */}
                 <div className="flex items-center justify-between h-20">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-3 group mr-8">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-purple to-indigo-600 flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-all duration-300">
-                            <span className="text-xl font-bold">J</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-xl font-black tracking-tight text-gray-900">
-                                JaiKod
-                            </span>
-                        </div>
+                    <Link href="/" className="flex items-center mr-4 group">
+                        <JaiKodLogo variant="full" size="md" animated={false} />
                     </Link>
+
+                    {/* Location Selector - ตั้งค่าตำแหน่งของคุณ */}
+                    <div className="hidden lg:block mr-4">
+                        <LocationSelector variant="inline" />
+                    </div>
 
                     {/* Search Bar - Desktop */}
                     <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-2xl mx-auto">
@@ -148,14 +172,14 @@ export default function Header() {
                         {user ? (
                             <>
                                 <Link href="/cart">
-                                    <Button variant="ghost" size="icon" className="relative text-gray-600 hover:text-neon-purple bg-gray-50 hover:bg-purple-50">
+                                    <Button variant="ghost" size="sm" className="relative text-gray-600 hover:text-neon-purple bg-gray-50 hover:bg-purple-50 w-10 h-10 p-0">
                                         <ShoppingBag className="w-5 h-5" />
                                     </Button>
                                 </Link>
 
                                 <Button
                                     variant="ghost"
-                                    size="icon"
+                                    size="sm"
                                     className="relative text-gray-600 hover:text-neon-purple bg-gray-50 hover:bg-purple-50"
                                     onClick={() => setShowNotifications(!showNotifications)}
                                 >
@@ -172,20 +196,12 @@ export default function Header() {
 
                                 <div className="h-8 w-[1px] bg-gray-200 mx-2"></div>
 
-                                {storeStatus.hasStore ? (
-                                    <Link href="/seller">
-                                        <Button variant="outline" size="sm" className="hidden lg:flex border-gray-200 hover:border-neon-purple hover:text-neon-purple">
-                                            <Store className="w-4 h-4 mr-2" />
-                                            {t('header.seller_centre')}
-                                        </Button>
-                                    </Link>
-                                ) : (
-                                    <Link href="/sell">
-                                        <Button variant="outline" size="sm" className="hidden lg:flex border-gray-200 hover:border-gray-900">
-                                            {t('header.start_selling')}
-                                        </Button>
-                                    </Link>
-                                )}
+                                <Link href="/sell">
+                                    <Button variant="outline" size="sm" className="hidden lg:flex border-gray-200 hover:border-neon-purple hover:text-neon-purple">
+                                        <Plus className="w-4 h-4 mr-2" />
+                                        {t('header.start_selling')}
+                                    </Button>
+                                </Link>
 
                                 {/* User Dropdown */}
                                 <div className="relative ml-2 group">
@@ -195,9 +211,9 @@ export default function Header() {
                                         onBlur={() => setTimeout(() => setUserMenuOpen(false), 200)}
                                     >
                                         {user.photoURL ? (
-                                            <img src={user.photoURL} className="w-full h-full object-cover" alt="Profile" />
+                                            <img src={user.photoURL} className="w-full h-full object-cover" alt="Profile" suppressHydrationWarning />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold bg-gray-100">
+                                            <div className="w-full h-full flex items-center justify-center text-gray-500 font-bold bg-gray-100" suppressHydrationWarning>
                                                 {user.displayName?.[0]?.toUpperCase() || <User className="w-5 h-5" />}
                                             </div>
                                         )}
@@ -206,7 +222,7 @@ export default function Header() {
                                     {/* Dropdown Menu */}
                                     <div className={`absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 transform transition-all duration-200 origin-top-right z-50 ${userMenuOpen ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}>
                                         {/* User Info Header */}
-                                        <div className="p-4 border-b border-gray-50">
+                                        <div className="p-4 border-b border-gray-50" suppressHydrationWarning>
                                             <p className="font-bold text-gray-900 truncate">{user.displayName}</p>
                                             <p className="text-xs text-gray-500 truncate">{user.email}</p>
                                         </div>
@@ -288,17 +304,17 @@ export default function Header() {
                         {user ? (
                             <>
                                 <Link href="/profile" className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-bold">
+                                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center font-bold" suppressHydrationWarning>
                                         {user.displayName?.[0]}
                                     </div>
-                                    <div>
+                                    <div suppressHydrationWarning>
                                         <div className="font-bold text-gray-900">{user.displayName}</div>
                                         <div className="text-xs text-gray-500">{t('header.view_profile')}</div>
                                     </div>
                                 </Link>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <Link href="/seller">
-                                        <Button variant="outline" className="w-full justify-center">{t('header.seller_centre')}</Button>
+                                    <Link href="/sell">
+                                        <Button variant="outline" className="w-full justify-center">{t('header.start_selling')}</Button>
                                     </Link>
                                     <Button variant="outline" className="w-full justify-center text-red-500" onClick={handleLogout}>{t('header.logout')}</Button>
                                 </div>

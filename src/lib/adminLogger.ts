@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp, query, getDocs, orderBy, limit } from 'firebase/firestore'
 import { AdminUser } from '@/types/admin'
 
 export type ActionType =
@@ -25,6 +25,21 @@ export type ActionType =
     | 'MODERATION_RESOLVE'
     | 'FINANCE_APPROVE'
     | 'FINANCE_REJECT'
+    | 'AI_KYC_BATCH'
+    | 'USER_ROLE_UPDATE'
+    | 'AI_INSIGHT_GENERATE'
+    // Category actions
+    | 'CATEGORY_CREATE'
+    | 'CATEGORY_UPDATE'
+    | 'CATEGORY_DELETE'
+    | 'CATEGORY_SEED'
+    // Promotion actions
+    | 'PROMOTION_CREATE'
+    | 'PROMOTION_UPDATE'
+    | 'PROMOTION_DELETE'
+    // System actions
+    | 'SYSTEM_SCRIPT'
+    | 'RISK_ASSESS'
 
 // Simple helper to get Client IP (Best effort)
 const getClientIP = async (): Promise<string> => {
@@ -65,5 +80,21 @@ export async function logAdminAction(
         })
     } catch (error) {
         console.error('Failed to write audit log:', error)
+    }
+}
+
+// Fetch lateat logs for dashboard
+export async function getAdminLogs(limitCount: number = 5) {
+    try {
+        const q = query(collection(db, 'system_logs'), orderBy('timestamp', 'desc'), limit(limitCount))
+        const snap = await getDocs(q)
+        return snap.docs.map(d => ({
+            id: d.id,
+            ...d.data(),
+            timestamp: d.data().timestamp?.toDate() || new Date()
+        }))
+    } catch (e) {
+        console.error(e)
+        return []
     }
 }

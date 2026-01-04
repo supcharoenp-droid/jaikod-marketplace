@@ -172,7 +172,7 @@ export default function AutomotiveForm({
     )
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6 pb-24 font-sans">
+        <div className="max-w-4xl mx-auto space-y-6 pb-32 md:pb-24 font-sans">
 
             {/* Header */}
             <div className="flex items-center justify-between mb-2">
@@ -405,18 +405,17 @@ export default function AutomotiveForm({
                 </div>
             </Section>
 
-            {/* Action Bar */}
-            <div className="fixed bottom-0 inset-x-0 p-4 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 z-50 flex items-center justify-between gap-4 max-w-4xl mx-auto md:relative md:bg-transparent md:border-none md:p-0 md:mt-8">
-                <button onClick={onBack} className="px-6 py-3 rounded-xl border border-gray-200 dark:border-gray-700 font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                    Back
+            {/* Action Bar - Sticky on Mobile */}
+            <div className="fixed bottom-0 inset-x-0 px-4 py-4 pb-safe bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 z-50 flex items-center justify-between gap-3 max-w-4xl mx-auto shadow-2xl md:relative md:bg-transparent md:backdrop-blur-none md:border-none md:shadow-none md:p-0 md:mt-8">
+                <button onClick={onBack} className="px-6 py-4 md:py-3 rounded-xl border-2 border-gray-300 dark:border-gray-700 font-bold text-base md:text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex-shrink-0">
+                    ← ย้อนกลับ
                 </button>
                 <div className="flex gap-2 flex-1 justify-end">
-                    <button onClick={() => onSaveDraft(form)} className="px-6 py-3 rounded-xl border border-blue-200 text-blue-600 font-bold hover:bg-blue-50 transition-colors hidden sm:block">
-                        Save Draft
+                    <button onClick={() => onSaveDraft(form)} className="px-4 py-4 md:py-3 rounded-xl border-2 border-blue-300 text-blue-600 dark:text-blue-400 font-bold text-sm hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors hidden sm:block">
+                        💾 Draft
                     </button>
-                    <button onClick={handleSubmit} className="px-8 py-3 rounded-xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-colors flex items-center gap-2">
-                        <span>Publish Listing</span>
-                        <ChevronRight className="w-5 h-5" />
+                    <button onClick={handleSubmit} className="px-8 py-4 md:py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold shadow-xl shadow-blue-300/50 dark:shadow-purple-500/30 hover:from-blue-700 hover:to-purple-700 transition-all flex items-center gap-2 text-base md:text-sm">
+                        <span>🚀 โพสต์ประกาศ</span>
                     </button>
                 </div>
             </div>

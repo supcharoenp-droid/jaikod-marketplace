@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import type { ModerationResult, ModerationCheck } from '@/types/moderation'
-import { ContentModerationService } from '@/lib/content-moderation'
+// Removed import for missing ContentModerationService
 import {
     CheckCircle2, XCircle, AlertTriangle, Clock,
     Sparkles, Shield, Image as ImageIcon, DollarSign,
@@ -222,12 +222,12 @@ export default function ModerationStatus({
                                 <defs>
                                     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
                                         <stop offset="0%" className={`${result.overall_score >= 85 ? 'text-green-500' :
-                                                result.overall_score >= 70 ? 'text-yellow-500' :
-                                                    'text-red-500'
+                                            result.overall_score >= 70 ? 'text-yellow-500' :
+                                                'text-red-500'
                                             }`} stopColor="currentColor" />
                                         <stop offset="100%" className={`${result.overall_score >= 85 ? 'text-emerald-500' :
-                                                result.overall_score >= 70 ? 'text-orange-500' :
-                                                    'text-rose-500'
+                                            result.overall_score >= 70 ? 'text-orange-500' :
+                                                'text-rose-500'
                                             }`} stopColor="currentColor" />
                                     </linearGradient>
                                 </defs>
@@ -235,8 +235,8 @@ export default function ModerationStatus({
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <div className="text-center">
                                     <div className={`text-2xl font-bold bg-gradient-to-r ${result.overall_score >= 85 ? 'from-green-600 to-emerald-600' :
-                                            result.overall_score >= 70 ? 'from-yellow-600 to-orange-600' :
-                                                'from-red-600 to-rose-600'
+                                        result.overall_score >= 70 ? 'from-yellow-600 to-orange-600' :
+                                            'from-red-600 to-rose-600'
                                         } bg-clip-text text-transparent`}>
                                         {result.overall_score}
                                     </div>
@@ -313,25 +313,25 @@ export default function ModerationStatus({
                         <div
                             key={idx}
                             className={`group relative overflow-hidden rounded-2xl p-4 border transition-all duration-300 hover:scale-[1.02] ${isPass ? 'bg-green-50/50 dark:bg-green-900/10 border-green-200 dark:border-green-800 hover:shadow-lg hover:shadow-green-500/10' :
-                                    isWarning ? 'bg-yellow-50/50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800 hover:shadow-lg hover:shadow-yellow-500/10' :
-                                        'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800 hover:shadow-lg hover:shadow-red-500/10'
+                                isWarning ? 'bg-yellow-50/50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800 hover:shadow-lg hover:shadow-yellow-500/10' :
+                                    'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800 hover:shadow-lg hover:shadow-red-500/10'
                                 }`}
                         >
                             {/* Gradient overlay */}
                             <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity ${isPass ? 'bg-gradient-to-r from-green-500/5 to-emerald-500/5' :
-                                    isWarning ? 'bg-gradient-to-r from-yellow-500/5 to-orange-500/5' :
-                                        'bg-gradient-to-r from-red-500/5 to-rose-500/5'
+                                isWarning ? 'bg-gradient-to-r from-yellow-500/5 to-orange-500/5' :
+                                    'bg-gradient-to-r from-red-500/5 to-rose-500/5'
                                 }`} />
 
                             <div className="relative flex items-start gap-3">
                                 {/* Icon */}
                                 <div className={`p-2 rounded-xl ${isPass ? 'bg-green-100 dark:bg-green-900/30' :
-                                        isWarning ? 'bg-yellow-100 dark:bg-yellow-900/30' :
-                                            'bg-red-100 dark:bg-red-900/30'
+                                    isWarning ? 'bg-yellow-100 dark:bg-yellow-900/30' :
+                                        'bg-red-100 dark:bg-red-900/30'
                                     }`}>
                                     <CheckIcon className={`w-5 h-5 ${isPass ? 'text-green-600 dark:text-green-400' :
-                                            isWarning ? 'text-yellow-600 dark:text-yellow-400' :
-                                                'text-red-600 dark:text-red-400'
+                                        isWarning ? 'text-yellow-600 dark:text-yellow-400' :
+                                            'text-red-600 dark:text-red-400'
                                         }`} />
                                 </div>
 
@@ -342,8 +342,8 @@ export default function ModerationStatus({
                                         {isWarning && <AlertTriangle className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />}
                                         {isFail && <XCircle className="w-4 h-4 text-red-600 dark:text-red-400" />}
                                         <span className={`text-sm font-semibold ${isPass ? 'text-green-900 dark:text-green-200' :
-                                                isWarning ? 'text-yellow-900 dark:text-yellow-200' :
-                                                    'text-red-900 dark:text-red-200'
+                                            isWarning ? 'text-yellow-900 dark:text-yellow-200' :
+                                                'text-red-900 dark:text-red-200'
                                             }`}>
                                             {getCategoryText(check.category)}
                                         </span>

@@ -18,7 +18,7 @@ import { CATEGORIES, PRODUCT_CONDITIONS } from '@/constants/categories'
 import { createProduct, CreateProductInput, getProductById, updateProduct } from '@/lib/products'
 import { getSellerProfile } from '@/lib/seller'
 import { useAuth } from '@/contexts/AuthContext'
-import { ContentModerationService } from '@/lib/content-moderation'
+import { moderateContent } from '@/lib/content-moderation'
 import type { ModerationResult } from '@/types/moderation'
 import type { MarketPriceAnalysis } from '@/lib/ai-price-estimator'
 
@@ -110,9 +110,13 @@ function CreateProductPageContent() {
                     // router.push('/seller/register') 
                     // Optional: For now we allow even if not fully registered, 
                     // but practically the dashboard redirects them.
-                } else if (profile.address) {
-                    // Pre-fill address from seller profile
-                    // We need to map address fields correctly if they differ
+                } else {
+                    // Pre-fill address from seller profile if available
+                    // Profile may have address stored - handle as any since type may vary
+                    const profileAny = profile as any
+                    if (profileAny.address) {
+                        // Address exists - could pre-fill form
+                    }
                 }
             }
         }
@@ -327,25 +331,21 @@ function CreateProductPageContent() {
             attributes.price = formData.price;
             attributes.province = formData.province;
 
+            // Use correct input type - generateProductDescription returns a string
             const result = await generateProductDescription({
-                categoryId: formData.category_id,
-                attributes: attributes,
-                sellerNotes: formData.description
+                title: formData.title || '',
+                category: formData.category_id,
+                description: formData.description,
+                condition: formData.condition,
+                price: formData.price,
+                keywords: tags
             })
 
+            // result is a string, use it as description
             setFormData(prev => ({
                 ...prev,
-                title: result.generated_title || prev.title,
-                description: result.description,
+                description: result || prev.description,
             }))
-
-            // Add suggested tags (convert hashtags to simple tags)
-            const cleanTags = result.hashtags.map(t => t.replace(/^#/, ''));
-            const newTags = [...tags, ...cleanTags].filter((v, i, a) => a.indexOf(v) === i);
-            setTags(newTags);
-
-            // If spec object is returned, we could log it or use it, but currently description already contains specs.
-            console.log('AI Generated Specs:', result.spec);
 
         } catch (error) {
             console.error("AI Generation Error:", error)
@@ -458,8 +458,7 @@ function CreateProductPageContent() {
                 zipcode: formData.zipcode || '',
                 can_ship: formData.can_ship || false,
                 can_pickup: formData.can_pickup || false,
-                shipping_fee: formData.shipping_fee || 0,
-                status: 'active'
+                shipping_fee: formData.shipping_fee || 0
             }
 
             if (editId) {

@@ -10,6 +10,8 @@ import { ChatProvider } from '@/contexts/ChatContext'
 import CookieConsent from '@/components/common/CookieConsent'
 import FloatingChatWidget from '@/components/chat/FloatingChatWidget'
 import { PWAProvider } from '@/components/pwa'
+import ToasterProvider from '@/components/providers/ToasterProvider'
+import { QueryProvider } from '@/providers/QueryProvider'
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://jaikod.com'
 
@@ -172,25 +174,46 @@ export default function RootLayout({
                 />
             </head>
             <body className="font-primary antialiased" suppressHydrationWarning>
-                <LanguageProvider>
-                    <AuthProvider>
-                        <AdminProvider>
-                            <SiteSettingsProvider>
-                                <WishlistProvider>
-                                    <NotificationProvider>
-                                        <ChatProvider>
-                                            <PWAProvider>
-                                                {children}
-                                                <FloatingChatWidget />
-                                                <CookieConsent />
-                                            </PWAProvider>
-                                        </ChatProvider>
-                                    </NotificationProvider>
-                                </WishlistProvider>
-                            </SiteSettingsProvider>
-                        </AdminProvider>
-                    </AuthProvider>
-                </LanguageProvider>
+                {/* Dark Mode Script - Runs before React hydration to prevent mismatch */}
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `
+                            (function() {
+                                try {
+                                    var theme = localStorage.getItem('theme');
+                                    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                                    if (theme === 'dark' || (!theme && prefersDark)) {
+                                        document.documentElement.classList.add('dark');
+                                    } else {
+                                        document.documentElement.classList.remove('dark');
+                                    }
+                                } catch (e) {}
+                            })();
+                        `,
+                    }}
+                />
+                <QueryProvider>
+                    <LanguageProvider>
+                        <AuthProvider>
+                            <AdminProvider>
+                                <SiteSettingsProvider>
+                                    <WishlistProvider>
+                                        <NotificationProvider>
+                                            <ChatProvider>
+                                                <PWAProvider>
+                                                    {children}
+                                                    <ToasterProvider />
+                                                    <FloatingChatWidget />
+                                                    <CookieConsent />
+                                                </PWAProvider>
+                                            </ChatProvider>
+                                        </NotificationProvider>
+                                    </WishlistProvider>
+                                </SiteSettingsProvider>
+                            </AdminProvider>
+                        </AuthProvider>
+                    </LanguageProvider>
+                </QueryProvider>
             </body>
         </html>
     )

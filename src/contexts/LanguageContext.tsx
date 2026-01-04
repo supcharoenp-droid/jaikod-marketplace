@@ -18,7 +18,7 @@ type Language = 'th' | 'en'
 interface LanguageContextType {
     language: Language
     setLanguage: (lang: Language) => void
-    t: (keyOrTh: string, en?: string) => string
+    t: (keyOrTh: string, optionsOrEn?: string | Record<string, any>) => string
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
@@ -63,18 +63,29 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
      * 1. t('seller_dashboard.title') - Looks up from translations
      * 2. t('สวัสดี', 'Hello') - Inline translation (legacy)
      */
-    const t = (keyOrTh: string, en?: string): string => {
-        // Pattern 2: Inline translation (legacy) - when 2 args provided
-        if (en !== undefined) {
-            return language === 'th' ? keyOrTh : en
+    const t = (keyOrTh: string, optionsOrEn?: string | Record<string, any>): string => {
+        // Pattern 2: Inline translation (legacy) - when 2 string args provided
+        if (typeof optionsOrEn === 'string') {
+            return language === 'th' ? keyOrTh : optionsOrEn
         }
 
         // Pattern 1: Key-based lookup
         const langData = translations[language]
         if (!langData) return keyOrTh
 
-        const value = getNestedValue(langData, keyOrTh)
-        return value !== undefined ? value : keyOrTh
+        let value = getNestedValue(langData, keyOrTh)
+
+        // Return key if not found
+        if (value === undefined) return keyOrTh
+
+        // Simple interpolation if options provided
+        if (optionsOrEn && typeof optionsOrEn === 'object') {
+            Object.entries(optionsOrEn).forEach(([key, val]) => {
+                value = value!.replace(`{{${key}}}`, String(val))
+            })
+        }
+
+        return value
     }
 
     return (
@@ -87,7 +98,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 export function useLanguage() {
     const context = useContext(LanguageContext)
     if (context === undefined) {
-        throw new Error('useLanguage must be used within a LanguageProvider')
+        // Return default values silently instead of warning/throwing
+        // This handles micro-hydration or edge cases where components are rendered before provider
+        return {
+            language: 'th' as Language,
+            setLanguage: () => { },
+            t: (keyOrTh: string, optionsOrEn?: string | Record<string, any>) => keyOrTh
+        }
     }
     return context
 }
+

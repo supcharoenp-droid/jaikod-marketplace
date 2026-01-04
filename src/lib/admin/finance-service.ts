@@ -109,7 +109,7 @@ export async function getFinanceStats(): Promise<FinanceStats> {
         // Let's mock Total Revenue as 15% of total approved transactions for display
 
         return {
-            totalRevenue: 1250000, // Mock for 'Total Revenue' (e.g. commission collected)
+            totalRevenue: Math.round(approved.reduce((sum, p) => sum + (p.amount || 0), 0) * 0.03), // Est. 3% commission from approved payouts
             pendingPayoutsAmount: pending.reduce((sum, p) => sum + (p.amount || 0), 0),
             pendingPayoutsCount: pending.length,
             processedPayoutsAmount: approved.reduce((sum, p) => sum + (p.amount || 0), 0)

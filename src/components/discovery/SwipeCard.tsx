@@ -59,7 +59,7 @@ export default function SwipeCard({ product, onSwipe, isFront }: SwipeCardProps)
             {/* Image */}
             <div className="relative h-3/4 w-full bg-gray-200">
                 <img
-                    src={product.images?.[0] || 'https://via.placeholder.com/400x600'}
+                    src={typeof product.images?.[0] === 'string' ? product.images[0] : (product.images?.[0] as any)?.url || 'https://via.placeholder.com/400x600'}
                     alt={product.title}
                     className="w-full h-full object-cover pointer-events-none"
                 />

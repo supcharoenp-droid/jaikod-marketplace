@@ -22,7 +22,7 @@ import {
     startAfter,
     DocumentSnapshot
 } from 'firebase/firestore'
-import type { UniversalListing } from '@/lib/listings/types'
+import type { UniversalListing } from '@/types'
 import { toThaiProvince, toThaiAmphoe } from '@/lib/location-localization'
 
 // Unified product interface for display
@@ -54,6 +54,7 @@ export interface UnifiedProduct {
     // Location
     province?: string
     amphoe?: string
+    distance?: number  // Distance from user in km (calculated client-side)
 
     // Status
     condition: string

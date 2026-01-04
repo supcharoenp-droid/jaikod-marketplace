@@ -19,6 +19,9 @@ import {
     Check, AlertCircle, Loader2
 } from 'lucide-react'
 import Link from 'next/link'
+import { useAuth } from '@/contexts/AuthContext'
+import { createListing } from '@/lib/listings'
+import { CreateListingInput, SellerInfo } from '@/lib/listings/types'
 
 // ============================================
 // MAIN PAGE COMPONENT
@@ -128,26 +131,77 @@ function ListingFormPage() {
         return Object.keys(newErrors).length === 0
     }
 
+    // Verify auth
+    const { user } = useAuth()
+
     // Submit form
     const handleSubmit = async () => {
         if (!validateForm()) {
-            // Scroll to first error
+            // Scroll to top or first error
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+            return
+        }
+
+        if (!user) {
+            // Should be handled by middleware/route protection, but double check
+            router.push(`/login?redirect=/sell/${categorySlug}/${subcategorySlug}`)
             return
         }
 
         setIsSubmitting(true)
 
         try {
-            // TODO: Implement actual submission
-            console.log('Submitting:', { formData, images, template })
+            // 1. Prepare Seller Info
+            const sellerInfo: SellerInfo = {
+                name: user.displayName || 'Seller',
+                avatar: user.photoURL || '',
+                verified: false,
+                trust_score: 50,
+                response_rate: 100,
+                response_time_minutes: 60,
+                total_listings: 1,
+                successful_sales: 0
+            }
 
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000))
+            // 2. Prepare Listing Input
+            const listingInput: CreateListingInput = {
+                category_type: categorySlug as any, // TODO: Map consistently
+                category_id: category?.id || 0,
+                subcategory_id: subcategory?.id,
 
-            // Redirect to success page
-            router.push('/seller/products?success=true')
+                title: formData['title'] as string,
+                price: Number(formData['price']) || 0,
+                price_negotiable: formData['price_negotiable'] as boolean,
+
+                template_data: formData, // Store all form fields as template data
+
+                // TODO: Get actual location from form or user profile
+                location: {
+                    province: formData['province'] as string || 'Bangkok',
+                    amphoe: formData['amphoe'] as string || '',
+                },
+
+                images: images, // Pass base64/urls, service handles upload
+
+                contact: {
+                    show_phone: true,
+                    phone: '',
+                    preferred_contact: 'chat'
+                }
+            }
+
+            // 3. Create Listing
+            const result = await createListing(listingInput, user.uid, sellerInfo)
+
+            console.log('Listing created:', result)
+
+            // 4. Redirect to the new listing
+            router.push(`/listing/${result.slug}?success=true`)
+
         } catch (error) {
             console.error('Submission error:', error)
+            // Show error toast/alert
+            setErrors({ submit: 'Failed to create listing. Please try again.' })
         } finally {
             setIsSubmitting(false)
         }

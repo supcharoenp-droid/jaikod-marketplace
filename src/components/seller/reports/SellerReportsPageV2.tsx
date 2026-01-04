@@ -272,8 +272,8 @@ export default function SellerReportsPageV2() {
                                 <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} />
                                 <Tooltip
                                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                    formatter={(value: number, name: string) => [
-                                        name === 'revenue' ? `฿${value.toLocaleString()}` : value,
+                                    formatter={(value, name) => [
+                                        name === 'revenue' ? `฿${Number(value).toLocaleString()}` : value,
                                         name === 'revenue' ? t('รายได้', 'Revenue') : t('คำสั่งซื้อ', 'Orders')
                                     ]}
                                 />

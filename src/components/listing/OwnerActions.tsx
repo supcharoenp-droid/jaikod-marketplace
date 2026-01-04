@@ -8,7 +8,7 @@ import {
     Edit, Trash2, Zap, RefreshCw, CheckCircle2, Lock,
     MoreVertical, ExternalLink, BarChart3, Copy, Eye, Settings
 } from 'lucide-react'
-import { UniversalListing } from '@/lib/listings/types'
+import { UniversalListing } from '@/types'
 
 // ==========================================
 // TYPES
@@ -217,8 +217,8 @@ export function OwnerQuickMenu({ listing, isOwner, language = 'th', onAction }: 
                                         <button
                                             onClick={() => handleAction(action.id)}
                                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${action.danger
-                                                    ? 'hover:bg-red-900/30 text-red-400'
-                                                    : 'hover:bg-slate-700 text-gray-300'
+                                                ? 'hover:bg-red-900/30 text-red-400'
+                                                : 'hover:bg-slate-700 text-gray-300'
                                                 }`}
                                         >
                                             <span className={action.color}>{action.icon}</span>

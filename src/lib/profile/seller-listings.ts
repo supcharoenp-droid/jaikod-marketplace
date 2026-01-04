@@ -330,6 +330,10 @@ export async function markAsSold(listingId: string): Promise<boolean> {
 
 export async function softDeleteListing(listingId: string): Promise<boolean> {
     try {
+        if (!listingId || listingId.trim() === '') {
+            throw new Error('ไม่พบ ID ของประกาศ')
+        }
+
         const listingRef = doc(db, 'listings', listingId)
 
         await updateDoc(listingRef, {
@@ -338,10 +342,12 @@ export async function softDeleteListing(listingId: string): Promise<boolean> {
             updated_at: Timestamp.now()
         })
 
+        console.log(`✅ ลบประกาศสำเร็จ: ${listingId}`)
         return true
-    } catch (error) {
-        console.error('Error deleting listing:', error)
-        return false
+    } catch (error: any) {
+        console.error('❌ เกิดข้อผิดพลาดขณะลบประกาศ:', error)
+        // Throw error เพื่อให้ UI จับได้
+        throw new Error(error.message || 'ไม่สามารถลบประกาศได้ โปรดลองใหม่อีกครั้ง')
     }
 }
 

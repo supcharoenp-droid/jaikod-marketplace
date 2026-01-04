@@ -69,6 +69,10 @@ export function useCart() {
         }
     }
 
+    const clearCart = () => {
+        setCart(null)
+    }
+
     return {
         cart,
         loading,
@@ -77,6 +81,7 @@ export function useCart() {
         updateQuantity,
         removeItem,
         applyCoupon,
+        clearCart,
         refreshCart: fetchCart
     }
 }

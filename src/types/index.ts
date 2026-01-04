@@ -1,3 +1,24 @@
+/**
+ * UNIFIED TYPE DEFINITIONS
+ * 
+ * This is the main entry point for all types in JaiKod
+ * Import from '@/types' for any type you need
+ * 
+ * @version 2.0.0
+ * @updated 2025-12-30
+ */
+
+// ===== RE-EXPORT UNIFIED TYPES =====
+// These are the canonical type definitions
+
+// Listing Types
+export * from './listing'
+
+// Seller Types  
+export * from './seller'
+
+// ===== CORE TYPES =====
+
 export interface User {
     id: string
     role: 'buyer' | 'seller' | 'hybrid' | 'admin'
@@ -263,7 +284,7 @@ export interface Order {
     net_total: number
 
     // Workflow
-    status: 'pending_payment' | 'paid' | 'shipping' | 'shipped' | 'completed' | 'cancelled'
+    status: 'pending_payment' | 'paid' | 'shipping' | 'shipped' | 'completed' | 'cancelled' | 'refunded'
     payment_method: 'promptpay' | 'credit_card' | 'transfer' | 'cod'
     payment_slip_url?: string
 

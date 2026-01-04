@@ -29,11 +29,12 @@ interface SiteSettingsContextType {
  * - NEXT_PUBLIC_MAINTENANCE_MODE=false → เปิดเว็บปกติ
  */
 const isProduction = process.env.NODE_ENV === 'production'
-const envMaintenanceMode = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true'
+// Maintenance OFF only if explicitly set to 'false'
+const envMaintenanceMode = process.env.NEXT_PUBLIC_MAINTENANCE_MODE !== 'false'
 
 // In development: always OFF (see full site)
-// In production: controlled by env var (default: ON for safety)
-const defaultMaintenanceMode = isProduction ? (envMaintenanceMode ?? true) : false
+// In production: ON by default unless NEXT_PUBLIC_MAINTENANCE_MODE=false
+const defaultMaintenanceMode = isProduction ? envMaintenanceMode : false
 
 const defaultSettings: SiteSettings = {
     promotionsEnabled: false, // Default: ปิดโปรโมชั่น

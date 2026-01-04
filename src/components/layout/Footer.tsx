@@ -7,6 +7,7 @@ import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin, Sparkles } 
 export default function Footer() {
     const { t, language } = useLanguage()
 
+    // Use dynamic year based on language (Thai Buddhist Era or CE)
     const currentYear = language === 'th' ? '2568' : '2025'
 
     return (
@@ -171,7 +172,7 @@ export default function Footer() {
                 {/* Bottom Bar */}
                 <div className="mt-6 pt-6 border-t border-white/10">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500" suppressHydrationWarning>
                             © {currentYear} JaiKod. {language === 'th' ? 'สงวนลิขสิทธิ์' : 'All rights reserved.'}
                         </p>
                         <div className="flex items-center gap-3 text-sm text-gray-500">

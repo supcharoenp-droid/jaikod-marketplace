@@ -30,7 +30,7 @@ import ProfileLayoutV3 from '@/components/profile/v3/ProfileLayoutV3'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useAuth } from '@/contexts/AuthContext'
 import { getListingsBySeller, deleteListing, updateListingStatus } from '@/lib/listings'
-import { UniversalListing } from '@/lib/listings/types'
+import { UniversalListing } from '@/types'
 
 // ==========================================
 // TRANSLATIONS
@@ -580,8 +580,8 @@ const MOCK_LISTINGS: UniversalListing[] = [
         thumbnail_url: 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=400',
         images: [],
         seller_id: '123',
-        seller_info: {} as any,
-        location: { province: 'กรุงเทพมหานคร' },
+        seller_info: { name: 'Test Seller', verified: false, trust_score: 80 } as any,
+        location: { province: 'กรุงเทพมหานคร', amphoe: 'จตุจักร' },
         stats: { views: 1234, favorites: 45, shares: 12, inquiries: 8 },
         created_at: new Date('2024-12-15'),
         updated_at: new Date('2024-12-20'),
@@ -602,8 +602,8 @@ const MOCK_LISTINGS: UniversalListing[] = [
         thumbnail_url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',
         images: [],
         seller_id: '123',
-        seller_info: {} as any,
-        location: { province: 'นนทบุรี' },
+        seller_info: { name: 'Test Seller', verified: false, trust_score: 80 } as any,
+        location: { province: 'นนทบุรี', amphoe: 'เมืองนนทบุรี' },
         stats: { views: 567, favorites: 23, shares: 5, inquiries: 3 },
         created_at: new Date('2024-12-10'),
         updated_at: new Date('2024-12-18'),
@@ -614,7 +614,7 @@ const MOCK_LISTINGS: UniversalListing[] = [
         listing_code: 'JK-C3R2TY',
         listing_number: 'ELE-202412-00003',
         slug: 'iphone-15-pro-max-jk-c3r2ty',
-        category_type: 'electronics',
+        category_type: 'mobile',  // Changed from 'electronics' to 'mobile'
         category_id: 4,
         subcategory_id: 401,
         title: 'iPhone 15 Pro Max 256GB Natural Titanium',
@@ -624,8 +624,8 @@ const MOCK_LISTINGS: UniversalListing[] = [
         thumbnail_url: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400',
         images: [],
         seller_id: '123',
-        seller_info: {} as any,
-        location: { province: 'กรุงเทพมหานคร' },
+        seller_info: { name: 'Test Seller', verified: false, trust_score: 80 } as any,
+        location: { province: 'กรุงเทพมหานคร', amphoe: 'บางกะปิ' },
         stats: { views: 2345, favorites: 89, shares: 34, inquiries: 15 },
         created_at: new Date('2024-11-01'),
         updated_at: new Date('2024-11-15'),
@@ -636,7 +636,7 @@ const MOCK_LISTINGS: UniversalListing[] = [
         listing_code: 'JK-D5F7GH',
         listing_number: 'ELE-202412-00004',
         slug: 'macbook-air-m2-jk-d5f7gh',
-        category_type: 'electronics',
+        category_type: 'general',  // Changed from 'electronics' to 'general'
         category_id: 4,
         subcategory_id: 402,
         title: 'MacBook Air M2 2023 8/256 สีเงิน',
@@ -646,8 +646,8 @@ const MOCK_LISTINGS: UniversalListing[] = [
         thumbnail_url: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400',
         images: [],
         seller_id: '123',
-        seller_info: {} as any,
-        location: { province: 'กรุงเทพมหานคร' },
+        seller_info: { name: 'Test Seller', verified: false, trust_score: 80 } as any,
+        location: { province: 'กรุงเทพมหานคร', amphoe: 'ห้วยขวาง' },
         stats: { views: 1890, favorites: 67, shares: 28, inquiries: 12 },
         created_at: new Date('2024-11-20'),
         updated_at: new Date('2024-12-10'),

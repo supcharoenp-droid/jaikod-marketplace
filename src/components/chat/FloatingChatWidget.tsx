@@ -118,7 +118,7 @@ export default function FloatingChatWidget() {
     // If not logged in, show login prompt
     if (!user) {
         return (
-            <div className="fixed bottom-6 right-6 z-50">
+            <div className="fixed bottom-6 right-6 z-30">
                 <Link
                     href="/login"
                     className="w-14 h-14 bg-purple-500 hover:bg-purple-600 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
@@ -130,7 +130,7 @@ export default function FloatingChatWidget() {
     }
 
     return (
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed bottom-6 right-6 z-30">
             {/* Chat Window */}
             {isOpen && (
                 <div className={`mb-4 bg-slate-900 rounded-2xl border border-slate-700 shadow-2xl overflow-hidden transition-all ${isExpanded ? 'w-[500px] h-[600px]' : 'w-80 h-[450px]'
@@ -328,8 +328,8 @@ function MessageBubble({ message, isOwn, formatTime }: MessageBubbleProps) {
                         </p>
                         {message.offerStatus && (
                             <span className={`text-xs mt-2 inline-block px-2 py-0.5 rounded ${message.offerStatus === 'accepted' ? 'bg-emerald-500/20 text-emerald-400' :
-                                    message.offerStatus === 'rejected' ? 'bg-red-500/20 text-red-400' :
-                                        'bg-yellow-500/20 text-yellow-400'
+                                message.offerStatus === 'rejected' ? 'bg-red-500/20 text-red-400' :
+                                    'bg-yellow-500/20 text-yellow-400'
                                 }`}>
                                 {message.offerStatus === 'accepted' ? 'ยอมรับแล้ว' :
                                     message.offerStatus === 'rejected' ? 'ปฏิเสธ' : 'รอตอบ'}
@@ -352,8 +352,8 @@ function MessageBubble({ message, isOwn, formatTime }: MessageBubbleProps) {
 
                 {message.type === 'text' && (
                     <div className={`px-4 py-2.5 rounded-2xl ${isOwn
-                            ? 'bg-purple-500 text-white rounded-br-md'
-                            : 'bg-slate-700 text-white rounded-bl-md'
+                        ? 'bg-purple-500 text-white rounded-br-md'
+                        : 'bg-slate-700 text-white rounded-bl-md'
                         }`}>
                         <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                     </div>

@@ -33,6 +33,9 @@ export default function FieldRenderer({
     const importanceConfig = FIELD_IMPORTANCE_CONFIG[field.importance]
     const hasValue = value !== undefined && value !== null && value !== ''
 
+    // Hooks must be at the top level
+    const [inputValue, setInputValue] = React.useState('')
+
     // Render field based on type
     const renderField = () => {
         switch (field.type) {
@@ -106,13 +109,13 @@ export default function FieldRenderer({
 
             case 'multiselect':
                 const multiselectField = field as any
-                const selectedValues = value || []
+                const selectedValuesList = value || []
                 return (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                         {multiselectField.options.map((opt: any) => {
                             const optValue = typeof opt === 'string' ? opt : opt.value
                             const optLabel = typeof opt === 'string' ? opt : opt.label
-                            const isSelected = selectedValues.includes(optValue)
+                            const isSelected = selectedValuesList.includes(optValue)
 
                             return (
                                 <label key={optValue} className="flex items-center gap-2 cursor-pointer">
@@ -121,9 +124,9 @@ export default function FieldRenderer({
                                         checked={isSelected}
                                         onChange={(e) => {
                                             if (e.target.checked) {
-                                                onChange([...selectedValues, optValue])
+                                                onChange([...selectedValuesList, optValue])
                                             } else {
-                                                onChange(selectedValues.filter((v: any) => v !== optValue))
+                                                onChange(selectedValuesList.filter((v: any) => v !== optValue))
                                             }
                                         }}
                                         disabled={readonly}
@@ -168,14 +171,12 @@ export default function FieldRenderer({
                 )
 
             case 'tags':
-                const tagsField = field as any
-                const tags = value || []
-                const [inputValue, setInputValue] = React.useState('')
+                const tagsList = value || []
 
                 return (
                     <div className="space-y-2">
                         <div className="flex flex-wrap gap-2">
-                            {tags.map((tag: string, index: number) => (
+                            {tagsList.map((tag: string, index: number) => (
                                 <span
                                     key={index}
                                     className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 rounded-full text-sm"
@@ -183,7 +184,7 @@ export default function FieldRenderer({
                                     {tag}
                                     {!readonly && (
                                         <button
-                                            onClick={() => onChange(tags.filter((_: any, i: number) => i !== index))}
+                                            onClick={() => onChange(tagsList.filter((_: any, i: number) => i !== index))}
                                             className="hover:text-purple-900 dark:hover:text-purple-100"
                                         >
                                             ×
@@ -200,8 +201,8 @@ export default function FieldRenderer({
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && inputValue.trim()) {
                                         e.preventDefault()
-                                        if (!tags.includes(inputValue.trim())) {
-                                            onChange([...tags, inputValue.trim()])
+                                        if (!tagsList.includes(inputValue.trim())) {
+                                            onChange([...tagsList, inputValue.trim()])
                                             setInputValue('')
                                         }
                                     }

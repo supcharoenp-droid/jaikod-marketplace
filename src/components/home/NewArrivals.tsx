@@ -7,6 +7,7 @@
  * - Uses SmartProductCardV3 for premium display
  * - Combines listings + products via unifiedMarketplace
  * - Modern slider layout
+ * - Real-time distance calculation
  */
 
 import { useState, useEffect } from 'react'
@@ -18,6 +19,7 @@ import { toSmartProductData, SmartProductData } from '@/components/product/Smart
 import { getUnifiedNewArrivals, UnifiedProduct } from '@/services/unifiedMarketplace'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { toThaiProvince, toThaiAmphoe } from '@/lib/location-localization'
+import { getUserLocation, calculateDistance, PROVINCE_COORDINATES } from '@/lib/utils/distanceCalculator'
 
 interface NewArrivalsProps {
     title?: string
@@ -41,10 +43,28 @@ export default function NewArrivals({
         async function fetchNewProducts() {
             try {
                 setLoading(true)
+
+                // Get user location first (for distance calculation)
+                const userLocation = await getUserLocation()
+
                 const allProducts = await getUnifiedNewArrivals(maxItems)
 
-                // Convert to SmartProductData
+                // Convert to SmartProductData with distance calculation
                 const smartProducts = allProducts.map((p: UnifiedProduct) => {
+                    // Calculate distance
+                    let distance: number | undefined = undefined
+                    if (userLocation && p.province) {
+                        const productCoords = PROVINCE_COORDINATES[p.province]
+                        if (productCoords) {
+                            distance = calculateDistance(
+                                userLocation.lat,
+                                userLocation.lng,
+                                productCoords.lat,
+                                productCoords.lng
+                            )
+                        }
+                    }
+
                     // Handle the unified product structure
                     return {
                         id: p.id,
@@ -60,7 +80,7 @@ export default function NewArrivals({
                         location: {
                             province: toThaiProvince(p.province),
                             amphoe: toThaiAmphoe(p.amphoe),
-                            distance: undefined
+                            distance: distance
                         },
                         seller: {
                             id: p.sellerId || '',
@@ -91,7 +111,7 @@ export default function NewArrivals({
                     } as SmartProductData
                 })
 
-                console.log('📦 Unified New Arrivals:', smartProducts.length, 'items')
+                console.log('📦 Unified New Arrivals:', smartProducts.length, 'items with distance')
                 setProducts(smartProducts)
                 setError(null)
             } catch (err) {
@@ -104,6 +124,7 @@ export default function NewArrivals({
 
         fetchNewProducts()
     }, [maxItems, language])
+
 
     // Loading state
     if (loading) {

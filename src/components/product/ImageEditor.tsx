@@ -317,8 +317,8 @@ export default function ImageEditor({ image, onSave, onCancel }: ImageEditorProp
             {/* Header */}
             <div className="h-14 px-4 flex items-center justify-between text-white shrink-0">
                 <h3 className="font-bold">Image Editor</h3>
-                <button onClick={onSave} className="text-white p-2">
-                    <X className="w-6 h-6" onClick={onCancel} />
+                <button onClick={onCancel} className="text-white p-2">
+                    <X className="w-6 h-6" />
                 </button>
             </div>
 

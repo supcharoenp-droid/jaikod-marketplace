@@ -5,33 +5,50 @@ import { getProvinces, getAmphoes, getDistricts, getZipcode } from '@/services/t
 import { MapPin, ChevronDown, Loader2 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
-interface AddressSelectorProps {
-    onAddressChange: (address: {
+export interface AddressSelectorProps {
+    onAddressChange?: (address: {
         province: string
         amphoe: string
         district: string
         zipcode: string
     }) => void
+    // Alternative: allow v1 pattern, can use initialValues
     initialValues?: {
         province: string
         amphoe: string
         district: string
         zipcode: string
     }
+    // Alternative: allow v2 pattern for direct props
+    selectedProvince?: string
+    selectedAmphoe?: string
+    selectedDistrict?: string
+    selectedZipcode?: string
+    // Alternative: SmartListingPage uses onLocationChange
+    onLocationChange?: (loc: { province: string; amphoe: string; district: string; zipcode: string }) => void
 }
 
-export default function AddressSelector({ onAddressChange, initialValues }: AddressSelectorProps) {
+export default function AddressSelector({
+    onAddressChange,
+    initialValues,
+    selectedProvince,
+    selectedAmphoe,
+    selectedDistrict,
+    selectedZipcode,
+    onLocationChange
+}: AddressSelectorProps) {
     const { t } = useLanguage()
     const [loading, setLoading] = useState(true)
     const [provinces, setProvinces] = useState<string[]>([])
     const [amphoes, setAmphoes] = useState<string[]>([])
     const [districts, setDistricts] = useState<string[]>([])
 
+    // Support both v1 (initialValues) and v2 (selectedXxx) patterns
     const [selected, setSelected] = useState({
-        province: initialValues?.province || '',
-        amphoe: initialValues?.amphoe || '',
-        district: initialValues?.district || '',
-        zipcode: initialValues?.zipcode || ''
+        province: selectedProvince || initialValues?.province || '',
+        amphoe: selectedAmphoe || initialValues?.amphoe || '',
+        district: selectedDistrict || initialValues?.district || '',
+        zipcode: selectedZipcode || initialValues?.zipcode || ''
     })
 
     // Load Provinces on Mount
@@ -107,7 +124,9 @@ export default function AddressSelector({ onAddressChange, initialValues }: Addr
     }
 
     const notifyChange = (province: string, amphoe: string, district: string, zipcode: string) => {
-        onAddressChange({ province, amphoe, district, zipcode })
+        const address = { province, amphoe, district, zipcode }
+        onAddressChange?.(address)
+        onLocationChange?.(address)
     }
 
     return (

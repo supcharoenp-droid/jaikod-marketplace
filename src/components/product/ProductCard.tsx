@@ -10,6 +10,7 @@ import { calculateDistanceToProduct, formatDistance } from '@/lib/geolocation'
 import { trackInteraction, trackFavorite } from '@/services/behaviorTracking'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useWishlist } from '@/hooks/useWishlist'
+import ActivityBadge from '@/components/common/ActivityBadge'
 
 interface ProductCardProps {
     product: Product | ProductWithId
@@ -302,53 +303,7 @@ export default function ProductCard({ product, showDistance = true, isAiRecommen
                         </span>
                     </div>
 
-                    {/* D) Seller & Ratings */}
-                    <div className="flex items-center gap-2 mt-1">
-                        <div className="w-5 h-5 rounded-full bg-gray-100 overflow-hidden flex-shrink-0">
-                            {(product as any).seller_avatar ? (
-                                <Image src={(product as any).seller_avatar} alt="" width={20} height={20} className="object-cover" />
-                            ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-indigo-400 to-purple-400" />
-                            )}
-                        </div>
-                        <div className="flex flex-col leading-none">
-                            <div className="flex items-center gap-1">
-                                <span className="text-[10px] font-medium text-gray-700 dark:text-gray-300 truncate max-w-[80px]">
-                                    {sellerName}
-                                </span>
-                                {isVerifiedSeller && <BadgeCheck className="w-3 h-3 text-blue-500" />}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* E) Micro Stats & Actions */}
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-50 dark:border-gray-800">
-                        <div className="flex items-center gap-3 text-[10px] text-gray-400 font-medium">
-                            <div className="flex items-center gap-1">
-                                <Eye className="w-3 h-3" /> {views}
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <Heart className="w-3 h-3" /> {likes}
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-1">
-                            <button
-                                onClick={handleLikeClick}
-                                className={`p-1.5 rounded-full transition-colors ${isLiked ? 'text-red-500 bg-red-50 dark:bg-red-900/20' : 'text-gray-400 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-                            >
-                                <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
-                            </button>
-                            <button
-                                onClick={handleOptionClick}
-                                className="p-1.5 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                            >
-                                <MoreVertical className="w-4 h-4" />
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* 4. AI Scoring Indicator (Quality Score) */}
+                    {/* AI Scoring Indicator (Quality Score) */}
                     {(product as any).ai_image_score > 80 && (
                         <div className="mt-1 flex items-center gap-2" title={`AI Quality Score: ${(product as any).ai_image_score}/100`}>
                             <div className="h-1 flex-1 bg-gray-100 rounded-full overflow-hidden">
@@ -361,6 +316,17 @@ export default function ProductCard({ product, showDistance = true, isAiRecommen
                         </div>
                     )}
 
+                    {/* Activity Intelligence - Time + Activity */}
+                    <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+                        <ActivityBadge
+                            createdAt={product.created_at ? new Date(product.created_at) : new Date()}
+                            updatedAt={(product as any).updated_at ? new Date((product as any).updated_at) : undefined}
+                            viewsToday={(product as any).views_today}
+                            wishlistCount={(product as any).wishlist_count}
+                            categoryId={(product as any).category_id || 0}
+                            variant="inline"
+                        />
+                    </div>
                 </div>
             </div>
         </Link>

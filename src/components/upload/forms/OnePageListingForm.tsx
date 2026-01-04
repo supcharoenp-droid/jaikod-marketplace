@@ -640,19 +640,16 @@ export default function OnePageListingForm({
                     </AnimatePresence>
                 </section>
 
-                {/* 7. Location */}
                 <section className="p-5">
                     <div className="flex items-center justify-between mb-4">
                         <label className="font-bold text-gray-900 dark:text-white">6. Location</label>
                     </div>
                     <AddressSelector
-                        value={{
-                            province: formData.province,
-                            amphoe: formData.admin_id,
-                            district: formData.district_id,
-                            zipcode: formData.zipcode
-                        }}
-                        onChange={(val) => setFormData(prev => ({
+                        selectedProvince={formData.province}
+                        selectedAmphoe={formData.admin_id}
+                        selectedDistrict={formData.district_id}
+                        selectedZipcode={formData.zipcode}
+                        onAddressChange={(val) => setFormData(prev => ({
                             ...prev,
                             province: val.province,
                             admin_id: val.amphoe, // Treat as Amphoe Name

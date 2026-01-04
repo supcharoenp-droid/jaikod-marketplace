@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore'
 import { logAdminAction } from '@/lib/adminLogger'
 import { AdminUser } from '@/types/admin'
+import { getAIAnalystService } from './ai-analyst-service'
 
 // Types
 export interface Seller {
@@ -30,6 +31,7 @@ export interface Seller {
     warnings: number
     joinedAt: Timestamp
     kycDocuments?: string[]
+    aiKYCAssessment?: any // AI analysis result JSON
 }
 
 export interface KYCRquest {
@@ -186,4 +188,66 @@ export async function unbanSeller(admin: AdminUser, sellerId: string) {
         console.error('Error unbanning seller:', error)
         throw error
     }
+}
+
+/**
+ * 7. AI Analysis of KYC Documents
+ */
+export async function analyzeSellerKYC(sellerId: string, documents: { idCard?: string, portrait?: string, businessReg?: string }) {
+    try {
+        const analyst = getAIAnalystService()
+        // Assuming documents are base64 strings passed from UI for real-time analysis
+        const result = await analyst.analyzeKYC(
+            documents.idCard || '',
+            documents.portrait || '',
+            documents.businessReg
+        )
+
+        // Optionally save analysis result to seller's doc
+        const sellerRef = doc(db, 'users', sellerId)
+        await updateDoc(sellerRef, {
+            aiKYCAssessment: {
+                ...result,
+                analyzedAt: Timestamp.now()
+            }
+        })
+
+        return result
+    } catch (error) {
+        console.error('Error in AI KYC analysis:', error)
+        throw error
+    }
+}
+
+/**
+ * 8. Batch AI Verification for all pending sellers
+ */
+export async function batchAnalyzeSellers(admin: AdminUser, sellerIds: string[]) {
+    const results = []
+    const analyst = getAIAnalystService()
+
+    for (const id of sellerIds) {
+        try {
+            const sellerRef = doc(db, 'users', id)
+            const snap = await getDoc(sellerRef)
+            const data = snap.data()
+            if (!data) continue
+
+            const docs = data.kycDocuments || []
+            const analysis = await analyst.analyzeKYC(docs[0] || '', docs[1] || '', docs[2])
+
+            await updateDoc(sellerRef, {
+                aiKYCAssessment: {
+                    ...analysis,
+                    analyzedAt: Timestamp.now()
+                }
+            })
+            results.push({ id, status: 'success', analysis })
+        } catch (e) {
+            results.push({ id, status: 'error', error: e })
+        }
+    }
+
+    await logAdminAction(admin, 'AI_KYC_BATCH', `Analyzed ${sellerIds.length} sellers`, 'Admin triggered bulk AI scan')
+    return results
 }

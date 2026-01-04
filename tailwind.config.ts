@@ -53,6 +53,8 @@ const config: Config = {
                 'gradient-x': 'gradient-x 3s ease infinite',
                 'glow': 'glow 2s ease-in-out infinite',
                 'pulse-once': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) 1',
+                'enter': 'enter 0.2s ease-out',
+                'leave': 'leave 0.15s ease-in forwards',
             },
             keyframes: {
                 fadeIn: {
@@ -78,6 +80,14 @@ const config: Config = {
                 glow: {
                     '0%, 100%': { opacity: '1' },
                     '50%': { opacity: '0.5' },
+                },
+                enter: {
+                    '0%': { transform: 'translateX(100%)', opacity: '0' },
+                    '100%': { transform: 'translateX(0)', opacity: '1' },
+                },
+                leave: {
+                    '0%': { transform: 'translateX(0)', opacity: '1' },
+                    '100%': { transform: 'translateX(100%)', opacity: '0' },
                 },
             },
         },

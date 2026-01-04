@@ -4,56 +4,19 @@ import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-    Package,
-    Clock,
-    Truck,
-    CheckCircle,
-    XCircle,
-    Eye,
-    MessageCircle,
-    RotateCcw,
-    Download,
-    MapPin,
-    Calendar,
-    DollarSign,
-    Sparkles,
-    AlertCircle,
-    ChevronRight,
-    Search,
-    Loader2
+    Package, Clock, Truck, CheckCircle, XCircle, Eye,
+    MessageCircle, RotateCcw, MapPin, Calendar, DollarSign,
+    Sparkles, Search, Loader2, AlertCircle, HelpCircle
 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import useProfile from '@/hooks/useProfile'
+import { useAuth } from '@/contexts/AuthContext'
 import ProfileLayout from '@/components/profile/v2/ProfileLayout'
 import Image from 'next/image'
+import { orderService, type Order, type OrderStatus } from '@/services/order/orderService'
 
-interface OrderItem {
-    productId: string
-    title: string
-    qty: number
-    price: number
-    image: string
-}
-
-interface Order {
-    id: string
-    createdAt: Date
-    status: 'pending' | 'paid' | 'shipped' | 'completed' | 'cancelled'
-    total: number
-    items: OrderItem[]
-    seller: {
-        id: string
-        name: string
-    }
-    tracking?: {
-        carrier: string
-        trackingNo: string
-        status: string
-    }
-}
-
-const ORDER_STATUSES = ['all', 'pending', 'paid', 'shipped', 'completed', 'cancelled'] as const
-type OrderStatus = typeof ORDER_STATUSES[number]
+const ORDER_STATUS_FILTERS = ['all', 'pending', 'paid', 'shipped', 'completed', 'cancelled'] as const
+type OrderFilter = typeof ORDER_STATUS_FILTERS[number]
 
 // Loading fallback component
 function LoadingFallback() {
@@ -70,17 +33,18 @@ function OrdersPageContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { t, language } = useLanguage()
-    const { user, ordersSummary } = useProfile()
+    const { ordersSummary } = useProfile()
+    const { user } = useAuth()
 
-    const [activeTab, setActiveTab] = useState<OrderStatus>('all')
+    const [activeTab, setActiveTab] = useState<OrderFilter>('all')
     const [orders, setOrders] = useState<Order[]>([])
     const [loading, setLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState('')
 
     // Get status from URL
     useEffect(() => {
-        const status = searchParams.get('status') as OrderStatus
-        if (status && ORDER_STATUSES.includes(status)) {
+        const status = searchParams.get('status') as OrderFilter
+        if (status && ORDER_STATUS_FILTERS.includes(status)) {
             setActiveTab(status)
         }
     }, [searchParams])
@@ -90,16 +54,19 @@ function OrdersPageContent() {
         fetchOrders(activeTab)
     }, [activeTab, user])
 
-    const fetchOrders = async (status: OrderStatus) => {
+    const fetchOrders = async (filter: OrderFilter) => {
+        if (!user) return
         setLoading(true)
         try {
-            // TODO: Replace with actual API call
-            // const response = await fetch(`/api/users/${user?.uid}/orders?status=${status}&lang=${language}`)
-            // const data = await response.json()
+            // Fetch real orders
+            const allOrders = await orderService.getBuyerOrders(user.uid)
 
-            // Mock data for now
-            await new Promise(resolve => setTimeout(resolve, 500))
-            setOrders(getMockOrders(status))
+            // Filter locally
+            if (filter === 'all') {
+                setOrders(allOrders)
+            } else {
+                setOrders(allOrders.filter(o => o.status === filter))
+            }
         } catch (error) {
             console.error('Error fetching orders:', error)
         } finally {
@@ -107,69 +74,8 @@ function OrdersPageContent() {
         }
     }
 
-    const getMockOrders = (status: OrderStatus): Order[] => {
-        const mockOrders: Order[] = [
-            {
-                id: 'ORD-2024-001',
-                createdAt: new Date('2024-12-10'),
-                status: 'shipped',
-                total: 1299,
-                items: [
-                    {
-                        productId: '1',
-                        title: 'iPhone 13 Pro Max 256GB',
-                        qty: 1,
-                        price: 1299,
-                        image: '/images/products/iphone.jpg'
-                    }
-                ],
-                seller: { id: 's1', name: 'TechStore Bangkok' },
-                tracking: {
-                    carrier: 'Kerry Express',
-                    trackingNo: 'KE123456789TH',
-                    status: 'In Transit'
-                }
-            },
-            {
-                id: 'ORD-2024-002',
-                createdAt: new Date('2024-12-08'),
-                status: 'completed',
-                total: 450,
-                items: [
-                    {
-                        productId: '2',
-                        title: 'AirPods Pro 2nd Gen',
-                        qty: 1,
-                        price: 450,
-                        image: '/images/products/airpods.jpg'
-                    }
-                ],
-                seller: { id: 's2', name: 'Audio Paradise' }
-            },
-            {
-                id: 'ORD-2024-003',
-                createdAt: new Date('2024-12-05'),
-                status: 'pending',
-                total: 899,
-                items: [
-                    {
-                        productId: '3',
-                        title: 'Sony WH-1000XM5',
-                        qty: 1,
-                        price: 899,
-                        image: '/images/products/headphones.jpg'
-                    }
-                ],
-                seller: { id: 's3', name: 'Sound Master' }
-            }
-        ]
-
-        if (status === 'all') return mockOrders
-        return mockOrders.filter(order => order.status === status)
-    }
-
-    const getStatusBadge = (status: Order['status']) => {
-        const badges = {
+    const getStatusBadge = (status: OrderStatus) => {
+        const badges: Record<string, { icon: any, color: string, label: string }> = {
             pending: {
                 icon: Clock,
                 color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
@@ -180,10 +86,20 @@ function OrdersPageContent() {
                 color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
                 label: language === 'th' ? 'ชำระแล้ว' : 'Paid'
             },
-            shipped: {
+            confirmed: {
+                icon: CheckCircle,
+                color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
+                label: language === 'th' ? 'ยืนยันแล้ว' : 'Confirmed'
+            },
+            shipping: {
                 icon: Truck,
                 color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
                 label: language === 'th' ? 'กำลังจัดส่ง' : 'Shipped'
+            },
+            delivered: {
+                icon: Truck,
+                color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+                label: language === 'th' ? 'ส่งถึงแล้ว' : 'Delivered'
             },
             completed: {
                 icon: CheckCircle,
@@ -194,20 +110,30 @@ function OrdersPageContent() {
                 icon: XCircle,
                 color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
                 label: language === 'th' ? 'ยกเลิก' : 'Cancelled'
+            },
+            refunded: {
+                icon: RotateCcw,
+                color: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+                label: language === 'th' ? 'คืนเงินแล้ว' : 'Refunded'
+            },
+            disputed: {
+                icon: AlertCircle,
+                color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+                label: language === 'th' ? 'มีข้อพิพาท' : 'Disputed'
             }
         }
-        return badges[status]
+        return badges[status] || { icon: HelpCircle, color: 'bg-gray-100 text-gray-700', label: status }
     }
 
     const getAISuggestion = (order: Order) => {
-        const suggestions = {
+        const suggestions: Partial<Record<OrderStatus, string>> = {
             pending: language === 'th'
                 ? 'ชำระเงินภายใน 24 ชม. เพื่อรับส่วนลด 5%'
                 : 'Pay within 24h to get 5% discount',
             paid: language === 'th'
                 ? 'ผู้ขายกำลังเตรียมสินค้า คาดว่าจะจัดส่งภายใน 1-2 วัน'
                 : 'Seller is preparing your order. Expected to ship in 1-2 days',
-            shipped: language === 'th'
+            shipping: language === 'th'
                 ? 'ติดตามพัสดุได้แล้ว! คาดว่าจะถึงภายใน 2-3 วัน'
                 : 'Track your package! Expected delivery in 2-3 days',
             completed: language === 'th'
@@ -217,10 +143,10 @@ function OrdersPageContent() {
                 ? 'เราเสียใจที่คำสั่งซื้อถูกยกเลิก ลองดูสินค้าอื่นไหม?'
                 : 'Sorry your order was cancelled. Browse similar products?'
         }
-        return suggestions[order.status]
+        return suggestions[order.status] || ''
     }
 
-    const handleTabChange = (status: OrderStatus) => {
+    const handleTabChange = (status: OrderFilter) => {
         setActiveTab(status)
         router.push(`/profile/orders?status=${status}`, { scroll: false })
     }
@@ -258,7 +184,7 @@ function OrdersPageContent() {
                 {/* Status Tabs */}
                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-2 border border-gray-200 dark:border-gray-700">
                     <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                        {ORDER_STATUSES.map((status) => {
+                        {ORDER_STATUS_FILTERS.map((status) => {
                             const count = status === 'all'
                                 ? ordersSummary.all
                                 : ordersSummary[status as keyof typeof ordersSummary] || 0
@@ -355,7 +281,7 @@ function OrdersPageContent() {
                                                 <div>
                                                     <div className="flex items-center gap-3 mb-2">
                                                         <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                                                            {order.id}
+                                                            {order.orderNumber || order.id}
                                                         </h3>
                                                         <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${badge.color}`}>
                                                             <StatusIcon className="w-3.5 h-3.5" />
@@ -365,7 +291,7 @@ function OrdersPageContent() {
                                                     <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
                                                         <span className="flex items-center gap-1.5">
                                                             <Calendar className="w-4 h-4" />
-                                                            {order.createdAt.toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US')}
+                                                            {order.createdAt instanceof Date ? order.createdAt.toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US') : ''}
                                                         </span>
                                                         <span className="flex items-center gap-1.5">
                                                             <DollarSign className="w-4 h-4" />
@@ -376,27 +302,33 @@ function OrdersPageContent() {
                                             </div>
 
                                             {/* AI Suggestion */}
-                                            <div className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
-                                                <Sparkles className="w-4 h-4 text-purple-500 shrink-0 mt-0.5" />
-                                                <p className="text-sm text-purple-700 dark:text-purple-300">
-                                                    {getAISuggestion(order)}
-                                                </p>
-                                            </div>
+                                            {getAISuggestion(order) && (
+                                                <div className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
+                                                    <Sparkles className="w-4 h-4 text-purple-500 shrink-0 mt-0.5" />
+                                                    <p className="text-sm text-purple-700 dark:text-purple-300">
+                                                        {getAISuggestion(order)}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Order Items */}
                                         <div className="p-6 space-y-3">
                                             {order.items.map((item, idx) => (
                                                 <div key={idx} className="flex items-center gap-4">
-                                                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                                                        <Package className="w-8 h-8 text-gray-400" />
+                                                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center overflow-hidden">
+                                                        {item.thumbnailUrl ? (
+                                                            <img src={item.thumbnailUrl} alt={item.title} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <Package className="w-8 h-8 text-gray-400" />
+                                                        )}
                                                     </div>
                                                     <div className="flex-1">
                                                         <h4 className="font-medium text-gray-900 dark:text-white">
                                                             {item.title}
                                                         </h4>
                                                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                                                            {language === 'th' ? 'จำนวน' : 'Qty'}: {item.qty} × ฿{item.price.toLocaleString()}
+                                                            {language === 'th' ? 'จำนวน' : 'Qty'}: {item.quantity} × ฿{item.price.toLocaleString()}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -406,11 +338,11 @@ function OrdersPageContent() {
                                         {/* Actions */}
                                         <div className="p-6 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
                                             <div className="flex flex-wrap gap-3">
-                                                <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                                                <button onClick={() => router.push(`/checkout/${order.id}`)} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                                                     <Eye className="w-4 h-4" />
                                                     <span className="text-sm font-medium">{language === 'th' ? 'ดูรายละเอียด' : 'View Details'}</span>
                                                 </button>
-                                                {order.tracking && (
+                                                {order.shipping?.trackingNumber && (
                                                     <button className="flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
                                                         <MapPin className="w-4 h-4" />
                                                         <span className="text-sm font-medium">{language === 'th' ? 'ติดตามพัสดุ' : 'Track'}</span>

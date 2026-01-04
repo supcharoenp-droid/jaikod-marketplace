@@ -307,7 +307,11 @@ const Step5_Product = ({ onComplete }: any) => {
                 stock: 10,
                 condition: 'used',
                 province: 'Bangkok',
+                amphoe: '',
+                district: '',
+                zipcode: '',
                 can_ship: true,
+                can_pickup: false,
                 images: [productData.image || `https://picsum.photos/seed/${Math.random()}/400/400`],
                 price_type: 'fixed'
             }, user!.uid, user!.displayName || 'Seller')

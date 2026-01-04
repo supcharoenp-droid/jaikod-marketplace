@@ -47,8 +47,8 @@ export default function ProfileHeaderAI() {
     // Role tag
     const getRoleTag = () => {
         if (roleMode === 'hybrid') return t('profile.header.role_hybrid')
-        if (roleMode === 'seller') return t('profile.header.role_seller')
-        return t('profile.header.role_buyer')
+        if (roleMode === 'seller') return t('common.seller')
+        return t('common.buyer')
     }
 
     const getRoleColor = () => {

@@ -439,8 +439,10 @@ export default function ReportModal({
                             ) : (
                                 <button
                                     onClick={goNext}
-                                    disabled={step === 'category' && !selectedCategory}
-                                    disabled={step === 'evidence' && categoryConfig?.requires_evidence && evidenceLinks.length === 0}
+                                    disabled={
+                                        (step === 'category' && !selectedCategory) ||
+                                        (step === 'evidence' && categoryConfig?.requires_evidence && evidenceLinks.length === 0)
+                                    }
                                     className="px-6 py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                 >
                                     <span>ถัดไป</span>

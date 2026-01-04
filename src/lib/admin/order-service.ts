@@ -105,3 +105,30 @@ export async function updateAdminOrderStatus(admin: AdminUser, orderId: string, 
         throw e
     }
 }
+
+// 4. Refund Order
+export async function refundOrder(admin: AdminUser, orderId: string, amount: number, reason: string) {
+    try {
+        const orderRef = doc(db, 'orders', orderId)
+        const orderSnap = await getDoc(orderRef)
+
+        if (!orderSnap.exists()) throw new Error('Order not found')
+
+        // 1. Update Order Status
+        await updateDoc(orderRef, {
+            status: 'refunded',
+            refund_amount: amount,
+            refund_reason: reason,
+            refunded_at: Timestamp.now(),
+            refunded_by: admin.id
+        })
+
+        // 2. Simulate Wallet Transaction (In real app, call Payment Gateway API or Wallet Service)
+        // For now, we just log it as a critical financial action
+        await logAdminAction(admin, 'FINANCE_REJECT', `Order: ${orderId}`, `Refunded ฿${amount}. Reason: ${reason}`, { amount, reason })
+
+        return true
+    } catch (e) {
+        throw e
+    }
+}

@@ -21,7 +21,7 @@ import {
     DocumentSnapshot
 } from 'firebase/firestore'
 import { Product } from '@/types'
-import { UniversalListing } from '@/lib/listings/types'
+import { UniversalListing } from '@/types'
 import { CATEGORIES } from '@/constants/categories'
 
 // ==========================================

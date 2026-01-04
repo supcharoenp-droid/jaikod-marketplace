@@ -12,20 +12,25 @@
  * 6. TrendingCategories, SmartCouponSection, CTA, Features
  */
 
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Rocket, ShieldCheck, Zap, Award, ArrowRight, Sparkles } from 'lucide-react'
-import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import HeroV2 from '@/components/home/HeroV2'
+
+// Dynamic import Header to avoid hydration mismatch
+const Header = dynamic(() => import('@/components/layout/Header'), { ssr: false })
 import CategoriesV2 from '@/components/home/CategoriesV2'
 import PersonalizedSections from '@/components/home/PersonalizedSections'
 import NewArrivals from '@/components/home/NewArrivals'
 import AIAssistantWidget from '@/components/widgets/AIAssistantWidget'
-import NearbySellersResult from '@/components/discovery/NearbySellersResult'
+import NearbySellersV2 from '@/components/discovery/NearbySellersV2'
 import TrendingCategories from '@/components/home/TrendingCategories'
 import SmartCouponSection from '@/components/promotion/SmartCouponSection'
+import FeaturedSellerBanner from '@/components/promotion/FeaturedSellerBanner'
 import Features from '@/components/home/Features'
+import AILiveTicker from '@/components/home/AILiveTicker'
 import { FloatingCTA } from '@/components/cta/CTAComponents'
 import { useSiteSettings } from '@/contexts/SiteSettingsContext'
 import { useAuth } from '@/contexts/AuthContext'
@@ -39,52 +44,74 @@ export default function HomePage() {
     const { user } = useAuth()
     const { language } = useLanguage()
 
-
     // Maintenance Mode View
     if (settings.maintenanceMode && !user) {
         return <MaintenanceScreen />
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50/50 dark:bg-slate-950">
+        <div
+            className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 selection:bg-purple-100 selection:text-purple-700 relative overflow-hidden"
+            suppressHydrationWarning
+        >
+            {/* World-Class Mesh Gradient Background */}
+            <div className="fixed inset-0 pointer-events-none z-0" suppressHydrationWarning>
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-200/30 dark:bg-purple-900/10 blur-[120px] rounded-full animate-mesh-1" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-pink-200/20 dark:bg-rose-900/5 blur-[120px] rounded-full animate-mesh-2" />
+                <div className="absolute top-[20%] right-[10%] w-[40%] h-[40%] bg-blue-100/30 dark:bg-blue-900/5 blur-[100px] rounded-full animate-mesh-3" />
+            </div>
+
             {/* Maintenance Mode Banner for Logged In Users */}
             {settings.maintenanceMode && user && (
-                <div className="bg-red-500 text-white px-4 py-2 text-center text-sm font-medium relative hover:bg-red-600 transition-colors cursor-help group z-50">
+                <div className="bg-red-500 text-white px-4 py-2 text-center text-[10px] font-black uppercase tracking-widest relative hover:bg-red-600 transition-colors cursor-help group z-50">
                     ⚠️ Maintenance Mode is ACTIVE - Visible only to logged-in users ⚠️
                 </div>
             )}
 
             <Header />
 
-            <main className="flex-1 space-y-6 pb-12">
+            {/* Live AI Activity Feed */}
+            <AILiveTicker />
+
+            <main className="flex-1 space-y-24 pb-20 relative z-10 transition-all duration-700">
                 {/* 1. Hero - Enhanced with Voice/Visual Search */}
-                {USE_V2_COMPONENTS ? <HeroV2 /> : null}
+                <section className="pt-8">
+                    {USE_V2_COMPONENTS ? <HeroV2 /> : null}
+                </section>
 
                 {/* 2. Categories - AI Enhanced */}
-                {USE_V2_COMPONENTS ? <CategoriesV2 /> : null}
+                <div className="container mx-auto">
+                    {USE_V2_COMPONENTS ? <CategoriesV2 /> : null}
+                </div>
 
-                {/* 3. NEW ARRIVALS - ✨ สินค้าใหม่ (Priority: High) */}
-                <div className="bg-gradient-to-r from-pink-50 via-white to-rose-50 dark:from-pink-900/10 dark:via-gray-900 dark:to-rose-900/10 py-6">
+                {/* 2.5 FEATURED SELLER BANNER - 🌟 JaiStar Promotion */}
+                <div className="container mx-auto px-4">
+                    <FeaturedSellerBanner />
+                </div>
+
+                {/* 3. NEW ARRIVALS - ✨ สินค้าใหม่ (Focus: Discovery) */}
+                <div className="relative group">
+                    <div className="absolute inset-0 bg-gradient-to-b from-white to-gray-50/50 dark:from-slate-900 dark:to-slate-950 -z-10" />
                     <NewArrivals maxItems={12} />
                 </div>
 
-                {/* 4. AI PERSONALIZED SECTIONS 
-                    - 🔥 Trending Now
-                    - 🏆 Hot Items / Best Sellers
-                    - 📍 Near You
-                    - ✨ AI Recommendations
-                    - 👁️ Recently Viewed
-                */}
-                <PersonalizedSections />
+                {/* 4. AI PERSONALIZED SECTIONS */}
+                {/* <div className="container mx-auto">
+                    <PersonalizedSections />
+                </div> */}
 
-                {/* 5. AI Nearby Sellers */}
-                <NearbySellersResult />
+                {/* 5. AI Nearby Sellers - Premium V2 */}
+                {/* <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-3xl py-12 border-y border-gray-100 dark:border-white/5">
+                    <NearbySellersV2 />
+                </div> */}
 
                 {/* 6. Trending Categories (AI Driven) */}
-                <TrendingCategories />
+                {/* <TrendingCategories /> */}
 
                 {/* 7. AI Smart Coupons */}
-                <SmartCouponSection />
+                {/* <div className="container mx-auto">
+                    <SmartCouponSection />
+                </div> */}
 
                 {/* 8. CTA Section - Premium Design */}
                 <CTASection language={language as 'th' | 'en'} />
@@ -96,10 +123,11 @@ export default function HomePage() {
             <Footer />
 
             {/* AI Assistant Widget */}
-            <AIAssistantWidget />
+            {/* <AIAssistantWidget /> */}
 
             {/* Floating CTA Button */}
             {settings.floatingCTAEnabled && <FloatingCTA />}
+
         </div>
     )
 }
@@ -110,78 +138,73 @@ export default function HomePage() {
 
 function CTASection({ language }: { language: 'th' | 'en' }) {
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="grid md:grid-cols-2 gap-6">
+        <div className="container mx-auto px-4 py-8 relative">
+            <div className="grid md:grid-cols-2 gap-8">
                 {/* SELL CTA */}
-                <Link href="/sell" className="group block">
+                <Link href="/sell" className="group block h-full">
                     <motion.div
-                        whileHover={{ scale: 1.02, y: -4 }}
-                        className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 p-6 md:p-8 h-full min-h-[220px] flex flex-col justify-between shadow-xl"
+                        whileHover={{ y: -8 }}
+                        className="relative rounded-[40px] overflow-hidden bg-slate-900 border border-white/10 p-8 md:p-12 h-full min-h-[300px] flex flex-col justify-between shadow-2xl group transition-all duration-500"
                     >
-                        {/* Background Effects */}
-                        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-12 -mt-12 blur-2xl" />
-                        <div className="absolute bottom-0 left-0 w-32 h-32 bg-pink-500/20 rounded-full -ml-8 -mb-8 blur-xl" />
+                        {/* Animated Gradient Border */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-transparent to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
                         <div className="relative z-10">
-                            <motion.div
-                                whileHover={{ scale: 1.1, rotate: 5 }}
-                                className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-4"
-                            >
-                                <Rocket className="w-7 h-7 text-white" />
-                            </motion.div>
+                            <div className="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-purple-500/20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                                <Rocket className="w-8 h-8 text-white" />
+                            </div>
 
-                            <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-2">
-                                {language === 'th' ? 'เริ่มขายวันนี้!' : 'Start Selling Today!'}
+                            <h3 className="text-3xl md:text-4xl font-black text-white mb-4 tracking-tight leading-tight">
+                                {language === 'th' ? 'เปลี่ยนของเหลือใช้ เป็นรายได้ด้วย AI' : 'Turn Clutter into Cash with AI'}
                             </h3>
 
-                            <p className="text-white/80 text-base md:text-lg max-w-sm">
+                            <p className="text-slate-400 text-lg md:text-xl max-w-sm font-medium">
                                 {language === 'th'
-                                    ? 'ถ่ายรูป AI ช่วยเติมข้อมูล ขายได้ใน 30 วินาที'
-                                    : 'Snap a photo, AI fills details, sell in 30 seconds'}
+                                    ? 'แค่ถ่ายรูป ระบบ AI จะช่วยเติมข้อมูลและตั้งราคาขายให้คุณทันที'
+                                    : 'Just snap a photo, our AI fills details and suggests the best price.'}
                             </p>
                         </div>
 
-                        <div className="relative z-10 flex items-center gap-2 text-white font-bold text-lg group-hover:gap-3 transition-all">
-                            <Sparkles className="w-5 h-5" />
-                            <span>{language === 'th' ? 'ลงขายฟรี' : 'List Free'}</span>
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                        <div className="relative z-10 mt-8">
+                            <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/10 px-6 py-3 rounded-2xl text-white font-black text-lg group-hover:bg-white group-hover:text-slate-950 transition-all duration-500">
+                                <Sparkles className="w-5 h-5 text-purple-400 group-hover:text-purple-600" />
+                                <span>{language === 'th' ? 'ลงขายใน 30 วินาที' : 'List in 30 Seconds'}</span>
+                                <ArrowRight className="w-5 h-5 translate-x-0 group-hover:translate-x-2 transition-transform" />
+                            </div>
                         </div>
                     </motion.div>
                 </Link>
 
                 {/* TRUST CTA */}
-                <Link href="/safety" className="group block">
+                <Link href="/safety" className="group block h-full">
                     <motion.div
-                        whileHover={{ scale: 1.02, y: -4 }}
-                        className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 p-6 md:p-8 h-full min-h-[220px] flex flex-col justify-between shadow-xl"
+                        whileHover={{ y: -8 }}
+                        className="relative rounded-[40px] overflow-hidden bg-white border border-slate-100 p-8 md:p-12 h-full min-h-[300px] flex flex-col justify-between shadow-2xl transition-all duration-500"
                     >
-                        {/* Background Effects */}
-                        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-12 -mt-12 blur-2xl" />
-                        <div className="absolute bottom-0 left-0 w-32 h-32 bg-teal-400/20 rounded-full -ml-8 -mb-8 blur-xl" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-transparent to-teal-50 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
                         <div className="relative z-10">
-                            <motion.div
-                                whileHover={{ scale: 1.1, rotate: -5 }}
-                                className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-4"
-                            >
-                                <ShieldCheck className="w-7 h-7 text-white" />
-                            </motion.div>
+                            <div className="w-16 h-16 bg-gradient-to-tr from-emerald-500 to-teal-600 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/20 group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500">
+                                <ShieldCheck className="w-8 h-8 text-white" />
+                            </div>
 
-                            <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-2">
-                                {language === 'th' ? 'ปลอดภัย มั่นใจ' : 'Safe & Secure'}
+                            <h3 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight leading-tight">
+                                {language === 'th' ? 'ช้อปปิ้งปลอดภัย 100% กับ JaiKod' : '100% Secure Shopping with JaiKod'}
                             </h3>
 
-                            <p className="text-white/80 text-base md:text-lg max-w-sm">
+                            <p className="text-slate-500 text-lg md:text-xl max-w-sm font-medium">
                                 {language === 'th'
-                                    ? 'ผู้ขายยืนยันตัวตน ระบบชำระเงินปลอดภัย'
-                                    : 'Verified sellers, protected transactions'}
+                                    ? 'ปกป้องด้วยระบบ AI ตรวจสอบการโกง และผู้ขายที่ได้รับการยืนยันตัวตน'
+                                    : 'Protected by anti-fraud AI and fully verified seller network.'}
                             </p>
                         </div>
 
-                        <div className="relative z-10 flex items-center gap-2 text-white font-bold text-lg group-hover:gap-3 transition-all">
-                            <Award className="w-5 h-5" />
-                            <span>{language === 'th' ? 'เรียนรู้เพิ่มเติม' : 'Learn More'}</span>
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                        <div className="relative z-10 mt-8">
+                            <div className="inline-flex items-center gap-3 bg-slate-100 px-6 py-3 rounded-2xl text-slate-900 font-black text-lg group-hover:bg-emerald-600 group-hover:text-white transition-all duration-500">
+                                <Award className="w-5 h-5 text-emerald-500 group-hover:text-white" />
+                                <span>{language === 'th' ? 'ดูระบบความปลอดภัย' : 'Explore Safety'}</span>
+                                <ArrowRight className="w-5 h-5 translate-x-0 group-hover:translate-x-2 transition-transform" />
+                            </div>
                         </div>
                     </motion.div>
                 </Link>
@@ -277,16 +300,7 @@ function MaintenanceScreen() {
                     ))}
                 </motion.div>
 
-                {/* Admin Login */}
-                <div className="bg-white/5 backdrop-blur-xl p-4 rounded-2xl border border-white/10">
-                    <p className="text-sm text-purple-300 mb-3">สำหรับทีมพัฒนา</p>
-                    <Link href="/login">
-                        <button className="w-full bg-white text-purple-700 py-3 rounded-xl font-bold hover:bg-purple-50 transition flex items-center justify-center gap-2">
-                            <Zap className="w-5 h-5" />
-                            เข้าสู่ระบบ
-                        </button>
-                    </Link>
-                </div>
+
             </motion.div>
 
             {/* Footer */}

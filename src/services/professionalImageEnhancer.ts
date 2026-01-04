@@ -689,7 +689,7 @@ function getMaxRiskLevel(flags: RiskFlag[]): ImageEnhancementResult['risk_status
             : max
     }, 'low')
 
-    return severityMap[maxSeverity]
+    return severityMap[maxSeverity as keyof typeof severityMap]
 }
 
 /**

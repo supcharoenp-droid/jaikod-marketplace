@@ -131,8 +131,8 @@ export function useUserProfile(): UseUserProfileReturn {
 
                 setProfile(defaultProfile)
 
-                // Save to Firestore
-                await updateDoc(doc(db, 'users', user.uid), defaultProfile)
+                // Save to Firestore - use type assertion for Firestore compatibility
+                await updateDoc(doc(db, 'users', user.uid), defaultProfile as any)
             }
 
             setError(null)

@@ -120,7 +120,7 @@ export async function classifyWithCache(
         // Cache the result
         classificationCache.set(title, {
             categoryId: Number(topResult.categoryId),
-            subcategoryId: topResult.subcategoryId ? Number(topResult.subcategoryId) : undefined,
+            subcategoryId: (topResult as any).subcategoryId ? Number((topResult as any).subcategoryId) : ((topResult as any).subcategory ? Number((topResult as any).subcategory) : undefined),
             confidence: topResult.confidence
         })
     }

@@ -1,12 +1,14 @@
 'use client'
-
+// Force recompile: 2025-12-30T07:13:00+07:00
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
+import { Eye, Heart, Share2, Edit, MessageCircle, DollarSign } from 'lucide-react'
 import {
     getListingBySlug,
     getListingByCode,
+    getListingById,
     incrementListingViews,
     markListingAsSold,
     closeListing,
@@ -18,9 +20,10 @@ import {
     AI_CHAT_SUGGESTIONS
 } from '@/lib/listings'
 import { getProductBySlug } from '@/lib/products'
+import { getSellerListings, getSimilarListings, SellerListing } from '@/lib/seller'
+
 import {
     AIDealScoreCard,
-    AISummaryCard,
     FinanceCalculatorCard,
     TrustTimelineCard,
     AIBuyerChecklist
@@ -30,36 +33,30 @@ import { ReportButton } from '@/components/report'
 import { OwnerActionsBar, OwnerBadge } from '@/components/listing/OwnerActions'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { useChat } from '@/contexts/ChatContext'
 import { useWishlist } from '@/contexts/WishlistContext'
-import { sendMessage as sendChatMessage } from '@/lib/firebase-chat'
+import { getSmartDateDisplay } from '@/lib/utils/timeUtils'
+import { useNotifications } from '@/contexts/NotificationContext'
+import { t } from '@/lib/translations'
+
+// AI Commerce Engine Components
+import AIInstantSummary from '@/components/listing/AIInstantSummary'
+import AIFairPriceMeter from '@/components/listing/AIFairPriceMeter'
+import SmartCTAButton from '@/components/listing/SmartCTAButton'
+import AINegotiationAssistant from '@/components/listing/AINegotiationAssistant'
+import AIComparisonLock from '@/components/listing/AIComparisonLock'
+import ActivityBadge from '@/components/common/ActivityBadge'
+import { useBuyerIntent } from '@/hooks/useBuyerIntent'
+import ListingInfoCardV2 from '@/components/listing/ListingInfoCardV2'
+import UnifiedListingStats from '@/components/listing/UnifiedListingStats'
+import MakeOfferModal from '@/components/listing/MakeOfferModal'
 
 // ===== HELPER FUNCTIONS =====
 
+// Helper to get formatted price
 function formatPrice(price: number): string {
     return new Intl.NumberFormat('th-TH').format(price)
 }
 
-function formatThaiDate(date: Date): string {
-    const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.']
-    const thaiYear = date.getFullYear() + 543
-    return `${date.getDate()} ${thaiMonths[date.getMonth()]} ${thaiYear}`
-}
-
-function formatRelativeTime(date: Date): string {
-    const now = new Date()
-    const diff = now.getTime() - date.getTime()
-    const minutes = Math.floor(diff / 60000)
-    const hours = Math.floor(diff / 3600000)
-    const days = Math.floor(diff / 86400000)
-
-    if (minutes < 60) return `${minutes} นาทีที่แล้ว`
-    if (hours < 24) return `${hours} ชั่วโมงที่แล้ว`
-    if (days < 7) return `${days} วันก่อน`
-    return formatThaiDate(date)
-}
-
-// Map category_type to category slug for navigation
 function getCategorySlugFromType(categoryType: string): string {
     const typeToSlug: Record<string, string> = {
         'car': 'automotive',
@@ -134,7 +131,7 @@ function ImageGallery({ images, thumbnail, location, meeting, distance }: ImageG
         <div className="relative">
             {/* Main Image */}
             <div
-                className="relative aspect-[4/3] bg-slate-800 rounded-xl overflow-hidden cursor-pointer"
+                className="relative aspect-square sm:aspect-[4/3] bg-slate-800 rounded-xl overflow-hidden cursor-pointer w-full"
                 onClick={() => hasValidImage && setIsFullscreen(true)}
             >
                 {hasValidImage ? (
@@ -142,7 +139,7 @@ function ImageGallery({ images, thumbnail, location, meeting, distance }: ImageG
                         src={allImages[currentIndex].url}
                         alt="Listing image"
                         fill
-                        className="object-cover"
+                        className="object-contain sm:object-cover"
                         priority
                     />
                 ) : (
@@ -440,38 +437,8 @@ function QuickFacts({ listing, language = 'th' }: { listing: UniversalListing; l
     )
 }
 
-// Trust Signals Component
-function TrustSignals({ listing, language = 'th' }: { listing: UniversalListing; language?: 'th' | 'en' }) {
-    const data = listing.template_data
-    const signals: { icon: string; text_th: string; text_en: string; active: boolean }[] = []
+// === UTILS & CONSTANTS ===
 
-    // Car-specific signals
-    if (listing.category_type === 'car') {
-        if (listing.seller_info?.verified) signals.push({ icon: '✅', text_th: 'ผู้ขายยืนยันตัวตน', text_en: 'Verified Seller', active: true })
-        if (data.registration === 'book_complete') signals.push({ icon: '✅', text_th: 'มีเล่มครบ', text_en: 'Complete Book', active: true })
-        if (data.registration === 'tax_paid') signals.push({ icon: '✅', text_th: 'ภาษีจ่ายแล้ว', text_en: 'Tax Paid', active: true })
-        if (data.spare_keys === '2_keys') signals.push({ icon: '✅', text_th: 'กุญแจสำรอง 2 ดอก', text_en: '2 Spare Keys', active: true })
-        if (data.service_history === 'dealer') signals.push({ icon: '✅', text_th: 'เข้าศูนย์ตลอด', text_en: 'Always Serviced at Dealer', active: true })
-        if (data.insurance_type === 'class1') signals.push({ icon: '✅', text_th: 'ประกันชั้น 1', text_en: 'Class 1 Insurance', active: true })
-    }
-
-    if (signals.length === 0) return null
-
-    return (
-        <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
-            <div className="flex flex-wrap gap-3">
-                {signals.filter(s => s.active).map((signal, i) => (
-                    <span key={i} className="flex items-center gap-1 text-green-400 text-sm">
-                        <span>{signal.icon}</span>
-                        <span>{language === 'th' ? signal.text_th : signal.text_en}</span>
-                    </span>
-                ))}
-            </div>
-        </div>
-    )
-}
-
-// Province coordinates (centroids) for distance calculation
 const PROVINCE_COORDINATES: Record<string, { lat: number; lng: number }> = {
     'กรุงเทพมหานคร': { lat: 13.7563, lng: 100.5018 },
     'กรุงเทพ': { lat: 13.7563, lng: 100.5018 },
@@ -494,9 +461,8 @@ const PROVINCE_COORDINATES: Record<string, { lat: number; lng: number }> = {
     'พระนครศรีอยุธยา': { lat: 14.3532, lng: 100.5685 },
 }
 
-// Calculate distance between two coordinates using Haversine formula
 function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-    const R = 6371 // Earth's radius in km
+    const R = 6371 // km
     const dLat = (lat2 - lat1) * Math.PI / 180
     const dLng = (lng2 - lng1) * Math.PI / 180
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -506,283 +472,7 @@ function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
     return Math.round(R * c)
 }
 
-// Location Card Component - Prominent display of product location
-function LocationCard({ listing, language = 'th' }: { listing: UniversalListing; language?: 'th' | 'en' }) {
-    const location = listing.location
-    const meeting = listing.meeting
-    const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
-    const [distance, setDistance] = useState<number | null>(null)
-    const [locationError, setLocationError] = useState(false)
 
-    // Get user's location on mount
-    useEffect(() => {
-        if (typeof navigator !== 'undefined' && navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setUserLocation({
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    })
-                },
-                () => {
-                    setLocationError(true)
-                    // Fallback: try to get approximate location from localStorage or use Bangkok
-                    const savedLocation = localStorage.getItem('jaikod_user_province')
-                    if (savedLocation && PROVINCE_COORDINATES[savedLocation]) {
-                        setUserLocation(PROVINCE_COORDINATES[savedLocation])
-                    }
-                }
-            )
-        }
-    }, [])
-
-    // Calculate distance when we have both locations
-    useEffect(() => {
-        if (userLocation) {
-            // Get listing coordinates from province
-            const listingProvince = location.province || meeting?.province
-            const listingCoords = location.coordinates || (listingProvince ? PROVINCE_COORDINATES[listingProvince] : null)
-
-            if (listingCoords) {
-                const dist = calculateDistance(
-                    userLocation.lat, userLocation.lng,
-                    listingCoords.lat, listingCoords.lng
-                )
-                setDistance(dist)
-            }
-        }
-    }, [userLocation, location, meeting])
-
-    return (
-        <div className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/30 rounded-xl p-4">
-            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                <span className="text-xl">📍</span>
-                {language === 'th' ? 'สถานที่' : 'Location'}
-            </h3>
-
-            {/* Location Info */}
-            <div className="space-y-3">
-                {/* Province & District */}
-                <div className="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg">
-                    <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center text-lg">
-                        🏠
-                    </div>
-                    <div className="flex-1">
-                        <div className="text-white font-medium">
-                            {location.amphoe && `${location.amphoe}, `}{location.province}
-                        </div>
-                        {location.landmark && (
-                            <div className="text-gray-400 text-sm">ใกล้ {location.landmark}</div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Distance Badge */}
-                <div className="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg">
-                    <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center text-lg">
-                        🚗
-                    </div>
-                    <div className="flex-1">
-                        {distance !== null ? (
-                            <>
-                                <div className="text-white font-medium">
-                                    {language === 'th' ? `ห่างจากคุณประมาณ ${distance} กม.` : `~${distance} km from you`}
-                                </div>
-                                <div className="text-gray-400 text-sm">
-                                    {locationError
-                                        ? (language === 'th' ? '(คำนวณจากจังหวัด)' : '(estimated from province)')
-                                        : (language === 'th' ? '(จาก GPS ของคุณ)' : '(from your GPS)')
-                                    }
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <div className="text-gray-300 font-medium">
-                                    {language === 'th' ? 'กำลังคำนวณระยะทาง...' : 'Calculating distance...'}
-                                </div>
-                                <button
-                                    onClick={() => {
-                                        if (navigator.geolocation) {
-                                            navigator.geolocation.getCurrentPosition(
-                                                (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-                                                () => setLocationError(true)
-                                            )
-                                        }
-                                    }}
-                                    className="text-blue-400 text-sm hover:underline"
-                                >
-                                    {language === 'th' ? 'คลิกเพื่ออนุญาตตำแหน่ง' : 'Click to enable location'}
-                                </button>
-                            </>
-                        )}
-                    </div>
-                </div>
-
-                {/* Meeting Point */}
-                {meeting?.province && (
-                    <div className="flex items-center gap-3 p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg">
-                        <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center text-lg">
-                            🤝
-                        </div>
-                        <div className="flex-1">
-                            <div className="text-white font-medium">
-                                {language === 'th' ? 'นัดดูสินค้าได้ที่' : 'Viewing Location'}
-                            </div>
-                            <div className="text-purple-300 text-sm">
-                                {meeting.amphoe && `${meeting.amphoe}, `}{meeting.province}
-                                {meeting.landmark && ` (ใกล้${meeting.landmark})`}
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Available Times */}
-                {meeting?.available_times && meeting.available_times.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                        {meeting.available_times.map((time, i) => (
-                            <span key={i} className="px-3 py-1 bg-slate-800 rounded-full text-gray-300 text-xs">
-                                {time === 'weekday' ? (language === 'th' ? '📅 วันธรรมดา' : '📅 Weekdays') :
-                                    time === 'weekend' ? (language === 'th' ? '🌴 วันหยุด' : '🌴 Weekends') :
-                                        time === 'anytime' ? (language === 'th' ? '⏰ ตลอดเวลา' : '⏰ Anytime') : time}
-                            </span>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div>
-    )
-}
-
-// Seller Card Component
-function SellerCard({ listing, language = 'th' }: { listing: UniversalListing; language?: 'th' | 'en' }) {
-    const seller = listing.seller_info
-
-    return (
-        <div className="bg-slate-800/50 rounded-xl p-4">
-            <div className="flex items-start gap-4">
-                {/* Avatar */}
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xl font-bold">
-                    {seller.avatar ? (
-                        <Image src={seller.avatar} alt={seller.name} width={56} height={56} className="rounded-full" />
-                    ) : (
-                        seller.name.charAt(0).toUpperCase()
-                    )}
-                </div>
-
-                {/* Info */}
-                <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                        <h4 className="text-white font-semibold">{seller.name}</h4>
-                        {seller.verified && (
-                            <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-full">
-                                ✓ {language === 'th' ? 'ยืนยันตัวตนแล้ว' : 'Verified'}
-                            </span>
-                        )}
-                    </div>
-
-                    <div className="flex items-center gap-3 mt-1 text-sm text-gray-400">
-                        <span>⭐ {seller.trust_score / 20} ({seller.successful_sales} {language === 'th' ? 'รีวิว' : 'reviews'})</span>
-                    </div>
-
-                    <div className="flex items-center gap-3 mt-1 text-sm text-gray-400">
-                        <span>📍 {listing.location.province}</span>
-                        <span>⚡ {language === 'th' ? 'ตอบภายใน' : 'Responds in'} {seller.response_time_minutes < 60
-                            ? `${seller.response_time_minutes} ${language === 'th' ? 'นาที' : 'm'}`
-                            : `${Math.round(seller.response_time_minutes / 60)} ${language === 'th' ? 'ชม.' : 'h'}`}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3 mt-4">
-                <Link
-                    href={`/shop/${listing.seller_id}`}
-                    className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-white text-center text-sm transition-colors"
-                >
-                    {language === 'th' ? 'ดูประกาศอื่น' : 'View Listings'} ({seller.total_listings})
-                </Link>
-                <button className="px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 rounded-lg text-purple-400 text-sm transition-colors">
-                    {language === 'th' ? 'ติดตาม' : 'Follow'}
-                </button>
-            </div>
-        </div>
-    )
-}
-
-// AI Insights Component
-function AIInsights({ listing, language = 'th' }: { listing: UniversalListing; language?: 'th' | 'en' }) {
-    const [expanded, setExpanded] = useState(false)
-    const ai = listing.ai_content
-    const suggestions = AI_CHAT_SUGGESTIONS[listing.category_type] || AI_CHAT_SUGGESTIONS.general
-
-    return (
-        <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4">
-            <button
-                onClick={() => setExpanded(!expanded)}
-                className="w-full flex items-center justify-between"
-            >
-                <h3 className="text-white font-semibold flex items-center gap-2">
-                    <span>🤖</span>
-                    <span>AI {language === 'th' ? 'วิเคราะห์' : 'Insights'}</span>
-                </h3>
-                <span className="text-gray-400">{expanded ? '▲' : '▼'}</span>
-            </button>
-
-            {expanded && (
-                <div className="mt-4 space-y-4">
-                    {/* Price Analysis */}
-                    {ai.price_analysis && (
-                        <div className="bg-slate-900/50 rounded-lg p-3">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span>💡</span>
-                                <span className="text-white">
-                                    {language === 'th' ? 'ราคาเทียบตลาด' : 'Market Comparison'}:
-                                    <span className={ai.price_analysis.price_position === 'below_market' ? 'text-green-400 ml-2' : 'text-yellow-400 ml-2'}>
-                                        {ai.price_analysis.price_position === 'below_market' ? 'ถูกกว่า' : 'แพงกว่า'} {Math.abs(ai.price_analysis.percentage_diff)}%
-                                    </span>
-                                </span>
-                            </div>
-                            <div className="text-sm text-gray-400">
-                                {language === 'th' ? 'ราคาเฉลี่ย' : 'Avg Price'}: ฿{formatPrice(ai.price_analysis.market_avg)}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Buyer Checklist */}
-                    {ai.buyer_checklist && ai.buyer_checklist.length > 0 && (
-                        <div className="bg-slate-900/50 rounded-lg p-3">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span>⚠️</span>
-                                <span className="text-white">{language === 'th' ? 'สิ่งที่ควรถาม' : 'Things to Ask'}:</span>
-                            </div>
-                            <ul className="text-sm text-gray-400 space-y-1">
-                                {ai.buyer_checklist.slice(0, 3).map((item, i) => (
-                                    <li key={i}>• {item}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-
-                    {/* Quick Questions */}
-                    <div>
-                        <div className="text-sm text-gray-400 mb-2">{language === 'th' ? 'ถามผู้ขายทันที' : 'Ask Seller'}:</div>
-                        <div className="flex flex-wrap gap-2">
-                            {suggestions.slice(0, 4).map((q, i) => (
-                                <button
-                                    key={i}
-                                    className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-full text-gray-300 text-xs transition-colors"
-                                >
-                                    {q}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
-    )
-}
 
 // Share Modal Component
 function ShareModal({ listing, isOpen, onClose }: { listing: UniversalListing; isOpen: boolean; onClose: () => void }) {
@@ -849,123 +539,6 @@ function ShareModal({ listing, isOpen, onClose }: { listing: UniversalListing; i
     )
 }
 
-// Make Offer Modal Component
-function MakeOfferModal({
-    listing,
-    isOpen,
-    onClose,
-    onSubmit
-}: {
-    listing: UniversalListing
-    isOpen: boolean
-    onClose: () => void
-    onSubmit?: (price: number, message: string) => Promise<void>
-}) {
-    const [offerPrice, setOfferPrice] = useState('')
-    const [message, setMessage] = useState('')
-    const [readyToTransfer, setReadyToTransfer] = useState(false)
-    const [wantToView, setWantToView] = useState(false)
-    const [isSubmitting, setIsSubmitting] = useState(false)
-
-    if (!isOpen) return null
-
-    const suggestedOffer = Math.round(listing.price * 0.9) // 10% off suggestion
-
-    const handleSubmit = async () => {
-        setIsSubmitting(true)
-        try {
-            // Build message with options
-            let fullMessage = message
-            if (readyToTransfer) fullMessage += ' (พร้อมโอนทันที)'
-            if (wantToView) fullMessage += ' (ขอนัดดูก่อน)'
-
-            if (onSubmit) {
-                await onSubmit(Number(offerPrice) || suggestedOffer, fullMessage)
-            }
-            onClose()
-        } catch (err) {
-            console.error('Error submitting offer:', err)
-        } finally {
-            setIsSubmitting(false)
-        }
-    }
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70" onClick={onClose}>
-            <div className="bg-slate-800 rounded-2xl p-6 max-w-md w-full" onClick={e => e.stopPropagation()}>
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-white font-semibold">💵 เสนอราคา</h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
-                </div>
-
-                {/* Original Price */}
-                <div className="text-gray-400 text-sm mb-2">
-                    ราคาประกาศ: <span className="text-white font-medium">฿{formatPrice(listing.price)}</span>
-                </div>
-
-                {/* Offer Input */}
-                <div className="mb-4">
-                    <label className="text-gray-400 text-sm mb-1 block">ราคาที่คุณเสนอ</label>
-                    <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">฿</span>
-                        <input
-                            type="number"
-                            value={offerPrice}
-                            onChange={e => setOfferPrice(e.target.value)}
-                            placeholder={formatPrice(suggestedOffer)}
-                            className="w-full pl-8 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-lg font-medium focus:border-purple-500 focus:outline-none"
-                        />
-                    </div>
-                    <div className="text-xs text-purple-400 mt-1">
-                        💡 AI แนะนำ: ราคาที่มีโอกาสตกลง ฿{formatPrice(suggestedOffer)} - ฿{formatPrice(Math.round(listing.price * 0.95))}
-                    </div>
-                </div>
-
-                {/* Options */}
-                <div className="space-y-2 mb-4">
-                    <label className="flex items-center gap-2 text-gray-300 text-sm cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={readyToTransfer}
-                            onChange={e => setReadyToTransfer(e.target.checked)}
-                            className="rounded bg-slate-700 border-slate-600"
-                        />
-                        พร้อมโอนทันทีถ้าตกลง
-                    </label>
-                    <label className="flex items-center gap-2 text-gray-300 text-sm cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={wantToView}
-                            onChange={e => setWantToView(e.target.checked)}
-                            className="rounded bg-slate-700 border-slate-600"
-                        />
-                        ขอนัดดูก่อน
-                    </label>
-                </div>
-
-                {/* Message */}
-                <div className="mb-4">
-                    <label className="text-gray-400 text-sm mb-1 block">ข้อความถึงผู้ขาย (ถ้ามี)</label>
-                    <textarea
-                        value={message}
-                        onChange={e => setMessage(e.target.value)}
-                        placeholder="สนใจมากครับ ถ้าลดได้จะโอนเลย..."
-                        className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-gray-300 text-sm resize-none h-20 focus:border-purple-500 focus:outline-none"
-                    />
-                </div>
-
-                {/* Submit */}
-                <button
-                    onClick={handleSubmit}
-                    disabled={!offerPrice}
-                    className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white font-semibold transition-all"
-                >
-                    ส่งข้อเสนอ
-                </button>
-            </div>
-        </div>
-    )
-}
 
 // Sticky Bottom Bar (Mobile)
 function StickyBottomBar({
@@ -974,7 +547,8 @@ function StickyBottomBar({
     onOffer,
     onShare,
     onFavorite,
-    isFavorited
+    isFavorited,
+    isOwner
 }: {
     listing: UniversalListing
     onChat: () => void
@@ -982,27 +556,72 @@ function StickyBottomBar({
     onShare: () => void
     onFavorite: () => void
     isFavorited: boolean
+    isOwner: boolean
 }) {
+    // OWNER VIEW
+    if (isOwner) {
+        return (
+            <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-slate-900/95 backdrop-blur-xl border-t border-purple-500/20 px-4 py-3 safe-area-pb">
+                <div className="flex items-center justify-between gap-3">
+                    {/* Stats Summary */}
+                    <div className="flex-1">
+                        <div className="text-white font-medium text-sm flex items-center gap-2">
+                            <span>ประกาศของคุณ</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] border ${listing.status === 'active' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                                listing.status === 'sold' ? 'bg-slate-700 text-gray-400 border-slate-600' :
+                                    'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+                                }`}>
+                                {listing.status === 'active' ? 'Active' : listing.status === 'sold' ? 'Sold' : listing.status}
+                            </span>
+                        </div>
+                        <div className="text-xs text-gray-400 flex items-center gap-2 mt-0.5">
+                            <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {listing.stats.views}</span>
+                            <span className="flex items-center gap-1"><Heart className="w-3 h-3" /> {listing.stats.favorites}</span>
+                        </div>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={onShare}
+                            className="p-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-gray-300 border border-slate-700 transition-colors"
+                        >
+                            <Share2 className="w-5 h-5" />
+                        </button>
+                        <Link
+                            href={`/sell/edit/${listing.id}`}
+                            className="flex items-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl text-white font-medium shadow-lg shadow-blue-500/25 transition-all"
+                        >
+                            <Edit className="w-4 h-4" />
+                            <span>แก้ไข</span>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    // BUYER VIEW
     return (
         <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-slate-900/95 backdrop-blur-xl border-t border-white/10 px-4 py-3 safe-area-pb">
             <div className="flex items-center gap-3">
                 {/* Quick Actions */}
                 <button
                     onClick={onFavorite}
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${isFavorited ? 'bg-red-500/20 text-red-400' : 'bg-slate-800 text-gray-400'
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${isFavorited ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30' : 'bg-slate-800 text-gray-400 border border-slate-700'
                         }`}
                 >
-                    {isFavorited ? '❤️' : '🤍'}
+                    {isFavorited ? <Heart className="w-6 h-6 fill-current" /> : <Heart className="w-6 h-6" />}
                 </button>
                 <button
                     onClick={onShare}
-                    className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-gray-400"
+                    className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-gray-400 border border-slate-700"
                 >
-                    📤
+                    <Share2 className="w-6 h-6" />
                 </button>
 
-                {/* Price */}
-                <div className="flex-1 text-center">
+                {/* Price (if space allows, otherwise hidden on very small screens) */}
+                <div className="hidden sm:block flex-1 text-center">
                     <div className="text-white font-bold text-lg">฿{formatPrice(listing.price)}</div>
                     {listing.price_negotiable && (
                         <div className="text-purple-400 text-xs">ต่อรองได้</div>
@@ -1010,18 +629,22 @@ function StickyBottomBar({
                 </div>
 
                 {/* Main Actions */}
-                <button
-                    onClick={onChat}
-                    className="px-4 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl text-white font-medium transition-colors"
-                >
-                    💬
-                </button>
-                <button
-                    onClick={onOffer}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl text-white font-medium transition-all"
-                >
-                    💵 เสนอราคา
-                </button>
+                <div className="flex-1 flex gap-2">
+                    <button
+                        onClick={onChat}
+                        className="flex-1 px-3 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-xl text-white font-medium shadow-lg shadow-purple-500/25 transition-all flex items-center justify-center gap-2"
+                    >
+                        <MessageCircle className="w-5 h-5" />
+                        <span className="text-sm">แชท</span>
+                    </button>
+                    <button
+                        onClick={onOffer}
+                        className="flex-1 px-3 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-white font-medium border border-slate-600 transition-all flex items-center justify-center gap-2"
+                    >
+                        <DollarSign className="w-5 h-5 text-green-400" />
+                        <span className="text-sm">เสนอราคา</span>
+                    </button>
+                </div>
             </div>
         </div>
     )
@@ -1033,8 +656,9 @@ export default function ListingDetailPage() {
     const params = useParams()
     const router = useRouter()
     const slug = params.slug as string
+    const { language } = useLanguage()
     const { user } = useAuth()
-    const { startConversation, selectConversation } = useChat()
+    const { sendNotification } = useNotifications()
     const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist()
 
     const [listing, setListing] = useState<UniversalListing | null>(null)
@@ -1049,15 +673,25 @@ export default function ListingDetailPage() {
     const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
     const [userDistance, setUserDistance] = useState<number | null>(null)
 
-    const { language } = useLanguage()
+    // Related listings state (fetched from API)
+    const [sellerOtherListings, setSellerOtherListings] = useState<SellerListing[]>([])
+    const [similarItems, setSimilarItems] = useState<SellerListing[]>([])
+
 
     // Check if current user is the owner
     const isOwner = user && listing && user.uid === listing.seller_id
 
+    // AI Buyer Intent Detection
+    const { intent, trackEvent } = useBuyerIntent({
+        productId: listing?.id || '',
+        productPrice: listing?.price,
+        enabled: !!listing && !isOwner
+    })
+
     // Check wishlist status
     const isFavorited = listing ? isInWishlist(listing.id) : false
 
-    // Handle chat with seller
+    // Handle chat with seller - Redirect to /chat page
     const handleChat = async () => {
         if (!listing) return
         if (!user) {
@@ -1068,17 +702,17 @@ export default function ListingDetailPage() {
 
         setIsChatting(true)
         try {
-            const conversationId = await startConversation(
-                {
-                    id: listing.seller_id,
-                    name: listing.seller_info.name,
-                    avatar: listing.seller_info.avatar
-                },
-                listing.id,
-                listing.title,
-                listing.thumbnail_url
-            )
-            selectConversation(conversationId)
+            // Redirect to /chat page with params
+            const params = new URLSearchParams({
+                seller: listing.seller_id,
+                listing: listing.id,
+                title: listing.title,
+                price: listing.price.toString()
+            })
+            if (listing.thumbnail_url) {
+                params.append('image', listing.thumbnail_url)
+            }
+            router.push(`/chat?${params.toString()}`)
         } catch (err) {
             console.error('Error starting chat:', err)
         } finally {
@@ -1097,35 +731,38 @@ export default function ListingDetailPage() {
         if (isFavorited) {
             await removeFromWishlist(listing.id)
         } else {
-            await addToWishlist(listing as any)
+            const success = await addToWishlist(listing as any)
+            if (success) {
+                // Optional: Send notification or show toast
+                // sendNotification(
+                //     user.uid,
+                //     'FAVORITE',
+                //     t('messages', 'saved_successfully', language as 'th' | 'en'),
+                //     listing.title
+                // )
+            }
         }
     }
 
-    // Handle offer submit
-    const handleOfferSubmit = async () => {
-        if (!listing || !user) return
+    // Handle offer submit - Redirect to /chat page with offer
+    const handleOfferSubmit = async (offerAmount?: number) => {
+        if (!listing || !user) {
+            router.push(`/login?redirect=/listing/${listing?.slug}`)
+            return
+        }
 
-        const conversationId = await startConversation(
-            {
-                id: listing.seller_id,
-                name: listing.seller_info.name,
-                avatar: listing.seller_info.avatar
-            },
-            listing.id,
-            listing.title,
-            listing.thumbnail_url
-        )
-
-        // Send offer via chat
-        await sendChatMessage(
-            conversationId,
-            user.uid,
-            `เสนอราคา`,
-            'offer',
-            { offerAmount: listing.price * 0.9 }
-        )
-
-        selectConversation(conversationId)
+        // Redirect to /chat page with params and offer
+        const params = new URLSearchParams({
+            seller: listing.seller_id,
+            listing: listing.id,
+            title: listing.title,
+            price: listing.price.toString(),
+            offer: (offerAmount || Math.floor(listing.price * 0.9)).toString()
+        })
+        if (listing.thumbnail_url) {
+            params.append('image', listing.thumbnail_url)
+        }
+        router.push(`/chat?${params.toString()}`)
         setOfferModalOpen(false)
     }
 
@@ -1225,6 +862,15 @@ export default function ListingDetailPage() {
                 }
 
                 if (!data) {
+                    // Fallback: Check if slug looks like a Firestore Document ID (20 chars alphanumeric)
+                    const isDocumentId = /^[a-zA-Z0-9]{20,}$/.test(decodedSlug)
+                    if (isDocumentId) {
+                        console.log('🔍 Slug looks like Document ID, trying getListingById:', decodedSlug)
+                        data = await getListingById(decodedSlug)
+                    }
+                }
+
+                if (!data) {
                     // Fallback: Check if this is a legacy product slug
                     console.log('🔄 Checking legacy products collection for:', decodedSlug)
                     const legacyProduct = await getProductBySlug(decodedSlug)
@@ -1242,10 +888,45 @@ export default function ListingDetailPage() {
                 }
 
                 console.log('✅ Found listing:', data.title)
-                setListing(data)
 
-                // Increment views
-                await incrementListingViews(data.id)
+                // First, fetch related listings to get accurate seller data
+                // (Do this BEFORE setListing to avoid race conditions)
+                let sellerListings: SellerListing[] = []
+                let similar: SellerListing[] = []
+
+                console.warn('🚀 START: Fetching related listings for seller:', data.seller_id)
+                try {
+                    const [fetchedSellerListings, fetchedSimilar] = await Promise.all([
+                        getSellerListings(data.seller_id, data.id, 6),
+                        getSimilarListings(data.category_type, data.id, 4)
+                    ])
+                    sellerListings = fetchedSellerListings
+                    similar = fetchedSimilar
+                    console.warn('✅ Got sellerListings:', sellerListings.length, 'similar:', similar.length)
+
+                    // FIX: Update seller_info.total_listings with real count
+                    // sellerListings excludes current listing, so add 1
+                    const realListingsCount = sellerListings.length + 1
+                    data.seller_info.total_listings = realListingsCount
+                    console.warn(`📊 Updated seller total_listings to ${realListingsCount}`)
+                } catch (relatedErr) {
+                    console.error('Error fetching related listings:', relatedErr)
+                    // Non-critical, continue loading
+                }
+
+                // NOW set listing with all data ready (including updated total_listings)
+                setListing(data)
+                setSellerOtherListings(sellerListings)
+                setSimilarItems(similar)
+
+                // Increment views (non-blocking)
+                try {
+                    await incrementListingViews(data.id)
+                    console.log('👁️ Views incremented')
+                } catch (viewErr) {
+                    console.error('Error incrementing views:', viewErr)
+                }
+
             } catch (err) {
                 console.error('Error fetching listing:', err)
                 setError('เกิดข้อผิดพลาด')
@@ -1257,7 +938,7 @@ export default function ListingDetailPage() {
         if (slug) {
             fetchListing()
         }
-    }, [slug])
+    }, [slug, router])
 
     // Loading State
     if (loading) {
@@ -1335,7 +1016,7 @@ export default function ListingDetailPage() {
                         <div className="bg-slate-800/50 rounded-xl p-4">
                             <h3 className="text-white font-semibold mb-3">📝 รายละเอียด</h3>
                             <div className="text-gray-300 text-sm whitespace-pre-wrap">
-                                {listing.ai_content.marketing_copy.full_text || listing.template_data.additional_description || 'ไม่มีรายละเอียดเพิ่มเติม'}
+                                {listing.ai_content.marketing_copy.full_text || listing.template_data.description || listing.template_data.additional_description || 'ไม่มีรายละเอียดเพิ่มเติม'}
                             </div>
                         </div>
 
@@ -1372,136 +1053,146 @@ export default function ListingDetailPage() {
                             </div>
                         )}
 
-                        {/* Trust Signals */}
-                        <TrustSignals listing={listing} language={language} />
+
+                        {/* AI Instant Summary - Amazon Style */}
+                        <AIInstantSummary
+                            product={{
+                                id: listing.id,
+                                title: listing.title,
+                                description: listing.ai_content?.marketing_copy?.full_text,
+                                price: listing.price,
+                                category_id: listing.category_id || 0,
+                                condition: listing.template_data?.condition,
+                                images: listing.images?.map(img => img.url),
+                                specs: listing.template_data,
+                                seller_id: listing.seller_id
+                            }}
+                        />
                     </div>
 
                     {/* Right Column - Info & Actions */}
-                    <div className="lg:col-span-2 space-y-4">
-                        {/* Listing Info Card */}
-                        <div className="bg-slate-800 rounded-xl p-4 shadow-xl">
-                            {/* Meta - Show Listing Code prominently */}
-                            <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
-                                <div className="flex items-center gap-2">
-                                    <span>📅 {formatRelativeTime(listing.created_at)}</span>
-                                    <OwnerBadge isOwner={!!isOwner} language={language} />
+                    <div className="lg:col-span-2 space-y-4 lg:max-h-[calc(100vh-120px)] lg:overflow-y-auto lg:sticky lg:top-20">
+                        {/* Listing Info Card - Standardized V2 */}
+                        <ListingInfoCardV2
+                            title={listing.title}
+                            price={listing.price}
+                            priceNegotiable={listing.price_negotiable}
+                            listingCode={listing.listing_code || listing.listing_number}
+                            createdAt={listing.created_at instanceof Date ? listing.created_at : (listing.created_at as any).toDate ? (listing.created_at as any).toDate() : new Date(listing.created_at)}
+                            updatedAt={listing.updated_at instanceof Date ? listing.updated_at : (listing.updated_at as any)?.toDate ? (listing.updated_at as any).toDate() : (listing.updated_at ? new Date(listing.updated_at) : undefined)}
+                            views={listing.stats.views}
+                            favorites={listing.stats.favorites}
+                            location={{
+                                province: listing.location.province,
+                                amphoe: listing.location.amphoe
+                            }}
+                            categoryEmoji={CATEGORY_LABELS[listing.category_type]?.emoji || '📦'}
+                            categoryLabel={language === 'th' ? CATEGORY_LABELS[listing.category_type]?.th : CATEGORY_LABELS[listing.category_type]?.en}
+                            isFavorited={isFavorited}
+                            isOwner={!!isOwner}
+                            language={language as 'th' | 'en'}
+                            onChat={handleChat}
+                            onOffer={() => setOfferModalOpen(true)}
+                            onShare={() => setShareModalOpen(true)}
+                            onFavorite={handleFavoriteToggle}
+                        />
+
+                        {/* === UNIFIED STATS (Single Source of Truth) === */}
+                        <UnifiedListingStats
+                            views={listing.stats.views}
+                            favorites={listing.stats.favorites}
+                            shares={listing.stats.shares || 0}
+                            trending={listing.stats.views > 500}
+                            language={language as 'th' | 'en'}
+                        />
+
+                        {/* === OWNER QUICK ACTIONS (Visible only to owner) === */}
+                        {isOwner && (
+                            <div className="bg-slate-800/80 rounded-xl p-4 border border-purple-500/30 backdrop-blur-sm">
+                                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                                    <span className="text-xl">⚡</span>
+                                    {language === 'th' ? 'จัดการประกาศ' : 'Manage Listing'}
+                                </h3>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button className="py-2 bg-slate-700/50 hover:bg-slate-700 text-gray-300 rounded-lg text-xs transition-colors">
+                                        {language === 'th' ? 'ดูสถิติเชิงลึก' : 'View Insights'}
+                                    </button>
+                                    <Link href={`/sell/edit/${listing.id}`} className="py-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-medium text-center transition-colors">
+                                        {language === 'th' ? 'แก้ไขประกาศ' : 'Edit Listing'}
+                                    </Link>
                                 </div>
-                                <button
-                                    onClick={async () => {
-                                        const code = listing.listing_code || listing.listing_number
-                                        await navigator.clipboard.writeText(code)
-                                        // Could add toast notification here
-                                    }}
-                                    className="flex items-center gap-1 px-2 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors group"
-                                    title="คลิกเพื่อคัดลอกรหัสประกาศ"
-                                >
-                                    <span className="text-purple-400 font-mono text-xs">
-                                        {listing.listing_code || listing.listing_number}
-                                    </span>
-                                    <span className="text-gray-500 group-hover:text-purple-400 transition-colors">📋</span>
-                                </button>
                             </div>
+                        )}
 
-                            {/* Title */}
-                            <h1 className="text-2xl font-bold text-white mb-2">{listing.title}</h1>
-
-                            {/* Badges */}
-                            <div className="flex flex-wrap gap-2 mb-4">
-                                {listing.template_data.condition && (
-                                    <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full">
-                                        ⭐ {listing.template_data.condition}
-                                    </span>
-                                )}
-                                {listing.template_data.owner_hand && (
-                                    <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full">
-                                        👤 มือ {listing.template_data.owner_hand}
-                                    </span>
-                                )}
+                        {/* Known Issues (Mobile) - Keep prominent next to Price/Info */}
+                        {listing.category_type === 'mobile' && listing.template_data.known_issues && Array.isArray(listing.template_data.known_issues) && listing.template_data.known_issues.length > 0 && !listing.template_data.known_issues.includes('none') && (
+                            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+                                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                                    <span>⚠️</span>
+                                    {language === 'th' ? 'ประเด็นสำคัญที่ควรทราบ' : 'Key Things to Note'}
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {(listing.template_data.known_issues as string[]).map((issue, i) => {
+                                        const issueLabels: Record<string, { th: string; en: string; icon: string }> = {
+                                            'battery_drain': { th: 'แบตหมดไว', en: 'Battery drains fast', icon: '🔋' },
+                                            'speaker': { th: 'ลำโพงมีปัญหา', en: 'Speaker issue', icon: '🔊' },
+                                            'camera': { th: 'กล้องมีปัญหา', en: 'Camera issue', icon: '📷' },
+                                            'faceid': { th: 'Face ID ไม่ทำงาน', en: 'Face ID not working', icon: '👤' },
+                                            'wifi': { th: 'WiFi/BT มีปัญหา', en: 'WiFi/BT issue', icon: '📶' },
+                                            'charging': { th: 'ชาร์จมีปัญหา', en: 'Charging issue', icon: '⚡' },
+                                            'screen_burn': { th: 'จอ Burn-in', en: 'Screen burn-in', icon: '🔥' },
+                                        }
+                                        const label = issueLabels[issue]
+                                        return label ? (
+                                            <span key={i} className="px-3 py-1.5 bg-yellow-500/20 text-yellow-300 text-sm rounded-full flex items-center gap-1">
+                                                <span>{label.icon}</span>
+                                                {language === 'th' ? label.th : label.en}
+                                            </span>
+                                        ) : null
+                                    })}
+                                </div>
                             </div>
-
-                            {/* Price */}
-                            <div className="mb-4">
-                                <div className="text-3xl font-bold text-white">฿{formatPrice(listing.price)}</div>
-                                {listing.price_negotiable && (
-                                    <div className="text-purple-400 text-sm">💰 ต่อรองได้</div>
-                                )}
-                                {listing.template_data.finance_available === 'finance_ok' && (
-                                    <div className="text-green-400 text-sm">📊 ผ่อนได้</div>
-                                )}
-                            </div>
-
-                            {/* Stats */}
-                            <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
-                                <span>👁️ {listing.stats.views} {language === 'th' ? 'ดู' : 'views'}</span>
-                                <span>❤️ {listing.stats.favorites}</span>
-                                <span>📤 {listing.stats.shares}</span>
-                            </div>
-
-                            {/* Desktop Actions */}
-                            <div className="hidden lg:flex gap-3 mb-4">
-                                <button
-                                    onClick={handleFavoriteToggle}
-                                    className={`flex-1 py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${isFavorited ? 'bg-red-500/20 text-red-400' : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
-                                        }`}
-                                >
-                                    {isFavorited ? '❤️ บันทึกแล้ว' : '🤍 บันทึก'}
-                                </button>
-                                <button
-                                    onClick={() => setShareModalOpen(true)}
-                                    className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 font-medium transition-colors flex items-center justify-center gap-2"
-                                >
-                                    📤 แชร์
-                                </button>
-                            </div>
-
-                            <div className="hidden lg:block space-y-3">
-                                <button
-                                    onClick={handleChat}
-                                    disabled={isChatting}
-                                    className="w-full py-3 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 rounded-xl text-white font-medium transition-colors flex items-center justify-center gap-2"
-                                >
-                                    {isChatting ? (
-                                        <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                                    ) : (
-                                        '💬'
-                                    )}
-                                    แชทกับผู้ขาย
-                                </button>
-                                <button
-                                    onClick={() => setOfferModalOpen(true)}
-                                    className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-xl text-white font-semibold transition-all flex items-center justify-center gap-2"
-                                >
-                                    💵 เสนอราคา
-                                </button>
-                            </div>
-                        </div>
+                        )}
 
                         {/* Non-sticky content wrapper - prevents overlap with sticky card */}
                         <div className="relative z-0 space-y-4">
                             {/* === PRIORITY 1: SELLER PROFILE (Most Important for Trust) === */}
+                            {/* Note: Trust Score is now integrated into EnhancedSellerCard */}
                             <EnhancedSellerCard
                                 seller={{ ...listing.seller_info, id: listing.seller_id }}
                                 sellerId={listing.seller_id}
                                 location={listing.location.province}
                                 language={language}
+                                currentListingId={listing.id}
                             />
 
-                            {/* === PRIORITY 2: AI DEAL ANALYSIS === */}
-                            <AIDealScoreCard listing={listing} language={language} />
+                            {/* === NEW: AI Negotiation Assistant (If negotiable and not owner) === */}
+                            {!isOwner && listing.price_negotiable && (
+                                <AINegotiationAssistant
+                                    askingPrice={listing.price}
+                                    productTitle={listing.title}
+                                    onSendOffer={async (price, message) => {
+                                        // Handle offer submission
+                                        console.log('Offer:', price, message)
+                                        setOfferModalOpen(true)
+                                    }}
+                                />
+                            )}
+
+                            {/* === PRIORITY 2: AI DEAL ANALYSIS (Not for owner) === */}
+                            {!isOwner && <AIDealScoreCard listing={listing} language={language} />}
 
                             {/* === PRIORITY 3: SELLER'S OTHER LISTINGS === */}
-                            {listing.seller_info.total_listings > 1 && (
+                            {sellerOtherListings.length > 0 && (
                                 <SellerOtherListings
                                     sellerId={listing.seller_id}
                                     currentListingId={listing.id}
                                     sellerName={listing.seller_info.name}
-                                    listings={[]} // TODO: Fetch from API
+                                    listings={sellerOtherListings}
                                     language={language}
                                 />
                             )}
 
-                            {/* === PRIORITY 4: AI SUMMARY (Quick Overview) === */}
-                            <AISummaryCard listing={listing} language={language} />
 
                             {/* === PRIORITY 5: FINANCE CALCULATOR (For Vehicles) === */}
                             {(listing.category_type === 'car' || listing.category_type === 'motorcycle') && (
@@ -1509,12 +1200,14 @@ export default function ListingDetailPage() {
                             )}
 
                             {/* === PRIORITY 6: SIMILAR ITEMS === */}
-                            <SimilarListings
-                                categoryType={listing.category_type}
-                                currentListingId={listing.id}
-                                listings={[]} // TODO: Fetch from API
-                                language={language}
-                            />
+                            {similarItems.length > 0 && (
+                                <SimilarListings
+                                    categoryType={listing.category_type}
+                                    currentListingId={listing.id}
+                                    listings={similarItems}
+                                    language={language}
+                                />
+                            )}
 
                             {/* === PRIORITY 7: TRUST TIMELINE === */}
                             <TrustTimelineCard listing={listing} language={language} />
@@ -1522,15 +1215,17 @@ export default function ListingDetailPage() {
                             {/* === PRIORITY 8: AI BUYER CHECKLIST === */}
                             <AIBuyerChecklist listing={listing} language={language} />
 
+
                             {/* === REPORT SECTION === */}
                             <div className="flex items-center justify-center py-2">
                                 <ReportButton
                                     targetType="listing"
                                     targetId={listing.id}
                                     targetTitle={listing.title}
-                                    reporterId="anonymous" // TODO: Get from auth
+                                    reporterId={user?.uid || 'anonymous'}
                                     variant="text"
                                 />
+
                             </div>
                         </div>
                     </div>
@@ -1545,12 +1240,14 @@ export default function ListingDetailPage() {
                 onShare={() => setShareModalOpen(true)}
                 onFavorite={handleFavoriteToggle}
                 isFavorited={isFavorited}
+                isOwner={!!isOwner}
             />
 
             {/* Modals */}
             <ShareModal listing={listing} isOpen={shareModalOpen} onClose={() => setShareModalOpen(false)} />
             <MakeOfferModal
-                listing={listing}
+                listingTitle={listing.title}
+                currentPrice={listing.price}
                 isOpen={offerModalOpen}
                 onClose={() => setOfferModalOpen(false)}
                 onSubmit={async (price, message) => {
@@ -1559,26 +1256,33 @@ export default function ListingDetailPage() {
                         return
                     }
 
-                    const conversationId = await startConversation(
-                        {
-                            id: listing.seller_id,
-                            name: listing.seller_info.name,
-                            avatar: listing.seller_info.avatar
-                        },
-                        listing.id,
-                        listing.title,
-                        listing.thumbnail_url
-                    )
+                    // Redirect to /chat page with offer
+                    const params = new URLSearchParams({
+                        seller: listing.seller_id,
+                        listing: listing.id,
+                        title: listing.title,
+                        price: listing.price.toString(),
+                        offer: price.toString()
+                    })
+                    if (listing.thumbnail_url) {
+                        params.append('image', listing.thumbnail_url)
+                    }
+                    router.push(`/chat?${params.toString()}`)
+                    setOfferModalOpen(false)
+                }}
+            />
 
-                    await sendChatMessage(
-                        conversationId,
-                        user.uid,
-                        message || `เสนอราคา ฿${price.toLocaleString()}`,
-                        'offer',
-                        { offerAmount: price }
-                    )
-
-                    selectConversation(conversationId)
+            {/* AI Comparison Lock - Anti-Bounce Modal */}
+            <AIComparisonLock
+                productId={listing.id}
+                productTitle={listing.title}
+                productPrice={listing.price}
+                productThumbnail={listing.thumbnail_url}
+                intentScore={intent.score}
+                similarProducts={[]}
+                enabled={!isOwner && intent.score >= 30}
+                onStay={() => {
+                    trackEvent('wishlist_add')
                 }}
             />
         </div>

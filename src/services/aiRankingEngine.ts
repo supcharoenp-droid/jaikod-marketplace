@@ -1,5 +1,5 @@
 import { Product, SellerProfile } from '@/types/index'
-import { UserBehavior } from './behaviorTracking'
+import type { UserBehavior } from './behaviorTracking'
 import { calculateDistanceToProduct } from '@/lib/geolocation' // We'll need to double check this import
 
 // ==========================================
@@ -109,11 +109,12 @@ function scoreSellerQuality(product: Product): number {
     if (!seller) return 50 // Neutral if unknown
 
     let score = 60 // Base
+    const ratingScore = seller.rating_score ?? seller.rating_avg ?? 0
 
     // Rating
-    if (seller.rating_score >= 4.5) score += 20
-    else if (seller.rating_score >= 4.0) score += 10
-    else if (seller.rating_score < 3.0) score -= 20
+    if (ratingScore >= 4.5) score += 20
+    else if (ratingScore >= 4.0) score += 10
+    else if (ratingScore < 3.0) score -= 20
 
     // Response
     if (seller.response_rate >= 90) score += 10

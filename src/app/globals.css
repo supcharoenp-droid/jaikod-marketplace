@@ -253,3 +253,101 @@ body {
     background-position: 1000px 0;
   }
 }
+
+/* JaiKod Logo Animations */
+@keyframes logoFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes logoPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes drawLine {
+  from {
+    stroke-dashoffset: 200;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Mesh Gradient Animations (Moved from HomePage) */
+@keyframes mesh-1 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, 40px) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+@keyframes mesh-2 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(-40px, -20px) scale(0.9);
+  }
+
+  66% {
+    transform: translate(20px, -40px) scale(1.1);
+  }
+}
+
+@keyframes mesh-3 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1.1);
+  }
+
+  33% {
+    transform: translate(20px, -10px) scale(1.2);
+  }
+
+  66% {
+    transform: translate(-30px, 30px) scale(1);
+  }
+}
+
+.animate-mesh-1 {
+  animation: mesh-1 15s ease-in-out infinite;
+}
+
+.animate-mesh-2 {
+  animation: mesh-2 18s ease-in-out infinite;
+}
+
+.animate-mesh-3 {
+  animation: mesh-3 20s ease-in-out infinite;
+}

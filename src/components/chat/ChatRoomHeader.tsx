@@ -2,10 +2,12 @@
 
 import {
     MoreVertical, Phone, Video,
-    ArrowLeft, Shield, AlertTriangle, Trash2, Ban, ChevronRight
+    ArrowLeft, Shield, AlertTriangle, Trash2, Ban, ChevronRight,
+    Search, BellOff, Archive
 } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
+import ProductStatusBadge from './ProductStatusBadge';
 
 interface ChatRoomHeaderProps {
     // Seller/Buyer Info
@@ -20,6 +22,11 @@ interface ChatRoomHeaderProps {
     productPrice: number;
     productImage?: string;
     productId: string;
+    productStatus?: 'available' | 'sold' | 'reserved' | 'deleted';
+
+    // V2 Chat state
+    isMuted?: boolean;
+    isArchived?: boolean;
 
     // Actions
     onBack?: () => void;
@@ -27,6 +34,9 @@ interface ChatRoomHeaderProps {
     onReportUser?: () => void;
     onBlockUser?: () => void;
     onViewProduct?: () => void;
+    onSearchClick?: () => void;
+    onMuteToggle?: () => void;
+    onArchiveToggle?: () => void;
 }
 
 export default function ChatRoomHeader({
@@ -38,11 +48,17 @@ export default function ChatRoomHeader({
     productTitle,
     productPrice,
     productImage,
+    productStatus = 'available',
+    isMuted = false,
+    isArchived = false,
     onBack,
     onDeleteChat,
     onReportUser,
     onBlockUser,
-    onViewProduct
+    onViewProduct,
+    onSearchClick,
+    onMuteToggle,
+    onArchiveToggle
 }: ChatRoomHeaderProps) {
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -94,8 +110,8 @@ export default function ChatRoomHeader({
                                 {partnerName}
                                 {partnerRole && (
                                     <span className={`text-[10px] px-1.5 py-0.5 rounded border ${partnerRole === 'seller'
-                                            ? 'bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-900/20 dark:border-orange-900'
-                                            : 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-900/20 dark:border-blue-900'
+                                        ? 'bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-900/20 dark:border-orange-900'
+                                        : 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-900/20 dark:border-blue-900'
                                         }`}>
                                         {partnerRole === 'seller' ? 'ผู้ขาย' : 'ผู้ซื้อ'}
                                     </span>
@@ -108,14 +124,30 @@ export default function ChatRoomHeader({
                                 </span>
                             )}
                         </div>
-                        <p className="text-xs text-green-600 dark:text-green-400 font-medium">
-                            {isOnline ? 'ออนไลน์' : 'ออฟไลน์'}
-                        </p>
+                        <div className="flex items-center gap-1">
+                            <p className="text-xs text-green-600 dark:text-green-400 font-medium">
+                                {isOnline ? 'ออนไลน์' : 'ออฟไลน์'}
+                            </p>
+                            {isMuted && (
+                                <BellOff className="w-3 h-3 text-gray-400" />
+                            )}
+                            {isArchived && (
+                                <Archive className="w-3 h-3 text-gray-400" />
+                            )}
+                        </div>
                     </div>
                 </div>
 
                 {/* Right Actions */}
                 <div className="flex items-center gap-1">
+                    {/* Search Button */}
+                    <button
+                        onClick={onSearchClick}
+                        className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-gray-800 rounded-full transition"
+                        title="ค้นหาข้อความ"
+                    >
+                        <Search className="w-5 h-5" />
+                    </button>
                     <button className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-gray-800 rounded-full transition hidden sm:block">
                         <Phone className="w-5 h-5" />
                     </button>
@@ -174,14 +206,18 @@ export default function ChatRoomHeader({
                         )}
                     </div>
                     <div className="min-w-0 flex-1">
-                        <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                            {productTitle}
-                        </h3>
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                {productTitle}
+                            </h3>
+                            <ProductStatusBadge status={productStatus} size="sm" />
+                        </div>
                         <p className="text-xs text-purple-600 dark:text-purple-400 font-bold">
                             ฿{productPrice.toLocaleString()}
                         </p>
                     </div>
                 </div>
+                <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
             </div>
         </div>
     );

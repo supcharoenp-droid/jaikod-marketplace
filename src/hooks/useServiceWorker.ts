@@ -43,6 +43,8 @@ export function useServiceWorker() {
 
         // Register SW
         const registerSW = async () => {
+            /* 
+            // Temporarily disabled to debug TypeError in hydration
             try {
                 const registration = await navigator.serviceWorker.register('/sw.js', {
                     scope: '/'
@@ -72,6 +74,8 @@ export function useServiceWorker() {
             } catch (error) {
                 console.error('[SW Hook] Registration failed:', error)
             }
+            */
+            console.log('[SW Hook] Service Worker registration is temporarily disabled for debugging.')
         }
 
         registerSW()

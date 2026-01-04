@@ -607,26 +607,4 @@ export const SHOP_TYPE_DISPLAY = {
 // EXPORTS
 // ==========================================
 
-export type {
-    ShopType,
-    ShopStatus,
-    ShopVisibility,
-    Shop,
-    ShopLocation,
-    ShopContact,
-    ShopBranding,
-    ShopBadge,
-    ShopStats,
-    ShopRatings,
-    ShopTrustScore,
-    ShopSettings,
-    ShopPromotion,
-    ShopFollower,
-    ShopCategory,
-    ShopReview,
-    ShopDailyAnalytics,
-    ShopNotification,
-    ShopReport,
-    ShopCreationInput,
-    ShopUpdateInput
-}
+// All types are exported inline above

@@ -20,6 +20,7 @@ import {
     formatBoostDuration
 } from '@/lib/boost/packages'
 import { createBoost, getActiveBoostForListing } from '@/lib/boost/boostService'
+import { getAccount } from '@/lib/jaistar/account'
 import { BoostPackage } from '@/lib/boost/types'
 
 // ==========================================
@@ -286,7 +287,7 @@ function BoostPageContent() {
     const listingId = params.id as string
 
     const { language } = useLanguage()
-    const { user, sellerType } = useAuth()
+    const { user, storeStatus } = useAuth()
 
     const [loading, setLoading] = useState(true)
     const [purchasing, setPurchasing] = useState(false)
@@ -301,10 +302,10 @@ function BoostPageContent() {
     const DEV_MODE = process.env.NODE_ENV === 'development'
 
     // Mock JaiStar balance (should come from user profile/wallet)
-    // In DEV_MODE, give 9999 stars for testing
-    const [jaistarBalance] = useState(DEV_MODE ? 9999 : 250)
+    const [jaistarBalance, setJaistarBalance] = useState(0)
 
-    // Get seller account type
+    // Get seller account type from storeStatus
+    const sellerType = storeStatus.sellerType
     const accountType: SellerAccountType =
         sellerType === 'official_store' ? 'official_store' :
             sellerType === 'general_store' ? 'general_store' : 'individual'
@@ -344,15 +345,27 @@ function BoostPageContent() {
 
             setListing(listingData)
 
+            // Load JaiStar balance
+            if (user) {
+                const account = await getAccount(user.uid)
+                if (account) {
+                    setJaistarBalance(account.balance)
+                }
+            }
+
             // Check for existing boost
             const activeBoost = await getActiveBoostForListing(listingId)
             if (activeBoost) {
                 setExistingBoost(activeBoost)
             }
 
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error loading data:', err)
-            setError(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Error loading data')
+            // Handle error object from Firebase
+            const errorMessage = typeof err === 'object' && err !== null
+                ? (err.message || err.code || JSON.stringify(err))
+                : String(err)
+            setError(language === 'th' ? 'เกิดข้อผิดพลาด: ' + errorMessage : 'Error: ' + errorMessage)
         } finally {
             setLoading(false)
         }
@@ -371,6 +384,7 @@ function BoostPageContent() {
 
         try {
             const result = await createBoost({
+                user_id: user.uid,
                 listing_id: listing.id,
                 seller_id: user.uid,
                 package_id: selectedPackage.id,
@@ -379,12 +393,21 @@ function BoostPageContent() {
 
             if (result.success) {
                 setSuccess(true)
+                // Update local balance
+                if (result.new_balance !== undefined) {
+                    setJaistarBalance(result.new_balance)
+                }
                 // Redirect after 2 seconds
                 setTimeout(() => {
                     router.push(`/listing/${listing.slug}`)
                 }, 2000)
             } else {
-                setError(result.error || 'Failed to create boost')
+                // Fix: Handle object error from boostService
+                const errorObj = result.error as any
+                const errorMsg = typeof errorObj === 'object' && errorObj !== null
+                    ? (errorObj.message || errorObj.code || 'Failed to create boost')
+                    : (typeof errorObj === 'string' ? errorObj : 'Failed to create boost')
+                setError(errorMsg)
             }
         } catch (err: any) {
             console.error('Error creating boost:', err)

@@ -31,6 +31,11 @@ export interface UserData {
     shopSlug?: string
     shopName?: string,
     suspendReason?: string
+    // AI & Analytics Fields
+    aiTrustScore?: number
+    predictedLTV?: number
+    riskLevel?: 'low' | 'medium' | 'high'
+    riskFactors?: string[]
 }
 
 export interface UserFilter {
@@ -187,6 +192,38 @@ export async function unbanUser(admin: AdminUser, userId: string) {
         await logAdminAction(admin, 'USER_UNBAN', `User: ${userId}`, `Unbanned user`)
         return true
     } catch (error) {
+        throw error
+    }
+}
+
+// 5. PATCH /admin/users/:id/onboarding
+export async function updateUserOnboarding(userId: string, data: { onboardingStep?: number, isVerified?: boolean }) {
+    try {
+        const updateData: any = {}
+        if (data.onboardingStep !== undefined) updateData.onboardingStep = data.onboardingStep
+        if (data.isVerified !== undefined) updateData.isVerified = data.isVerified
+
+        await updateDoc(doc(db, 'users', userId), updateData)
+        return true
+    } catch (error) {
+        console.error('Error updating onboarding:', error)
+        throw error
+    }
+}
+
+/**
+ * 6. Update User Roles (e.g., Promote to Seller, Add Admin)
+ */
+export async function updateUserRoles(admin: AdminUser, userId: string, roles: string[]) {
+    try {
+        await updateDoc(doc(db, 'users', userId), {
+            roles: roles,
+            updatedAt: Timestamp.now()
+        })
+        await logAdminAction(admin, 'USER_ROLE_UPDATE', `User: ${userId}`, `Updated roles to: ${roles.join(', ')}`)
+        return true
+    } catch (error) {
+        console.error('Error updating roles:', error)
         throw error
     }
 }

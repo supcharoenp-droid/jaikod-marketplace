@@ -4,6 +4,7 @@
  * LISTING ACTION BAR
  * 
  * Floating action bar with Chat, Make Offer, Save, and Share buttons
+ * Updated: Uses /chat page instead of FloatingChatWidget
  */
 
 import { useState } from 'react'
@@ -21,11 +22,9 @@ import {
     Link as LinkIcon
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { useChat } from '@/contexts/ChatContext'
 import { useWishlist } from '@/contexts/WishlistContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import MakeOfferModal from './MakeOfferModal'
-import { sendMessage as sendChatMessage } from '@/lib/firebase-chat'
 import { UniversalListing } from '@/lib/listings'
 
 interface ListingActionBarProps {
@@ -45,7 +44,6 @@ export default function ListingActionBar({
 }: ListingActionBarProps) {
     const router = useRouter()
     const { user } = useAuth()
-    const { startConversation, selectConversation } = useChat()
     const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist()
     const { language } = useLanguage()
     const lang = language as 'th' | 'en'
@@ -83,19 +81,17 @@ export default function ListingActionBar({
 
         setIsChatting(true)
         try {
-            const conversationId = await startConversation(
-                {
-                    id: sellerId,
-                    name: sellerName,
-                    avatar: sellerAvatar
-                },
-                listing.id,
-                listing.title,
-                listing.thumbnail_url
-            )
-
-            // Select the conversation to open chat
-            selectConversation(conversationId)
+            // Redirect to /chat page with params (uses /lib/chat system)
+            const params = new URLSearchParams({
+                seller: sellerId,
+                listing: listing.id,
+                title: listing.title,
+                price: listing.price.toString()
+            })
+            if (listing.thumbnail_url) {
+                params.append('image', listing.thumbnail_url)
+            }
+            router.push(`/chat?${params.toString()}`)
         } catch (err) {
             console.error('Error starting chat:', err)
         } finally {
@@ -103,36 +99,26 @@ export default function ListingActionBar({
         }
     }
 
-    // Handle Make Offer
+    // Handle Make Offer - Redirect to chat then make offer there
     const handleMakeOffer = async (amount: number, message?: string) => {
         if (!user) {
             router.push(`/login?redirect=/listing/${listing.slug}`)
             return
         }
 
-        // Start conversation first
-        const conversationId = await startConversation(
-            {
-                id: sellerId,
-                name: sellerName,
-                avatar: sellerAvatar
-            },
-            listing.id,
-            listing.title,
-            listing.thumbnail_url
-        )
-
-        // Send offer message
-        await sendChatMessage(
-            conversationId,
-            user.uid,
-            message || `เสนอราคา ฿${amount.toLocaleString()}`,
-            'offer',
-            { offerAmount: amount }
-        )
-
-        // Select the conversation
-        selectConversation(conversationId)
+        // Redirect to /chat page with params and offer info
+        // The offer will be made in ChatWindow after room is created
+        const params = new URLSearchParams({
+            seller: sellerId,
+            listing: listing.id,
+            title: listing.title,
+            price: listing.price.toString(),
+            offer: amount.toString() // Pass offer amount to make after connection
+        })
+        if (listing.thumbnail_url) {
+            params.append('image', listing.thumbnail_url)
+        }
+        router.push(`/chat?${params.toString()}`)
     }
 
     // Handle Wishlist Toggle

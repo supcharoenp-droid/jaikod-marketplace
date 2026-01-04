@@ -1,3 +1,46 @@
 {
-    "extends": "next/core-web-vitals"
+    "extends": "next/core-web-vitals",
+    "rules": {
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "react-hooks/exhaustive-deps": "warn",
+        "react/no-unescaped-entities": "off",
+        "@next/next/no-img-element": "off",
+        "no-restricted-imports": [
+            "warn",
+            {
+                "patterns": [
+                    {
+                        "group": [
+                            "@/lib/listings/types"
+                        ],
+                        "message": "Import types from '@/types' instead of '@/lib/listings/types'"
+                    },
+                    {
+                        "group": [
+                            "@/lib/seller/index"
+                        ],
+                        "message": "Import from '@/lib/seller' instead of '@/lib/seller/index'"
+                    },
+                    {
+                        "group": [
+                            "@/services/realSellerService"
+                        ],
+                        "message": "realSellerService is deprecated. Use '@/lib/seller' instead"
+                    }
+                ]
+            }
+        ],
+        "no-console": [
+            "warn",
+            {
+                "allow": [
+                    "warn",
+                    "error",
+                    "log"
+                ]
+            }
+        ],
+        "prefer-const": "warn"
+    }
 }

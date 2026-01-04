@@ -1,4 +1,4 @@
-import { UnlockStage } from './progressive-unlock'
+import { UnlockStage } from '@/types/progressive-unlock'
 
 export type PromoType =
     | 'flash_sale'       // ลดราคาด่วน

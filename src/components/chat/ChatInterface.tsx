@@ -151,8 +151,8 @@ export default function ChatInterface({
                         >
                             <div
                                 className={`max-w-[70%] rounded-2xl px-4 py-2 ${isMe
-                                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                                        : 'bg-white border border-gray-200'
+                                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                                    : 'bg-white border border-gray-200'
                                     }`}
                             >
                                 <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
@@ -214,7 +214,7 @@ export default function ChatInterface({
                                     <div className="mt-2 pt-2 border-t border-gray-100">
                                         <p className="text-xs text-gray-500 mb-1">ตัวเลือกอื่น:</p>
                                         <div className="space-y-1">
-                                            {suggestion.variations.map((variation, vIndex) => (
+                                            {suggestion.variations.map((variation: string, vIndex: number) => (
                                                 <button
                                                     key={vIndex}
                                                     onClick={() => handleUseVariation(variation)}
@@ -277,7 +277,7 @@ export default function ChatInterface({
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                        placeholder="พิมพ์ข้อความ..."
+                        placeholder="พิมพ์ข้อความ (CHAT-INTERFACE-DEBUG)..."
                         className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
 

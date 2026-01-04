@@ -10,10 +10,12 @@ import {
 import { Notification, markAllNotificationsAsRead, markNotificationAsRead } from '@/lib/notifications'
 
 // formatting helper since date-fns is not installed
-function formatTimeAgo(date: Date) {
+function formatTimeAgo(date: Date | any) {
     if (!date) return ''
     const now = new Date()
-    const diffInSeconds = Math.floor((now.getTime() - new Date(date).getTime()) / 1000)
+    // Handle Firestore Timestamp
+    const dateObj = date.toDate ? date.toDate() : new Date(date)
+    const diffInSeconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000)
 
     if (diffInSeconds < 60) return 'เมื่อสักครู่'
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} นาทีที่แล้ว`
@@ -52,7 +54,7 @@ export default function NotificationCenter({ notifications, onClose, userId }: N
     }
 
     return (
-        <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+        <div className="absolute right-0 top-full mt-2 w-96 max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200 origin-top-right">
 
             {/* Header */}
             <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800">
@@ -76,8 +78,8 @@ export default function NotificationCenter({ notifications, onClose, userId }: N
                 <TabButton active={activeTab === 'activity'} onClick={() => setActiveTab('activity')} label="อัปเดต" />
             </div>
 
-            {/* List */}
-            <div className="max-h-[400px] overflow-y-auto scrollbar-thin">
+            {/* List - แก้ไข max-height ให้ไม่เกินหน้าจอ */}
+            <div className="max-h-[60vh] md:max-h-96 overflow-y-auto scrollbar-thin">
                 {filteredNotifications.length === 0 ? (
                     <div className="py-12 text-center text-gray-400">
                         <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700/50 rounded-full flex items-center justify-center mx-auto mb-3">

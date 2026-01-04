@@ -1,4 +1,4 @@
-import { SellerType } from './onboarding'
+import { SellerType } from '@/types/onboarding'
 
 export interface AiInsight {
     id: string

@@ -2,34 +2,17 @@
 
 import React, { useState, useEffect } from 'react'
 import {
-    Save,
-    Store,
-    Globe,
-    Truck,
-    CreditCard,
-    Bell,
-    Shield,
-    Palette,
-    User,
-    Mail,
-    Phone,
-    MapPin,
-    Camera,
-    Check,
-    ChevronRight,
-    Sparkles,
-    Eye,
-    EyeOff,
-    Moon,
-    Sun,
-    Languages,
-    Clock,
-    Building2,
-    AlertCircle
+    Save, Store, Globe, Truck, Bell, Shield, Palette,
+    Phone, Mail, Check, ChevronRight, Camera,
+    Sun, Moon, AlertCircle, Rocket
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
+import Image from 'next/image'
+import Link from 'next/link'
 import { getSellerProfile, updateSellerProfile } from '@/lib/seller'
+import ActiveCampaignsWidget from '../ActiveCampaignsWidget'
+import { useRouter } from 'next/navigation'
 
 // ==================== Types ====================
 interface SettingsTab {
@@ -42,9 +25,6 @@ interface SettingsTab {
 
 // ==================== Helper Components ====================
 
-/**
- * Settings Section Card
- */
 function SettingsSection({
     title,
     description,
@@ -67,9 +47,6 @@ function SettingsSection({
     )
 }
 
-/**
- * Toggle Switch Component
- */
 function ToggleSwitch({
     enabled,
     onChange,
@@ -99,9 +76,6 @@ function ToggleSwitch({
     )
 }
 
-/**
- * Input Field Component
- */
 function InputField({
     label,
     value,
@@ -144,6 +118,7 @@ function InputField({
 export default function SellerSettingsPageV2() {
     const { user, refreshProfile } = useAuth()
     const { t, language } = useLanguage()
+    const router = useRouter()
 
     // State
     const [activeTab, setActiveTab] = useState('profile')
@@ -175,6 +150,7 @@ export default function SellerSettingsPageV2() {
     // Tabs
     const tabs: SettingsTab[] = [
         { id: 'profile', labelTh: 'ข้อมูลร้านค้า', labelEn: 'Shop Profile', icon: Store },
+        { id: 'marketing', labelTh: 'การตลาด & โปรโมชั่น', labelEn: 'Marketing & Promo', icon: Rocket },
         { id: 'shipping', labelTh: 'การจัดส่ง', labelEn: 'Shipping', icon: Truck },
         { id: 'notifications', labelTh: 'การแจ้งเตือน', labelEn: 'Notifications', icon: Bell },
         { id: 'security', labelTh: 'ความปลอดภัย', labelEn: 'Security', icon: Shield },
@@ -199,6 +175,7 @@ export default function SellerSettingsPageV2() {
                         free_shipping_min: profile.free_shipping_min || 500,
                         enable_cod: profile.enable_cod !== false
                     }))
+                    // Auto switch light/dark based on user pref? Or leave handled by layout.
                 }
             }
         }
@@ -222,6 +199,8 @@ export default function SellerSettingsPageV2() {
                 shipping_fee_default: Number(formData.shipping_fee_default),
                 free_shipping_min: Number(formData.free_shipping_min),
                 enable_cod: formData.enable_cod
+                // Note: Theme and Notifications typically saved in user settings not seller profile,
+                // but for this MVP assuming they share or are mocked here for now.
             } as any)
             await refreshProfile()
             setSaved(true)
@@ -382,6 +361,37 @@ export default function SellerSettingsPageV2() {
                                         type="tel"
                                         icon={Phone}
                                     />
+                                </div>
+                            </SettingsSection>
+                        </>
+                    )}
+
+                    {/* Marketing Tab */}
+                    {activeTab === 'marketing' && (
+                        <>
+                            {/* Active Campaigns Widget */}
+                            <ActiveCampaignsWidget />
+
+                            <SettingsSection
+                                title={t('ภาพรวมการโปรโมท', 'Promotion Overview')}
+                                description={t('จัดการโฆษณาและแคมเปญของคุณ', 'Manage your ads and campaigns')}
+                            >
+                                <div className="text-center py-8">
+                                    <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Rocket className="w-8 h-8 text-purple-600" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                                        {t('เพิ่มยอดขายด้วยการโปรโมท', 'Boost Sales with Promotion')}
+                                    </h3>
+                                    <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                                        {t('ใช้เครื่องมือ AI Auto-Boost เพื่อดันสินค้าของคุณให้คนเห็นมากขึ้น', 'Use AI Auto-Boost tools to push your products to more visibility.')}
+                                    </p>
+                                    <button
+                                        onClick={() => router.push('/seller/insights')}
+                                        className="px-6 py-2 bg-neon-purple text-white rounded-lg hover:bg-purple-700 transition-colors font-bold"
+                                    >
+                                        {t('ไปที่แดชบอร์ดการตลาด', 'Go to Marketing Dashboard')}
+                                    </button>
                                 </div>
                             </SettingsSection>
                         </>

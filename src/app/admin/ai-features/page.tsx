@@ -2,13 +2,24 @@
 
 import React from 'react'
 import AdminLayout from '@/components/admin/AdminLayout'
-import { Zap, ShieldAlert, BadgeAlert, Eye } from 'lucide-react'
-import { mockAIDetection } from '@/lib/ai-admin'
+import { Zap, ShieldAlert, BadgeAlert, Eye, Loader2 } from 'lucide-react'
+import { fetchAIFlags, type AIFlag } from '@/lib/ai-admin'
 import { format } from 'date-fns'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function AICenterPage() {
     const { t } = useLanguage()
+    const [flags, setFlags] = React.useState<AIFlag[]>([])
+    const [loading, setLoading] = React.useState(true)
+
+    React.useEffect(() => {
+        const load = async () => {
+            const data = await fetchAIFlags()
+            setFlags(data)
+            setLoading(false)
+        }
+        load()
+    }, [])
 
     return (
         <AdminLayout>
@@ -41,7 +52,7 @@ export default function AICenterPage() {
                     </div>
                     <div className="bg-purple-600 p-6 rounded-xl text-white shadow-lg flex items-center justify-between">
                         <div>
-                            <div className="text-3xl font-bold">1,248</div>
+                            <div className="text-3xl font-bold">{loading ? '-' : flags.length}</div>
                             <div className="text-purple-100 text-sm">{t('admin.ai_processed_count')}</div>
                         </div>
                         <Zap className="w-10 h-10 text-yellow-300" />
@@ -64,39 +75,53 @@ export default function AICenterPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                            {mockAIDetection.map((flag, idx) => (
-                                <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                    <td className="px-6 py-4">
-                                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-700 border-2 border-gray-200">
-                                            {flag.score}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${flag.riskLevel === 'critical' ? 'bg-red-100 text-red-700' :
-                                            flag.riskLevel === 'high' ? 'bg-orange-100 text-orange-700' :
-                                                flag.riskLevel === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                                                    'bg-blue-100 text-blue-700'
-                                            }`}>
-                                            {t(`admin.risk_${flag.riskLevel}`) || flag.riskLevel}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 capitalize text-gray-600">
-                                        {t(`admin.ai_type_${flag.type}`) || flag.type.replace('_', ' ')}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="font-bold text-gray-900 dark:text-white">{t(`admin.${flag.reason}`) || flag.reason}</div>
-                                        <div className="text-xs text-gray-500">User: {flag.userName}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-gray-500">
-                                        {t('admin.time_just_now')}
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <button className="text-purple-600 hover:text-purple-800 font-medium">
-                                            {t('admin.action_inspect')}
-                                        </button>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={6} className="text-center py-8">
+                                        <Loader2 className="w-8 h-8 animate-spin mx-auto text-gray-400" />
                                     </td>
                                 </tr>
-                            ))}
+                            ) : flags.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="text-center py-8 text-gray-500">
+                                        {t('admin.no_issues_found')}
+                                    </td>
+                                </tr>
+                            ) : (
+                                flags.map((flag, idx) => (
+                                    <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                        <td className="px-6 py-4">
+                                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-700 border-2 border-gray-200">
+                                                {flag.score}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${flag.riskLevel === 'critical' ? 'bg-red-100 text-red-700' :
+                                                flag.riskLevel === 'high' ? 'bg-orange-100 text-orange-700' :
+                                                    flag.riskLevel === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                                                        'bg-blue-100 text-blue-700'
+                                                }`}>
+                                                {t(`admin.risk_${flag.riskLevel}`) || flag.riskLevel}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 capitalize text-gray-600">
+                                            {t(`admin.ai_type_${flag.type}`) || flag.type.replace('_', ' ')}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="font-bold text-gray-900 dark:text-white">{t(`admin.${flag.reason}`) || flag.reason}</div>
+                                            <div className="text-xs text-gray-500">User: {flag.userName}</div>
+                                        </td>
+                                        <td className="px-6 py-4 text-gray-500">
+                                            {flag.detectedAt && flag.detectedAt.toDate ? format(flag.detectedAt.toDate(), 'HH:mm dd/MM/yyyy') : '-'}
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <button className="text-purple-600 hover:text-purple-800 font-medium">
+                                                {t('admin.action_inspect')}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>

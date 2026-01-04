@@ -1,4 +1,4 @@
-import { CategorySchema, mapCategoryIdToSlug } from '../config/category-schemas';
+import { mapCategoryIdToSlug } from '../config/category-schemas';
 
 // --- Interfaces ---
 export interface MarketPriceAnalysis {

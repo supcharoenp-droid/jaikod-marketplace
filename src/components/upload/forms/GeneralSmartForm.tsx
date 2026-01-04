@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import {
     Sparkles, Camera, MapPin, DollarSign,
     Box, Tag, FileText, ChevronRight, Zap,
-    AlertCircle, Wand2, Calculator, MoreHorizontal
+    AlertCircle, Wand2, Calculator, MoreHorizontal, CheckCircle2
 } from 'lucide-react'
 import Image from 'next/image'
 import { CATEGORIES } from '@/constants/categories'
@@ -95,7 +95,7 @@ export default function GeneralSmartForm({
     const handleAiAutoFill = () => {
         setAiSuggesting(true)
         setTimeout(() => {
-            setFormData(prev => ({
+            setFormData((prev: any) => ({
                 ...prev,
                 description: `สินค้าคุณภาพดี สภาพ ${prev.condition === 'new' ? 'ใหม่มือหนึ่ง' : 'มือสองสภาพเยี่ยม'}\n\n- ใช้งานได้ปกติ\n- ไม่มีตำหนิหนัก\n- อุปกรณ์ครบ\n\nสนใจสอบถามเพิ่มเติมได้ครับ คุยง่าย ส่งไว`,
             }))

@@ -1,13 +1,32 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
     Star, ShieldCheck, MessageCircle, Clock, Package2,
     ThumbsUp, ChevronRight, BadgeCheck, MapPin, Store,
-    Heart, Share2, Flag, Users, TrendingUp, Award
+    Heart, Share2, Flag, Users, TrendingUp, Award, Loader2
 } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { isFollowing as checkFollowing, toggleFollow } from '@/lib/follows'
+import { getSellerProfile, getSellerListings, SellerListing } from '@/lib/seller'
+
+// Local SellerProfile type for internal use
+interface SellerProfile {
+    name: string
+    avatar?: string
+    verified?: boolean
+    trust_score: number
+    response_time_minutes: number
+    response_rate?: number
+    total_listings: number
+    active_listings?: number
+    successful_sales: number
+    member_since?: Date
+    badges?: string[]
+    followers_count?: number
+}
 
 // ==========================================
 // TYPES
@@ -20,12 +39,14 @@ interface SellerInfo {
     verified: boolean
     trust_score: number
     response_time_minutes: number
+    response_rate?: number
     total_listings: number
     successful_sales: number
     member_since?: Date
     last_active?: Date
     location?: string
     badges?: string[]
+    followers_count?: number
 }
 
 interface ListingPreview {
@@ -36,10 +57,11 @@ interface ListingPreview {
     thumbnail_url: string
     created_at: Date
     views: number
+    status?: string  // Optional for SellerListing compatibility
 }
 
 // ==========================================
-// ENHANCED SELLER CARD
+// ENHANCED SELLER CARD (ปรับปรุงใหม่)
 // ==========================================
 
 interface EnhancedSellerCardProps {
@@ -48,6 +70,7 @@ interface EnhancedSellerCardProps {
     location?: string
     language?: 'th' | 'en'
     compact?: boolean
+    currentListingId?: string
 }
 
 export function EnhancedSellerCard({
@@ -55,18 +78,96 @@ export function EnhancedSellerCard({
     sellerId,
     location,
     language = 'th',
-    compact = false
+    compact = false,
+    currentListingId
 }: EnhancedSellerCardProps) {
+    const { user } = useAuth()
     const [isFollowing, setIsFollowing] = useState(false)
+    const [followLoading, setFollowLoading] = useState(false)
+    const [realTimeProfile, setRealTimeProfile] = useState<SellerProfile | null>(null)
+    const [otherListings, setOtherListings] = useState<SellerListing[]>([])
+
+    // Fetch real-time seller profile and follow status
+    useEffect(() => {
+        const fetchData = async () => {
+            console.log('🔍 EnhancedSellerCard: Fetching for sellerId:', sellerId)
+            try {
+                // Fetch seller profile from Firestore
+                const profile = await getSellerProfile(sellerId)
+                console.log('📊 EnhancedSellerCard: Got profile:', {
+                    name: profile?.name,
+                    total_listings: profile?.total_listings,
+                    active_listings: profile?.active_listings
+                })
+                if (profile) {
+                    setRealTimeProfile(profile)
+                }
+
+                // Check follow status if user is logged in
+                if (user?.uid && user.uid !== sellerId) {
+                    const following = await checkFollowing(user.uid, sellerId)
+                    setIsFollowing(following)
+                }
+
+                // Fetch other listings from this seller
+                if (currentListingId) {
+                    const listings = await getSellerListings(sellerId, currentListingId, 4)
+                    setOtherListings(listings)
+                }
+            } catch (error) {
+                console.error('Error fetching seller data:', error)
+            }
+        }
+
+        fetchData()
+    }, [sellerId, user?.uid, currentListingId])
+
+    // Handle follow toggle
+    const handleFollowToggle = useCallback(async () => {
+        if (!user?.uid) {
+            // Redirect to login or show modal
+            alert(language === 'th' ? 'กรุณาเข้าสู่ระบบ' : 'Please login')
+            return
+        }
+
+        if (user.uid === sellerId) {
+            return // Can't follow yourself
+        }
+
+        setFollowLoading(true)
+        try {
+            const result = await toggleFollow(user.uid, sellerId)
+            if (result.success) {
+                setIsFollowing(result.isFollowing)
+            }
+        } catch (error) {
+            console.error('Error toggling follow:', error)
+        } finally {
+            setFollowLoading(false)
+        }
+    }, [user?.uid, sellerId, language])
+
+    // Use real-time data if available, otherwise fallback to props
+    // FIX: Override total_listings with calculated count from fetched listings
+    const calculatedListingsCount = otherListings.length + 1 // +1 for current listing
+    const displaySeller = {
+        ...(realTimeProfile || seller),
+        // Use calculated count if realTimeProfile's total_listings is 0 or not available
+        total_listings: realTimeProfile?.total_listings
+            || (otherListings.length > 0 ? calculatedListingsCount : seller.total_listings)
+            || calculatedListingsCount
+    }
+    const responseRate = realTimeProfile?.response_rate || seller.response_rate || 80
 
     // Calculate rating from trust score (0-100 -> 0-5)
-    const rating = Math.min(5, Math.max(0, seller.trust_score / 20))
+    const rating = Math.min(5, Math.max(0, displaySeller.trust_score / 20))
 
     // Calculate member duration
     const getMemberDuration = () => {
-        if (!seller.member_since) return null
+        const memberSince = realTimeProfile?.member_since || seller.member_since
+        if (!memberSince) return null
         const now = new Date()
-        const diff = now.getTime() - new Date(seller.member_since).getTime()
+        const diff = now.getTime() - new Date(memberSince).getTime()
         const years = Math.floor(diff / (365 * 24 * 60 * 60 * 1000))
         const months = Math.floor(diff / (30 * 24 * 60 * 60 * 1000))
         if (years >= 1) return language === 'th' ? `${years} ปี` : `${years} year${years > 1 ? 's' : ''}`
@@ -76,15 +177,18 @@ export function EnhancedSellerCard({
 
     // Response time display
     const getResponseTime = () => {
-        if (seller.response_time_minutes < 60) {
-            return language === 'th' ? `${seller.response_time_minutes} นาที` : `${seller.response_time_minutes} min`
+        const responseMinutes = displaySeller.response_time_minutes
+        if (responseMinutes < 60) {
+            return language === 'th' ? `${responseMinutes} นาที` : `${responseMinutes} min`
         }
-        const hours = Math.round(seller.response_time_minutes / 60)
+        const hours = Math.round(responseMinutes / 60)
         return language === 'th' ? `${hours} ชั่วโมง` : `${hours} hr${hours > 1 ? 's' : ''}`
     }
 
+
     return (
         <div className="bg-gradient-to-br from-slate-800 to-slate-800/80 rounded-2xl overflow-hidden border border-slate-700/50">
+
             {/* Header with gradient */}
             <div className="relative h-20 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400">
                 <div className="absolute inset-0 bg-black/20" />
@@ -156,13 +260,13 @@ export function EnhancedSellerCard({
 
                 {/* Verification badges */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                    {seller.verified && (
+                    {displaySeller.verified && (
                         <span className="flex items-center gap-1 px-3 py-1.5 bg-emerald-500/10 text-emerald-400 text-xs rounded-full border border-emerald-500/30">
                             <ShieldCheck className="w-3.5 h-3.5" />
                             {language === 'th' ? 'ยืนยันตัวตน' : 'ID Verified'}
                         </span>
                     )}
-                    {seller.response_time_minutes <= 60 && (
+                    {displaySeller.response_time_minutes <= 60 && (
                         <span className="flex items-center gap-1 px-3 py-1.5 bg-cyan-500/10 text-cyan-400 text-xs rounded-full border border-cyan-500/30">
                             <Clock className="w-3.5 h-3.5" />
                             {language === 'th' ? 'ตอบเร็ว' : 'Fast Response'}
@@ -173,16 +277,16 @@ export function EnhancedSellerCard({
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-3 mb-4">
                     <div className="text-center p-3 bg-slate-900/50 rounded-xl">
-                        <div className="text-lg font-bold text-white">{seller.total_listings}</div>
+                        <div className="text-lg font-bold text-white">{displaySeller.total_listings}</div>
                         <div className="text-xs text-gray-400">{language === 'th' ? 'ประกาศ' : 'Listings'}</div>
                     </div>
                     <div className="text-center p-3 bg-slate-900/50 rounded-xl">
-                        <div className="text-lg font-bold text-white">{seller.successful_sales}</div>
+                        <div className="text-lg font-bold text-white">{displaySeller.successful_sales}</div>
                         <div className="text-xs text-gray-400">{language === 'th' ? 'ขายแล้ว' : 'Sold'}</div>
                     </div>
                     <div className="text-center p-3 bg-slate-900/50 rounded-xl">
                         <div className="text-lg font-bold text-emerald-400">
-                            {seller.response_time_minutes <= 60 ? '95%' : '80%'}
+                            {responseRate}%
                         </div>
                         <div className="text-xs text-gray-400">{language === 'th' ? 'ตอบกลับ' : 'Response'}</div>
                     </div>
@@ -220,22 +324,29 @@ export function EnhancedSellerCard({
                 >
                     <Store className="w-4 h-4" />
                     {language === 'th' ? 'ดูประกาศทั้งหมด' : 'View All Listings'}
-                    <span className="text-gray-400">({seller.total_listings})</span>
+                    <span className="text-gray-400">({displaySeller.total_listings})</span>
                 </Link>
 
                 <div className="flex gap-2">
                     <button
-                        onClick={() => setIsFollowing(!isFollowing)}
-                        className={`flex-1 py-2.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 ${isFollowing
+                        onClick={handleFollowToggle}
+                        disabled={followLoading}
+                        className={`flex-1 py-2.5 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 ${isFollowing
                             ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30'
                             : 'bg-slate-700 hover:bg-slate-600 text-gray-300'
                             }`}
                     >
-                        <Heart className={`w-4 h-4 ${isFollowing ? 'fill-current' : ''}`} />
-                        {isFollowing
-                            ? (language === 'th' ? 'ติดตามแล้ว' : 'Following')
-                            : (language === 'th' ? 'ติดตาม' : 'Follow')
-                        }
+                        {followLoading ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                            <>
+                                <Heart className={`w-4 h-4 ${isFollowing ? 'fill-current' : ''}`} />
+                                {isFollowing
+                                    ? (language === 'th' ? 'ติดตามแล้ว' : 'Following')
+                                    : (language === 'th' ? 'ติดตาม' : 'Follow')
+                                }
+                            </>
+                        )}
                     </button>
                     <button className="p-2.5 bg-slate-700 hover:bg-slate-600 rounded-xl text-gray-300 transition-colors">
                         <Flag className="w-4 h-4" />
@@ -245,6 +356,7 @@ export function EnhancedSellerCard({
         </div>
     )
 }
+
 
 // ==========================================
 // SELLER OTHER LISTINGS CAROUSEL

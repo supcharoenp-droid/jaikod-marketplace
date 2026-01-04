@@ -109,6 +109,24 @@ export function generateAIGreeting(context: GreetingContext): AIGreeting {
         })
     }
 
+    // AI Trust & Risk Analysis (Enhanced)
+    const trustScore = (user as any).aiTrustScore || 0
+    const riskLevel = (user as any).riskLevel
+
+    if (trustScore >= 4) {
+        messages.unshift({
+            messageTh: `ยินดีต้อนรับกลับมาครับคุณ ${firstName}! บัญชีของคุณมีความน่าเชื่อถือสูงมาก (Top Tier) 💎`,
+            messageEn: `Welcome back ${firstName}! Your account has elite-tier trust status 💎`,
+            tone: 'congratulatory'
+        })
+    } else if (riskLevel === 'high') {
+        messages.unshift({
+            messageTh: `สวัสดีครับคุณ ${firstName}, ระบบ AI พบความเสี่ยงบางอย่างในบัญชีของคุณ โปรดตรวจสอบข้อมูลส่วนตัวครับ`,
+            messageEn: `Hello ${firstName}, AI detected some risk factors. Please review your profile data.`,
+            tone: 'friendly'
+        })
+    }
+
     // Return the most relevant message (first one)
     return messages[0]
 }

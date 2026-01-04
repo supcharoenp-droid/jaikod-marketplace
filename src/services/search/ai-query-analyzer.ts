@@ -28,7 +28,7 @@ const BRAND_KEYWORDS: Record<string, { category: string, aliases: string[] }> = 
     'canon': { category: 'camera', aliases: ['แคนนอน', 'eos'] },
     'nikon': { category: 'camera', aliases: ['นิคอน'] },
     'fujifilm': { category: 'camera', aliases: ['ฟูจิ', 'fuji', 'x-t', 'x100'] },
-    'sony': { category: 'camera', aliases: ['โซนี่', 'alpha', 'a7'] },
+    'sony_camera': { category: 'camera', aliases: ['โซนี่', 'alpha', 'a7'] },
 
     // Automotive - Cars
     'toyota': { category: 'car', aliases: ['โตโยต้า', 'camry', 'corolla', 'yaris', 'vios', 'fortuner', 'hilux'] },
@@ -44,14 +44,14 @@ const BRAND_KEYWORDS: Record<string, { category: string, aliases: string[] }> = 
     'lexus': { category: 'car', aliases: ['เล็กซัส'] },
 
     // Automotive - Motorcycles
-    'honda': { category: 'motorcycle', aliases: ['ฮอนด้า', 'wave', 'click', 'pcx', 'adv', 'forza', 'cbr'] },
+    'honda_motorcycle': { category: 'motorcycle', aliases: ['ฮอนด้า', 'wave', 'click', 'pcx', 'adv', 'forza', 'cbr'] },
     'yamaha': { category: 'motorcycle', aliases: ['ยามาฮ่า', 'fino', 'grand', 'mt', 'xmax', 'r1', 'r6'] },
     'kawasaki': { category: 'motorcycle', aliases: ['คาวาซากิ', 'ninja', 'z'] },
     'suzuki': { category: 'motorcycle', aliases: ['ซูซูกิ', 'gsx'] },
     'vespa': { category: 'motorcycle', aliases: ['เวสป้า'] },
     'harley': { category: 'motorcycle', aliases: ['ฮาร์เลย์', 'harley-davidson'] },
     'ducati': { category: 'motorcycle', aliases: ['ดูคาติ'] },
-    'bmw': { category: 'motorcycle', aliases: ['บีเอ็มดับเบิลยู'] },
+    'bmw_motorcycle': { category: 'motorcycle', aliases: ['บีเอ็มดับเบิลยู motorrad'] },
 
     // Fashion
     'nike': { category: 'fashion', aliases: ['ไนกี้', 'air jordan', 'dunk', 'air force'] },

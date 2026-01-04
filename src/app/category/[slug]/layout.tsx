@@ -63,7 +63,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
             url: canonicalUrl,
             images: [
                 {
-                    url: category.image || '/og-image.png',
+                    url: '/og-image.png',
                     width: 1200,
                     height: 630,
                     alt: category.name_th,
@@ -75,7 +75,7 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
             card: 'summary_large_image',
             title: `${category.name_th} | JaiKod`,
             description,
-            images: [category.image || '/og-image.png'],
+            images: ['/og-image.png'],
         },
 
         robots: {

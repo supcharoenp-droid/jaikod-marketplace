@@ -17,6 +17,7 @@ const MOCK_SELLERS: SellerProfile[] = [
         response_time_minutes: 5,
         sales_count: 5000,
         badges: ['official_store', 'top_seller', 'fast_reply'],
+        onboarding_progress: 7,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         seller_level: 'official'
@@ -36,6 +37,7 @@ const MOCK_SELLERS: SellerProfile[] = [
         response_time_minutes: 20,
         sales_count: 450,
         badges: ['verified_seller', 'highly_rated'],
+        onboarding_progress: 7,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         seller_level: 'pro'
@@ -55,6 +57,7 @@ const MOCK_SELLERS: SellerProfile[] = [
         response_time_minutes: 120,
         sales_count: 12,
         badges: [],
+        onboarding_progress: 4,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         seller_level: 'standard'

@@ -132,7 +132,7 @@ const FORM_TEMPLATES: Record<number, DynamicFormTemplate> = {
                 field_name: { th: 'สุขภาพแบตเตอรี่', en: 'Battery Health' },
                 field_type: 'number',
                 placeholder: { th: 'เช่น 95%', en: 'e.g. 95%' },
-                validation: { min: 0, max: 100 },
+                validation: { required: false, min: 0, max: 100 },
                 help_text: { th: 'ดูได้ใน การตั้งค่า > แบตเตอรี่', en: 'Check in Settings > Battery' }
             },
             {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -10,17 +10,29 @@ import Button from '@/components/ui/Button'
 import {
     Coins, Plus, History, Rocket, Star, Zap,
     CreditCard, QrCode, Smartphone, ArrowRight,
-    TrendingUp, Gift, ShieldCheck, Crown
+    TrendingUp, Gift, ShieldCheck, Crown, Loader2,
+    CheckCircle, AlertCircle
 } from 'lucide-react'
+import { walletService, WalletTransaction } from '@/services/walletService'
+import { Timestamp } from 'firebase/firestore'
 
 export default function WalletPage() {
-    const { user, loading } = useAuth()
+    const { user, loading: authLoading } = useAuth()
     const { language } = useLanguage()
     const lang = language as 'th' | 'en'
     const router = useRouter()
+
+    // State
     const [activeTab, setActiveTab] = useState<'topup' | 'services' | 'history'>('topup')
-    const [selectedPackage, setSelectedPackage] = useState<number | null>(null)
+    const [selectedPackage, setSelectedPackage] = useState<any | null>(null)
     const [selectedPayment, setSelectedPayment] = useState<string | null>(null)
+
+    // Wallet State
+    const [balance, setBalance] = useState<number>(0)
+    const [transactions, setTransactions] = useState<WalletTransaction[]>([])
+    const [isLoadingWallet, setIsLoadingWallet] = useState(true)
+    const [isProcessingTopUp, setIsProcessingTopUp] = useState(false)
+    const [showSuccessModal, setShowSuccessModal] = useState(false)
 
     // Translations
     const t = {
@@ -47,6 +59,18 @@ export default function WalletPage() {
         topUpNow: lang === 'th' ? 'เติม JaiStar เลย' : 'Top Up JaiStar Now',
         use: lang === 'th' ? 'ใช้งาน' : 'Use',
         creditDebit: lang === 'th' ? 'บัตรเครดิต/เดบิต' : 'Credit/Debit Card',
+        processing: lang === 'th' ? 'กำลังดำเนินการ...' : 'Processing...',
+        successTitle: lang === 'th' ? 'เติมเงินสำเร็จ!' : 'Top Up Successful!',
+        successDesc: lang === 'th'
+            ? 'คุณได้รับ JaiStar เรียบร้อยแล้ว (นี่คือระบบจำลอง ยังไม่มีการตัดเงินจริง)'
+            : 'You have received JaiStars (This is a mock system, no real money deducted)',
+        mockNotice: lang === 'th'
+            ? '⚠️ ระบบจำลอง: การกดชำระเงินจะเติมแต้มเข้าบัญชีทันทีเพื่อทดสอบระบบ'
+            : '⚠️ Mock System: Clicking Pay Now will instantly add points for testing.',
+        date: lang === 'th' ? 'วันที่' : 'Date',
+        amount: lang === 'th' ? 'จำนวน' : 'Amount',
+        description: lang === 'th' ? 'รายการ' : 'Description',
+        status: lang === 'th' ? 'สถานะ' : 'Status'
     }
 
     // Star Packages
@@ -58,7 +82,7 @@ export default function WalletPage() {
         { id: 5, stars: 1000, price: 849, bonus: 150, popular: false },
     ]
 
-    // Promotion Services
+    // Promotion Services (Display Only for now)
     const PROMO_SERVICES = [
         {
             id: 'boost',
@@ -122,13 +146,86 @@ export default function WalletPage() {
         { id: 'linepay', name: 'Rabbit LINE Pay', icon: Smartphone, color: 'bg-green-500' },
     ]
 
-    // Mock user balance
-    const userBalance = 125
+    // ==========================================
+    // DATA FETCHING
+    // ==========================================
 
-    if (loading) {
+    const fetchWalletData = async () => {
+        if (!user) return
+        try {
+            const wallet = await walletService.getWallet(user.uid)
+            setBalance(wallet.balance)
+        } catch (error) {
+            console.error("Failed to fetch wallet:", error)
+        } finally {
+            setIsLoadingWallet(false)
+        }
+    }
+
+    const fetchHistory = async () => {
+        if (!user) return
+        try {
+            const history = await walletService.getHistory(user.uid)
+            setTransactions(history)
+        } catch (error) {
+            console.error("Failed to fetch history:", error)
+        }
+    }
+
+    useEffect(() => {
+        if (user) {
+            fetchWalletData()
+        }
+    }, [user])
+
+    useEffect(() => {
+        if (activeTab === 'history' && user) {
+            fetchHistory()
+        }
+    }, [activeTab, user])
+
+    // ==========================================
+    // HANDLERS
+    // ==========================================
+
+    const handleTopUp = async () => {
+        if (!user || !selectedPackage || !selectedPayment) return
+
+        setIsProcessingTopUp(true)
+
+        // Simulate network delay for "Mock Bank"
+        setTimeout(async () => {
+            try {
+                // Determine amount (stars + bonus)
+                const totalAmount = selectedPackage.stars + selectedPackage.bonus
+                const success = await walletService.topUp(user.uid, totalAmount, selectedPackage.id.toString())
+
+                if (success) {
+                    await fetchWalletData() // Refresh balance
+                    setShowSuccessModal(true)
+                    setSelectedPackage(null)
+                    setSelectedPayment(null)
+                }
+            } catch (error) {
+                console.error("Top up failed", error)
+                alert("Top up failed. Please try again.")
+            } finally {
+                setIsProcessingTopUp(false)
+            }
+        }, 1500)
+    }
+
+    // ==========================================
+    // RENDER
+    // ==========================================
+
+    if (authLoading || isLoadingWallet) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="w-10 h-10 border-4 border-neon-purple border-t-transparent rounded-full animate-spin"></div>
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-bg-dark">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-10 h-10 border-4 border-neon-purple border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-gray-500 animate-pulse">Loading Wallet...</p>
+                </div>
             </div>
         )
     }
@@ -139,7 +236,7 @@ export default function WalletPage() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-bg-dark">
+        <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-bg-dark font-sans">
             <Header />
             <main className="flex-1 pt-24 pb-12">
                 <div className="container mx-auto px-4 max-w-5xl">
@@ -156,7 +253,7 @@ export default function WalletPage() {
                                     {t.myAccount}
                                 </div>
                                 <div className="text-5xl md:text-6xl font-bold flex items-baseline gap-2">
-                                    {userBalance.toLocaleString()}
+                                    {balance.toLocaleString()}
                                     <span className="text-2xl font-normal text-white/70">⭐ {t.star}</span>
                                 </div>
                                 <p className="text-white/60 text-sm mt-2">{t.pointsNote}</p>
@@ -182,7 +279,7 @@ export default function WalletPage() {
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
+                    <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
                         <button
                             onClick={() => setActiveTab('topup')}
                             className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap ${activeTab === 'topup' ? 'bg-neon-purple text-white shadow-lg shadow-neon-purple/30' : 'bg-white dark:bg-surface-dark text-text-secondary hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700'}`}
@@ -214,7 +311,7 @@ export default function WalletPage() {
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 {/* Packages */}
                                 <div className="lg:col-span-2 bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
-                                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
                                         <Gift className="w-5 h-5 text-neon-purple" />
                                         {t.selectPackage}
                                     </h3>
@@ -222,8 +319,11 @@ export default function WalletPage() {
                                         {STAR_PACKAGES.map(pkg => (
                                             <button
                                                 key={pkg.id}
-                                                onClick={() => setSelectedPackage(pkg.id)}
-                                                className={`relative p-4 rounded-xl border-2 transition-all text-left ${selectedPackage === pkg.id ? 'border-neon-purple bg-neon-purple/5 shadow-lg' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'}`}
+                                                onClick={() => setSelectedPackage(pkg)}
+                                                className={`relative p-4 rounded-xl border-2 transition-all text-left ${selectedPackage?.id === pkg.id
+                                                    ? 'border-neon-purple bg-purple-50 dark:bg-purple-900/20 shadow-lg'
+                                                    : 'border-gray-100 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-800 bg-white dark:bg-gray-800'
+                                                    }`}
                                             >
                                                 {pkg.popular && (
                                                     <div className="absolute -top-2 -right-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
@@ -232,10 +332,10 @@ export default function WalletPage() {
                                                 )}
                                                 <div className="flex items-center gap-2 mb-2">
                                                     <span className="text-xl">⭐</span>
-                                                    <span className="text-xl font-bold">{pkg.stars}</span>
+                                                    <span className="text-xl font-bold text-gray-900 dark:text-white">{pkg.stars}</span>
                                                 </div>
                                                 {pkg.bonus > 0 && (
-                                                    <div className="text-xs text-green-600 font-semibold mb-1">
+                                                    <div className="text-xs text-green-600 dark:text-green-400 font-semibold mb-1">
                                                         +{pkg.bonus} {t.bonus}
                                                     </div>
                                                 )}
@@ -246,36 +346,69 @@ export default function WalletPage() {
                                 </div>
 
                                 {/* Payment Methods */}
-                                <div className="bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
-                                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                <div className="bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 h-fit">
+                                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
                                         <CreditCard className="w-5 h-5 text-neon-purple" />
                                         {t.payment}
                                     </h3>
+
+                                    {/* Mock Notice */}
+                                    <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 rounded-xl text-xs font-medium flex items-start leading-relaxed">
+                                        <AlertCircle className="w-4 h-4 mr-2 flex-shrink-0" />
+                                        {t.mockNotice}
+                                    </div>
+
                                     <div className="space-y-2 mb-6">
                                         {PAYMENT_METHODS.map(method => (
                                             <button
                                                 key={method.id}
                                                 onClick={() => setSelectedPayment(method.id)}
-                                                className={`w-full flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${selectedPayment === method.id ? 'border-neon-purple bg-neon-purple/5' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'}`}
+                                                className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${selectedPayment === method.id
+                                                    ? 'border-neon-purple bg-purple-50 dark:bg-purple-900/20'
+                                                    : 'border-gray-100 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-800'
+                                                    }`}
                                             >
-                                                <div className={`w-10 h-10 ${method.color} rounded-lg flex items-center justify-center text-white`}>
+                                                <div className={`w-10 h-10 ${method.color} rounded-lg flex items-center justify-center text-white shadow-sm`}>
                                                     <method.icon className="w-5 h-5" />
                                                 </div>
-                                                <span className="font-medium text-sm">{method.name}</span>
+                                                <span className="font-medium text-sm text-gray-900 dark:text-white">{method.name}</span>
+                                                {selectedPayment === method.id && (
+                                                    <CheckCircle className="w-5 h-5 ml-auto text-neon-purple" />
+                                                )}
                                             </button>
                                         ))}
                                     </div>
 
-                                    <Button
-                                        variant="primary"
-                                        className="w-full"
-                                        disabled={!selectedPackage || !selectedPayment}
-                                    >
-                                        {t.payNow}
-                                        <ArrowRight className="w-4 h-4 ml-2" />
-                                    </Button>
-                                    <p className="text-xs text-center text-text-secondary mt-3">
-                                        <ShieldCheck className="w-3 h-3 inline mr-1" />
+                                    <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <span className="text-gray-500 text-sm">Total</span>
+                                            <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                                                ฿{selectedPackage?.price || 0}
+                                            </span>
+                                        </div>
+
+                                        <Button
+                                            variant="primary"
+                                            className="w-full h-12 text-base shadow-lg shadow-purple-500/20"
+                                            disabled={!selectedPackage || !selectedPayment || isProcessingTopUp}
+                                            onClick={handleTopUp}
+                                        >
+                                            {isProcessingTopUp ? (
+                                                <>
+                                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                                    {t.processing}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {t.payNow}
+                                                    <ArrowRight className="w-5 h-5 ml-2" />
+                                                </>
+                                            )}
+                                        </Button>
+                                    </div>
+
+                                    <p className="text-[10px] text-center text-gray-400 mt-4 flex items-center justify-center">
+                                        <ShieldCheck className="w-3 h-3 mr-1" />
                                         {t.securePayment}
                                     </p>
                                 </div>
@@ -284,7 +417,7 @@ export default function WalletPage() {
 
                         {/* Services Tab */}
                         {activeTab === 'services' && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
                                 {PROMO_SERVICES.map(service => (
                                     <div key={service.id} className="bg-white dark:bg-surface-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-shadow">
                                         <div className="flex items-start gap-4">
@@ -292,12 +425,12 @@ export default function WalletPage() {
                                                 <service.icon className="w-7 h-7" />
                                             </div>
                                             <div className="flex-1">
-                                                <h4 className="font-bold text-lg mb-1">{service.name}</h4>
-                                                <p className="text-sm text-text-secondary mb-3">{service.description}</p>
+                                                <h4 className="font-bold text-lg mb-1 text-gray-900 dark:text-white">{service.name}</h4>
+                                                <p className="text-sm text-gray-500 mb-3">{service.description}</p>
                                                 <ul className="space-y-1 mb-4">
                                                     {service.benefits.map((b, i) => (
                                                         <li key={i} className="text-xs text-gray-500 flex items-center gap-1">
-                                                            <span className="text-green-500">✓</span> {b}
+                                                            <span className="text-green-500 font-bold">✓</span> {b}
                                                         </li>
                                                     ))}
                                                 </ul>
@@ -306,7 +439,7 @@ export default function WalletPage() {
                                                         <span>⭐</span>
                                                         {service.price} Star
                                                     </div>
-                                                    <Button size="sm" variant="primary">
+                                                    <Button size="sm" variant="outline" className="border-purple-200 text-purple-600 hover:bg-purple-50">
                                                         {t.use}
                                                     </Button>
                                                 </div>
@@ -319,20 +452,84 @@ export default function WalletPage() {
 
                         {/* History Tab */}
                         {activeTab === 'history' && (
-                            <div className="bg-white dark:bg-surface-dark rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 text-center">
-                                <History className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                                <h3 className="text-xl font-bold mb-2">{t.noHistory}</h3>
-                                <p className="text-text-secondary mb-6">{t.startNow}</p>
-                                <Button variant="primary" onClick={() => setActiveTab('topup')}>
-                                    {t.topUpNow}
-                                </Button>
+                            <div className="bg-white dark:bg-surface-dark rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+                                {transactions.length > 0 ? (
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left">
+                                            <thead className="bg-gray-50 dark:bg-gray-800 text-gray-500 text-xs uppercase font-semibold">
+                                                <tr>
+                                                    <th className="px-6 py-4">{t.date}</th>
+                                                    <th className="px-6 py-4">{t.description}</th>
+                                                    <th className="px-6 py-4">{t.status}</th>
+                                                    <th className="px-6 py-4 text-right">{t.amount}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                                {transactions.map((tx) => (
+                                                    <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                                        <td className="px-6 py-4 text-sm text-gray-500">
+                                                            {new Date(tx.createdAt).toLocaleDateString()} <span className="text-xs ml-1">{new Date(tx.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                                                {tx.description}
+                                                            </div>
+                                                            <div className="text-xs text-gray-400 font-mono">
+                                                                #{tx.id.substr(0, 8)}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${tx.status === 'success' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                                                                }`}>
+                                                                {tx.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className={`px-6 py-4 text-right font-bold text-sm ${tx.type === 'topup' || tx.type === 'bonus' ? 'text-green-600' : 'text-red-600'
+                                                            }`}>
+                                                            {tx.type === 'topup' || tx.type === 'bonus' ? '+' : '-'}{Math.abs(tx.amount)} ⭐
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <div className="p-12 text-center">
+                                        <History className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                                        <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">{t.noHistory}</h3>
+                                        <p className="text-gray-500 mb-6">{t.startNow}</p>
+                                        <Button variant="primary" onClick={() => setActiveTab('topup')}>
+                                            {t.topUpNow}
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
                 </div>
             </main>
             <Footer />
+
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-sm w-full shadow-2xl scale-100 animate-in zoom-in-95 duration-200">
+                        <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <CheckCircle className="w-8 h-8" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-center mb-2 text-gray-900 dark:text-white">{t.successTitle}</h3>
+                        <p className="text-center text-gray-500 mb-6 text-sm">
+                            {t.successDesc}
+                        </p>
+                        <Button
+                            className="w-full bg-green-600 hover:bg-green-700 text-white"
+                            onClick={() => setShowSuccessModal(false)}
+                        >
+                            ตกลง / OK
+                        </Button>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
-

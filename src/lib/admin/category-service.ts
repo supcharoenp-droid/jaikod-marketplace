@@ -93,7 +93,7 @@ export async function seedCategoriesFromConstants(admin: AdminUser) {
     let order = 0
     for (const cat of CATEGORIES) {
         await addDoc(collection(db, 'categories'), {
-            name: cat.name,
+            name: cat.name_en, // Use name_en as main name
             name_th: cat.name_th,
             slug: cat.slug,
             icon: cat.icon,

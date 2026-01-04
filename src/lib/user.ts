@@ -12,6 +12,12 @@ export interface UserProfile {
     createdAt?: any;
     successfulTransactions?: number;
     reportCount?: number;
+    location?: {
+        lat: number;
+        lng: number;
+        province?: string;
+        amphoe?: string;
+    };
 }
 
 export interface UserTrustStats {
@@ -95,7 +101,8 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
                 isVerified: data.emailVerified || data.isVerified,
                 createdAt: data.createdAt,
                 successfulTransactions: data.successfulTransactions || 0,
-                reportCount: data.reportCount || 0
+                reportCount: data.reportCount || 0,
+                location: data.location || undefined
             };
         }
         return null;

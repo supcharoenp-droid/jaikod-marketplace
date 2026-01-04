@@ -27,6 +27,8 @@ export interface ChatMessage {
         items?: Array<{ name: string, qty: number, price: number }>
         // System
         severity?: 'info' | 'warning' | 'danger'
+        // Slip verification
+        isSlip?: boolean
     }
     isRead: boolean
     status: 'sent' | 'delivered' | 'read'

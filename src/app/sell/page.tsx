@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { CATEGORIES as BASE_CATEGORIES } from '@/constants/categories'
+import JaiKodLogo from '@/components/branding/JaiKodLogo'
 
 // ============================================
 // EMOJI MAPPING FOR CATEGORIES
@@ -170,12 +171,10 @@ export default function SellEntryPage() {
                         {/* Left: Back/Home button */}
                         <button
                             onClick={() => router.push('/')}
-                            className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                         >
-                            <ArrowLeft className="w-5 h-5" />
-                            <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                                JaiKod
-                            </span>
+                            <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                            <JaiKodLogo variant="wordmark" size="sm" animated={false} />
                         </button>
 
                         {/* Center: Title with Step indicator */}

@@ -16,8 +16,9 @@ import {
 } from 'firebase/auth'
 import { auth, db } from '@/lib/firebase'
 import { doc, getDoc } from 'firebase/firestore'
-import { getSellerProfile } from '@/lib/seller'
+import { getSellerProfile } from '@/lib/seller/index'
 import { logSecurityEvent } from '@/lib/securityLogger'
+import { walletService } from '@/services/walletService'
 
 // ==========================================
 // SELLER TYPE DEFINITIONS
@@ -248,20 +249,17 @@ function mapLegacySellerType(type: string | null | undefined): SellerAccountType
 }
 
 /**
- * Fetch JaiStar account info
+ * Fetch JaiStar/Wallet account info
  */
 async function getJaiStarInfo(userId: string): Promise<JaiStarInfo> {
     try {
-        const accountDoc = await getDoc(doc(db, 'jaistar_accounts', userId))
-        if (accountDoc.exists()) {
-            const data = accountDoc.data()
-            return {
-                balance: data.balance || 0,
-                tier: data.tier || 'bronze'
-            }
+        const wallet = await walletService.getWallet(userId)
+        return {
+            balance: wallet.balance,
+            tier: (wallet as any).tier || 'bronze'
         }
     } catch (error) {
-        console.error('Error fetching JaiStar info:', error)
+        console.error('Error fetching wallet info:', error)
     }
     return { balance: 0, tier: 'bronze' }
 }

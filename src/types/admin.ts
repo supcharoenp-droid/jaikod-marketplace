@@ -275,6 +275,12 @@ export interface AdminStats {
     user_growth_rate: number
     seller_growth_rate: number
     gmv_growth_rate: number
+
+    // Action Required (Dynamic)
+    pending_kyc?: number
+    reported_products?: number
+    pending_withdrawal_requests?: number
+    disputes_count?: number
 }
 
 // ==========================================

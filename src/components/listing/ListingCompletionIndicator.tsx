@@ -66,8 +66,8 @@ export default function ListingCompletionIndicator({
             className="sticky top-4 z-10"
         >
             <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${score >= 80
-                    ? 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-800'
-                    : 'from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-300 dark:border-blue-800'
+                ? 'from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-300 dark:border-green-800'
+                : 'from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-300 dark:border-blue-800'
                 } p-6`}>
                 {/* Decorative elements */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full -mr-16 -mt-16"></div>
@@ -87,9 +87,9 @@ export default function ListingCompletionIndicator({
                             </div>
                         </div>
 
-                        <div className={`px-4 py-2 rounded-xl font-bold text-sm ${scoreScore >= 80
-                                ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
-                                : 'bg-blue-500 text-white shadow-lg shadow-blue-500/50'
+                        <div className={`px-4 py-2 rounded-xl font-bold text-sm ${score >= 80
+                            ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
+                            : 'bg-blue-500 text-white shadow-lg shadow-blue-500/50'
                             }`}>
                             {getStatus()}
                         </div>

@@ -3,6 +3,7 @@ import {
     collection,
     doc,
     getDocs,
+    getDoc,
     updateDoc,
     query,
     where,
@@ -14,6 +15,8 @@ import {
 } from 'firebase/firestore'
 import { logAdminAction } from '@/lib/adminLogger'
 import { AdminUser } from '@/types/admin'
+import { banUser } from './user-service'
+import { freezeProduct } from './product-service'
 
 export interface ContentFlag {
     id: string
@@ -69,6 +72,19 @@ export async function resolveFlag(admin: AdminUser, flagId: string, action: 'ban
     try {
         const finalStatus = action === 'dismiss' ? 'dismissed' : 'resolved'
 
+        // Enforce Action
+        if (action === 'ban_target') {
+            const flagRef = await getDoc(doc(db, 'content_flags', flagId))
+            if (flagRef.exists()) {
+                const flagData = flagRef.data() as ContentFlag
+                if (flagData.target_type === 'user') {
+                    await banUser(admin, flagData.target_id, note || 'Banned via Moderation Flag')
+                } else if (flagData.target_type === 'product') {
+                    await freezeProduct(admin, flagData.target_id, note || 'Suspended via Moderation Flag')
+                }
+            }
+        }
+
         await updateDoc(doc(db, 'content_flags', flagId), {
             status: finalStatus,
             resolution_action: action,
@@ -76,10 +92,6 @@ export async function resolveFlag(admin: AdminUser, flagId: string, action: 'ban
             resolved_by: admin.id,
             resolved_at: Timestamp.now()
         })
-
-        // NOTE: In a real system, 'ban_target' would also trigger the actual User/Product ban service.
-        // For now, we assume the admin might do that manually via the specific entity page, OR we call those services here.
-        // To keep this loosely coupled for MVP, we just mark the flag as resolved.
 
         await logAdminAction(admin, 'MODERATION_RESOLVE', `Flag: ${flagId}`, `Action: ${action}, Note: ${note}`)
         return true

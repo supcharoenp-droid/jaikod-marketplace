@@ -2,7 +2,8 @@ import { BadgeCheck, Trophy, ShieldCheck, Zap, Star } from 'lucide-react'
 import { getSellerBadgeLabel } from '@/services/sellerScoring'
 
 export default function SellerTrustBadge({ badge, size = 'md' }: { badge: string, size?: 'sm' | 'md' | 'lg' }) {
-    const { label, color, icon } = getSellerBadgeLabel(badge)
+    const badgeInfo = getSellerBadgeLabel(badge) || { label: 'Badge', color: 'bg-gray-500', icon: 'BadgeCheck' }
+    const { label, color, icon } = badgeInfo
 
     // Icon mapping logic if needed, or just switch again
     let IconComponent = BadgeCheck

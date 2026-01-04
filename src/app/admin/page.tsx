@@ -22,14 +22,22 @@ import {
     Clock,
     Zap,
     ShieldAlert,
-    Activity
+    Activity,
+    XCircle
 } from 'lucide-react'
-import { mockAIDetection } from '@/lib/ai-admin'
+import { fetchAIFlags, type AIFlag } from '@/lib/ai-admin'
+import { getAdminDashboardStats } from '@/services/admin-dashboard'
+import { getAdminLogs } from '@/lib/adminLogger'
+import { getAIStrategicInsights, type AIInsight } from '@/lib/admin/ai-insight-service'
+import { processAICommand, type CommandResult } from '@/lib/admin/ai-command-processor'
 import Link from 'next/link'
+import { formatDistanceToNow } from 'date-fns'
+import { th, enUS } from 'date-fns/locale'
+import { useRouter } from 'next/navigation'
 
 export default function AdminDashboard() {
     const { adminUser } = useAdmin()
-    const { t } = useLanguage()
+    const { language, t } = useLanguage()
     const [stats, setStats] = useState<AdminStats>({
         total_users: 0,
         total_buyers: 0,
@@ -50,34 +58,54 @@ export default function AdminDashboard() {
         seller_growth_rate: 0,
         gmv_growth_rate: 0
     })
+    const [aiFlags, setAiFlags] = useState<AIFlag[]>([])
+    const [recentLogs, setRecentLogs] = useState<any[]>([])
+    const [aiInsights, setAiInsights] = useState<AIInsight[]>([])
     const [loading, setLoading] = useState(true)
+    const [aiCommand, setAiCommand] = useState('')
+    const [commandResult, setCommandResult] = useState<CommandResult | null>(null)
+    const [executingCommand, setExecutingCommand] = useState(false)
+    const router = useRouter()
+
+    const handleExecuteCommand = async () => {
+        if (!aiCommand.trim()) return
+        setExecutingCommand(true)
+        setCommandResult(null)
+        try {
+            const res = await processAICommand(aiCommand, language as any)
+            setCommandResult(res)
+
+            // Handle Auto-Actions
+            if (res.action === 'NAVIGATE' && res.data) {
+                setTimeout(() => router.push(res.data), 2000)
+            }
+        } catch (e) {
+            console.error(e)
+        } finally {
+            setExecutingCommand(false)
+        }
+    }
 
     useEffect(() => {
-        // Fetch stats from API
-        // For now, using mock data
-        setTimeout(() => {
-            setStats({
-                total_users: 15234,
-                total_buyers: 12456,
-                total_sellers: 2778,
-                new_users_today: 127,
-                total_products: 45678,
-                active_products: 42341,
-                pending_review: 234,
-                suspended_products: 103,
-                total_orders: 8934,
-                orders_today: 156,
-                pending_orders: 89,
-                completed_orders: 7823,
-                gmv: 12456789,
-                platform_revenue: 623456,
-                pending_withdrawals: 234567,
-                user_growth_rate: 12.5,
-                seller_growth_rate: 8.3,
-                gmv_growth_rate: 15.7
-            })
-            setLoading(false)
-        }, 500)
+        const loadDashboardData = async () => {
+            try {
+                const [dashboardStats, flags, logs, insights] = await Promise.all([
+                    getAdminDashboardStats(),
+                    fetchAIFlags(),
+                    getAdminLogs(5),
+                    getAIStrategicInsights(language as any)
+                ])
+                setStats(dashboardStats)
+                setAiFlags(flags)
+                setRecentLogs(logs)
+                setAiInsights(insights)
+            } catch (error) {
+                console.error("Failed to load dashboard data", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        loadDashboardData()
     }, [])
 
     const statCards = [
@@ -140,31 +168,31 @@ export default function AdminDashboard() {
     const quickActions = [
         {
             title: t('admin.pending_kyc'),
-            count: 23,
+            count: stats.pending_kyc || 0,
             icon: Clock,
             color: 'yellow',
-            link: '/admin/sellers/pending'
+            link: '/admin/sellers'
         },
         {
             title: t('admin.reported_products'),
-            count: 12,
+            count: stats.reported_products || 0,
             icon: AlertCircle,
             color: 'red',
-            link: '/admin/products/reported'
+            link: '/admin/moderation'
         },
         {
             title: t('admin.withdrawal_requests'),
-            count: 45,
+            count: stats.pending_withdrawal_requests || 0,
             icon: DollarSign,
             color: 'blue',
-            link: '/admin/finance/withdrawals'
+            link: '/admin/finance'
         },
         {
             title: t('admin.disputes'),
-            count: 8,
+            count: stats.disputes_count || 0,
             icon: AlertCircle,
             color: 'orange',
-            link: '/admin/orders/disputes'
+            link: '/admin/orders'
         }
     ]
 
@@ -189,6 +217,57 @@ export default function AdminDashboard() {
                     <p className="text-gray-500 dark:text-gray-400 mt-1">
                         {t('admin.welcome')}, {adminUser?.displayName} 👋
                     </p>
+                </div>
+
+                {/* AI Command Bar - The "Level AI" feature */}
+                <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                    <div className="relative bg-white dark:bg-gray-900 ring-1 ring-gray-900/5 rounded-2xl p-4 flex items-center gap-4">
+                        <div className="bg-purple-100 dark:bg-purple-900/50 p-2 rounded-xl">
+                            <Zap className="w-6 h-6 text-purple-600 animate-pulse" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder={t('admin.ai_command_placeholder')}
+                            className="bg-transparent border-none focus:ring-0 flex-1 text-lg font-medium text-gray-900 dark:text-white"
+                            value={aiCommand}
+                            onChange={(e) => setAiCommand(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleExecuteCommand()}
+                        />
+                        <button
+                            onClick={handleExecuteCommand}
+                            disabled={executingCommand}
+                            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-xl font-bold shadow-lg hover:shadow-purple-500/30 transition-all disabled:opacity-50"
+                        >
+                            {executingCommand ? t('admin.ai_thinking') : `${t('admin.ai_execute')} →`}
+                        </button>
+                    </div>
+
+                    {/* Command Result Overlay */}
+                    {commandResult && (
+                        <div className="absolute top-full mt-2 left-0 right-0 z-50 animate-in fade-in slide-in-from-top-2">
+                            <div className={`p-4 rounded-2xl shadow-2xl border ${commandResult.success ? 'bg-indigo-900 text-white border-indigo-500' : 'bg-red-900 text-white border-red-500'}`}>
+                                <div className="flex items-start gap-3">
+                                    <div className="p-2 bg-white/10 rounded-lg">
+                                        {commandResult.success ? <CheckCircle className="w-5 h-5 text-green-400" /> : <AlertCircle className="w-5 h-5 text-red-400" />}
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-medium text-indigo-100">{commandResult.message}</p>
+                                        {commandResult.suggestions && (
+                                            <div className="mt-3 flex gap-2">
+                                                {commandResult.suggestions.map((s, i) => (
+                                                    <button key={i} onClick={() => setAiCommand(s)} className="text-[10px] bg-white/5 hover:bg-white/10 border border-white/10 px-2 py-1 rounded">
+                                                        {s}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button onClick={() => setCommandResult(null)}><XCircle className="w-5 h-5 text-indigo-300" /></button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Stats Grid */}
@@ -269,58 +348,83 @@ export default function AdminDashboard() {
                 {/* AI & System Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Left: AI Alerts */}
-                    <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                <Zap className="w-6 h-6 text-yellow-500" />
-                                {t('admin.ai_control_center')}
-                            </h2>
-                            <Link href="/admin/ai-features" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
-                                {t('admin.view_all')} &rarr;
-                            </Link>
+                    <div className="lg:col-span-2 space-y-6">
+                        {/* Risk Alerts */}
+                        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    <ShieldAlert className="w-6 h-6 text-red-500" />
+                                    {t('admin.risk_monitoring') || 'Security & Fraud Alerts'}
+                                </h2>
+                                <Link href="/admin/ai-features" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
+                                    {t('admin.view_all')} &rarr;
+                                </Link>
+                            </div>
+
+                            <div className="space-y-4">
+                                {aiFlags.length === 0 && (
+                                    <div className="p-4 text-center text-gray-500 text-sm italic">
+                                        {t('admin.no_ai_alerts')}
+                                    </div>
+                                )}
+                                {aiFlags.map((alert, i) => (
+                                    <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800">
+                                        <div className={`p-2 rounded-lg ${alert.riskLevel === 'critical' ? 'bg-red-100 text-red-600' :
+                                            alert.riskLevel === 'high' ? 'bg-orange-100 text-orange-600' :
+                                                'bg-blue-100 text-blue-600'
+                                            }`}>
+                                            <ShieldAlert className="w-6 h-6" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <h3 className="font-bold text-gray-900 dark:text-white text-sm">
+                                                        {alert.reason}
+                                                    </h3>
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        {t('admin.user')}: <span className="font-medium text-purple-600">{alert.userName}</span>
+                                                    </p>
+                                                </div>
+                                                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${alert.riskLevel === 'critical' ? 'bg-red-100 text-red-700' :
+                                                    alert.riskLevel === 'high' ? 'bg-orange-100 text-orange-700' :
+                                                        'bg-blue-100 text-blue-700'
+                                                    }`}>
+                                                    {alert.riskLevel}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="text-center px-2">
+                                            <div className="text-2xl font-bold text-gray-900 dark:text-white">{alert.score}</div>
+                                            <div className="text-[10px] text-gray-400 uppercase">{t('admin.score')}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
-                        <div className="space-y-4">
-                            {mockAIDetection.map((alert, i) => (
-                                <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800">
-                                    <div className={`p-2 rounded-lg ${alert.riskLevel === 'critical' ? 'bg-red-100 text-red-600' :
-                                        alert.riskLevel === 'high' ? 'bg-orange-100 text-orange-600' :
-                                            'bg-blue-100 text-blue-600'
-                                        }`}>
-                                        <ShieldAlert className="w-6 h-6" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <h3 className="font-bold text-gray-900 dark:text-white text-sm">
-                                                    {t(`admin.${alert.reason}`) || alert.reason}
-                                                </h3>
-                                                <p className="text-xs text-gray-500 mt-1">
-                                                    {t('admin.user')}: <span className="font-medium text-purple-600">{alert.userName}</span>
-                                                </p>
-                                            </div>
-                                            <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${alert.riskLevel === 'critical' ? 'bg-red-100 text-red-700' :
-                                                alert.riskLevel === 'high' ? 'bg-orange-100 text-orange-700' :
+                        {/* AI Strategic Insights (Level World Class) */}
+                        <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 rounded-2xl p-6 border border-purple-200 dark:border-purple-900/30">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                                <Activity className="w-6 h-6 text-purple-600" />
+                                {t('admin.ai_strategic_insights') || 'AI Strategic Business Insights'}
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {aiInsights.map((insight) => (
+                                    <div key={insight.id} className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-purple-400 transition-colors cursor-pointer group">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tighter ${insight.type === 'opportunity' ? 'bg-green-100 text-green-700' :
+                                                insight.type === 'risk' ? 'bg-red-100 text-red-700' :
                                                     'bg-blue-100 text-blue-700'
                                                 }`}>
-                                                {t(`admin.risk_${alert.riskLevel}`) || alert.riskLevel}
+                                                {insight.type}
                                             </span>
+                                            <span className="text-xs font-bold text-gray-400 group-hover:text-purple-500">{t('admin.score')}: {insight.score}</span>
                                         </div>
-                                        <div className="mt-3 flex gap-2">
-                                            <button className="px-3 py-1 bg-white border border-gray-200 rounded-lg text-xs font-medium hover:bg-gray-50 shadow-sm">
-                                                {t('admin.review')}
-                                            </button>
-                                            <button className="px-3 py-1 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 shadow-sm">
-                                                {t('admin.suspend_immediately')}
-                                            </button>
-                                        </div>
+                                        <h4 className="font-bold text-gray-900 dark:text-white text-sm mb-1">{insight.title}</h4>
+                                        <p className="text-xs text-gray-500 leading-relaxed">{insight.content}</p>
                                     </div>
-                                    <div className="text-center px-2">
-                                        <div className="text-2xl font-bold text-gray-900 dark:text-white">{alert.score}</div>
-                                        <div className="text-[10px] text-gray-400 uppercase">{t('admin.score')}</div>
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     </div>
 
@@ -382,7 +486,7 @@ export default function AdminDashboard() {
                                 <div>
                                     <div className="flex justify-between text-sm mb-1">
                                         <span className="text-purple-200">{t('admin.ai_processing')}</span>
-                                        <span className="font-bold">Active</span>
+                                        <span className="font-bold">{t('admin.ai_active')}</span>
                                     </div>
                                     <div className="flex gap-1 mt-1">
                                         <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
@@ -400,23 +504,34 @@ export default function AdminDashboard() {
                         {t('admin.recent_activity')}
                     </h2>
                     <div className="space-y-4">
-                        {[1, 2, 3].map((i) => (
+                        {recentLogs.length === 0 && (
+                            <div className="p-8 text-center text-gray-400 text-sm">{t('admin.no_recent_activity')}</div>
+                        )}
+                        {recentLogs.map((log) => (
                             <div
-                                key={i}
-                                className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                                key={log.id}
+                                className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                             >
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
-                                    A
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold bg-gradient-to-br ${log.action.includes('BAN') ? 'from-red-500 to-pink-500' :
+                                    log.action.includes('PRODUCT') ? 'from-blue-500 to-cyan-500' :
+                                        'from-purple-500 to-indigo-500'
+                                    }`}>
+                                    {log.adminName?.[0] || 'A'}
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                        {t('admin.admin_reviewed_product')} #8823{i}
+                                        <span className="font-bold">{log.adminName}</span> {log.action.toLowerCase().replace(/_/g, ' ')} <span className="text-purple-600">{log.target}</span>
                                     </p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                                        {i * 15} {t('admin.minutes_ago')}
+                                        {log.details} • {formatDistanceToNow(log.timestamp, { addSuffix: true, locale: language === 'th' ? th : enUS })}
                                     </p>
                                 </div>
-                                <CheckCircle className="w-5 h-5 text-green-500" />
+                                <div className="text-right">
+                                    <span className="text-[10px] font-mono text-gray-400 bg-gray-100 dark:bg-gray-900 px-1.5 py-0.5 rounded">{log.ip}</span>
+                                    <div className="mt-1">
+                                        <CheckCircle className="w-4 h-4 text-green-500 ml-auto" />
+                                    </div>
+                                </div>
                             </div>
                         ))}
                     </div>

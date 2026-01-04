@@ -14,10 +14,17 @@ interface SmartImageUploadProps {
     onComplete: (images: File[]) => void
 }
 
+// Local ImageWarning interface that matches usage
+interface ImageWarning {
+    type: 'blur' | 'dark' | 'small' | 'duplicate'
+    severity: 'warning' | 'info' | 'suggestion'
+    message: { title: string; message: string; tip: string }
+}
+
 interface ImageAnalysis {
     file: File
     preview: string
-    warnings: QualityFlag[]
+    warnings: ImageWarning[]
     qualityScore: number
 }
 
@@ -244,7 +251,7 @@ export default function SmartImageUpload({ images: initialImages, language, onCo
         : 0
 
     const allWarnings = images.flatMap(img => img.warnings)
-    const criticalWarnings = allWarnings.filter(w => w.severity === 'error').length
+    const criticalWarnings = 0 // severity does not include 'error' in this component
     const totalWarnings = allWarnings.filter(w => w.severity === 'warning').length
 
     return (

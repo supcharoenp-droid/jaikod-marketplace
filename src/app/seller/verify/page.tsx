@@ -224,7 +224,13 @@ export default function OfficialVerificationPage() {
     )
 }
 
-function FileUpload({ label, subtext, file, onChange, required = false }: any) {
+function FileUpload({ label, subtext, file, onChange, required = false }: {
+    label: string
+    subtext: string
+    file?: File
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    required?: boolean
+}) {
     return (
         <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-6 flex flex-col items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-800/50 transition cursor-pointer relative group">
             <input

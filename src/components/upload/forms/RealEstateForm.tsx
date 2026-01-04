@@ -5,7 +5,7 @@ import {
     Home, Building, MapPin, DollarSign, Camera,
     CheckCircle2, AlertTriangle, ChevronRight,
     Ruler, Bed, Bath, Layers, Car, Trees,
-    Droplets, Zap, FileText, shieldCheck, ArrowUpRight,
+    Droplets, Zap, FileText, ShieldCheck, ArrowUpRight,
     Search, Map, Sparkles, Navigation
 } from 'lucide-react'
 import Image from 'next/image'

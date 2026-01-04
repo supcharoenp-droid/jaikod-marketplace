@@ -69,32 +69,27 @@ export default function WishlistButton({
         setTimeout(() => setIsAnimating(false), 300)
 
         // Convert to Product type if needed
-        const productData: Product = {
+        const productData = {
             id: product.id,
             title: product.title || 'Untitled',
             price: product.price || 0,
-            images: product.images || [{ url: product.thumbnail_url || '/placeholder.svg' }],
+            images: (product.images || [{ url: product.thumbnail_url || '/placeholder.svg' }]).map((img, idx) => ({
+                ...img,
+                order: idx
+            })),
             thumbnail_url: product.thumbnail_url || product.images?.[0]?.url || '/placeholder.svg',
             stock: 1,
-            // Default fields for Product type
             category_id: 0,
-            subcategory_id: undefined,
             seller_id: '',
             description: '',
-            condition: 'used',
-            location: {
-                province: '',
-                amphoe: '',
-                tambon: '',
-                zipcode: ''
-            },
+            condition: 'good',
             slug: '',
             views: 0,
             saves: 0,
             status: 'active',
             created_at: new Date(),
             updated_at: new Date()
-        }
+        } as unknown as Product
 
         await toggleWishlist(productData)
     }, [user, product, toggleWishlist])
@@ -104,8 +99,8 @@ export default function WishlistButton({
             <button
                 onClick={handleToggle}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all ${isWishlisted
-                        ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30'
-                        : 'bg-slate-700 hover:bg-slate-600 text-gray-300'
+                    ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30'
+                    : 'bg-slate-700 hover:bg-slate-600 text-gray-300'
                     } ${className}`}
             >
                 <Heart
@@ -123,8 +118,8 @@ export default function WishlistButton({
         <button
             onClick={handleToggle}
             className={`${buttonSizeClasses[size]} rounded-full transition-all ${isWishlisted
-                    ? 'bg-pink-500/20 text-pink-500 hover:bg-pink-500/30'
-                    : 'bg-slate-800/80 text-gray-400 hover:text-pink-400 hover:bg-slate-700'
+                ? 'bg-pink-500/20 text-pink-500 hover:bg-pink-500/30'
+                : 'bg-slate-800/80 text-gray-400 hover:text-pink-400 hover:bg-slate-700'
                 } ${className}`}
             title={isWishlisted ? 'ลบจากรายการที่ชอบ' : 'เพิ่มในรายการที่ชอบ'}
         >

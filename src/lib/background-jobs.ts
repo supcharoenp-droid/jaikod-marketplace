@@ -225,33 +225,34 @@ export async function processNextJob(): Promise<void> {
  * Process AI Moderation Job
  */
 async function processAIModerationJob(data: any): Promise<any> {
-    const { ContentModerationService } = await import('./content-moderation')
-    const { updateProduct } = await import('./products.optimized')
+    const { moderateContent } = await import('./content-moderation')
 
     const { productId, productData } = data
 
-    // Run AI moderation
-    const moderationResult = await ContentModerationService.moderateProduct(productData)
+    // Run AI moderation with title and description
+    const title = productData?.title || ''
+    const description = productData?.description || ''
+    const moderationResult = await moderateContent(title, description)
 
-    // Update product with moderation result
-    const newStatus = moderationResult.status === 'approved' ? 'active' :
-        moderationResult.status === 'rejected' ? 'rejected' :
-            'pending_review'
+    // Map ModerationResult to status
+    const status = moderationResult.isApproved ? 'approved' : 'rejected'
+    const newProductStatus = moderationResult.isApproved ? 'active' : 'pending_review'
 
-    await updateProduct(productId, {
-        // @ts-ignore
-        moderation_status: moderationResult.status,
+    // Update using Firestore directly
+    const { doc: firestoreDoc, updateDoc: firestoreUpdate } = await import('firebase/firestore')
+    await firestoreUpdate(firestoreDoc(db, 'products', productId), {
+        moderation_status: status,
         moderation_result: moderationResult,
-        status: newStatus
+        status: newProductStatus
     })
 
     // TODO: Send notification to seller
-    console.log(`📧 Should notify seller about moderation result: ${moderationResult.status}`)
+    console.log(`📧 Should notify seller about moderation result: ${status}`)
 
     return {
         productId,
-        moderationStatus: moderationResult.status,
-        score: moderationResult.overall_score
+        moderationStatus: status,
+        confidence: moderationResult.confidence
     }
 }
 

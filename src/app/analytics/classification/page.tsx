@@ -52,8 +52,8 @@ export default function ClassificationAnalyticsPage() {
                             <button
                                 onClick={() => setIsLive(!isLive)}
                                 className={`px-6 py-3 rounded-xl font-semibold transition-all ${isLive
-                                        ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
-                                        : 'bg-white/10 text-white/60 hover:bg-white/20'
+                                    ? 'bg-green-500 text-white shadow-lg shadow-green-500/50'
+                                    : 'bg-white/10 text-white/60 hover:bg-white/20'
                                     }`}
                             >
                                 {isLive ? '🟢 LIVE' : '⚪ Paused'}
@@ -178,8 +178,8 @@ export default function ClassificationAnalyticsPage() {
                                             <div className="text-right">
                                                 <div className="text-white/60 text-xs">Confidence</div>
                                                 <div className={`font-bold ${log.confidence >= 0.8 ? 'text-green-400' :
-                                                        log.confidence >= 0.6 ? 'text-yellow-400' :
-                                                            'text-red-400'
+                                                    log.confidence >= 0.6 ? 'text-yellow-400' :
+                                                        'text-red-400'
                                                     }`}>
                                                     {(log.confidence * 100).toFixed(1)}%
                                                 </div>
@@ -268,7 +268,7 @@ function MetricCard({ title, value, icon, color }: any) {
                 <div className="text-white/60 text-sm font-semibold">{title}</div>
                 <div className="text-3xl">{icon}</div>
             </div>
-            <div className={`text-4xl font-bold bg-gradient-to-r ${colorClasses[color]} bg-clip-text text-transparent`}>
+            <div className={`text-4xl font-bold bg-gradient-to-r ${colorClasses[color as keyof typeof colorClasses]} bg-clip-text text-transparent`}>
                 {value}
             </div>
         </div>
@@ -303,7 +303,7 @@ function HealthCard({ title, status, color, metrics }: any) {
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
             <h4 className="text-white font-semibold mb-3">{title}</h4>
 
-            <div className={`inline-block px-4 py-2 rounded-full font-bold mb-4 ${colorClasses[color]}`}>
+            <div className={`inline-block px-4 py-2 rounded-full font-bold mb-4 ${colorClasses[color as keyof typeof colorClasses]}`}>
                 {status}
             </div>
 

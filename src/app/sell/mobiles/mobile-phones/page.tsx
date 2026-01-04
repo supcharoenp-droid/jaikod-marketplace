@@ -1055,9 +1055,9 @@ function MobilePhoneListingPage() {
             </main>
 
             {/* Floating Summary Bar */}
-            <div className="fixed bottom-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-xl border-t border-white/10 shadow-2xl">
-                <div className="max-w-3xl mx-auto px-4 py-3">
-                    <div className="flex items-center gap-4">
+            <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/98 backdrop-blur-xl border-t border-white/10 shadow-2xl safe-bottom">
+                <div className="max-w-3xl mx-auto px-4 py-4">
+                    <div className="flex items-center gap-3">
                         <div className="w-14 h-14 rounded-lg bg-slate-800 overflow-hidden flex-shrink-0">
                             {imagePreviews.length > 0 ? (
                                 <img src={imagePreviews[0]} alt="" className="w-full h-full object-cover" />
@@ -1078,11 +1078,11 @@ function MobilePhoneListingPage() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
-                            <button onClick={() => setShowPreviewModal(true)} className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors hidden sm:flex items-center gap-1">
+                            <button onClick={() => setShowPreviewModal(true)} className="px-3 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors hidden sm:flex items-center gap-1">
                                 👁️ {language === 'th' ? 'ดูตัวอย่าง' : 'Preview'}
                             </button>
                             <button onClick={handlePublish} disabled={isPublishing || completionPercentage < 100}
-                                className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${completionPercentage >= 100 ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg' : 'bg-purple-600/80 text-white/90 hover:bg-purple-600'}`}>
+                                className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${completionPercentage >= 100 ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-lg hover:scale-105' : 'bg-purple-600/80 text-white/90 hover:bg-purple-600'}`}>
                                 {isPublishing ? '...' : completionPercentage >= 100 ? `✨ ${language === 'th' ? 'ลงประกาศ' : 'Publish'}` : `🚀 (${missingFields.length})`}
                             </button>
                         </div>

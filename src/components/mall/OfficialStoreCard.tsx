@@ -13,9 +13,9 @@ export default function OfficialStoreCard({ store }: OfficialStoreCardProps) {
     return (
         <Link href={`/shop/${store.id}`} className="block group">
             <div className="relative h-48 rounded-t-2xl overflow-hidden bg-gray-200">
-                {store.cover_image && (
+                {(store as any).cover_url && (
                     <img
-                        src={store.cover_image}
+                        src={(store as any).cover_url}
                         alt={store.shop_name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
